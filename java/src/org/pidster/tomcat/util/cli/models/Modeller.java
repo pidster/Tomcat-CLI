@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli.models;
+package org.pidster.tomcat.util.cli.models;
 
 /**
  * @author pidster

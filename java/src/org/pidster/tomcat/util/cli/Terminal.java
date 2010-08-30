@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.apache.tomcat.util.cli.commands.HelpCommand;
+import org.pidster.tomcat.util.cli.commands.HelpCommand;
 
 /**
  * @author pidster
@@ -82,13 +82,14 @@ public class Terminal {
     // ---------------------------------------------------------------------
 
     private final CommandProcessor processor;
+    private final CommandRegistry registry;
 
     /**
      * 
      */
     public Terminal() {
 
-        CommandRegistry registry = new CommandRegistry();
+        registry = new CommandRegistry();
 
         ServiceLoader<Command> loader = ServiceLoader.load(Command.class);
 
@@ -98,7 +99,7 @@ public class Terminal {
 
         // Deliberately override any other help commands
         registry.register("help", new HelpCommand(registry.commands()));
-        processor = new CommandProcessor(registry);
+        processor = new CommandProcessor();
     }
 
     /**
@@ -126,23 +127,28 @@ public class Terminal {
             }
 
             // if we have a command and we didn't match it
-            if (line.hasCommand() && !processor.foundCommand()) {
+            if (line.hasCommand()
+                    && !registry.isRegistered(line.getCommandName())) {
                 environment.sysout("Command '%s' not found\n",
-                        processor.getCommandName());
+                        line.getCommandName());
             }
 
             // if we found a command
-            else if (processor.foundCommand()) {
+            else if (registry.isRegistered(line.getCommandName())) {
 
-                Command command = processor.getCommand();
+                Command command = registry.get(line.getCommandName());
 
-                command.init(environment);
+                command.setEnvironment(environment);
 
                 try {
-                    command.execute();
+
+                    command.execute(line.getOptions(), line.getArguments());
                 }
                 catch (Throwable t) {
                     environment.sysout(t);
+                }
+                finally {
+                    command.cleanup();
                 }
             }
 

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

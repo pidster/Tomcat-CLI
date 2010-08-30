@@ -12,7 +12,7 @@
     	<jar destfile="dist/tomcat-cli.jar">
     	  <manifest>
             <attribute name="Built-By" value="${user.name}"/>
-      	    <attribute name="Main-Class" value="org.apache.tomcat.util.cli.Terminal"/>
+      	    <attribute name="Main-Class" value="org.pidster.tomcat.util.cli.Terminal"/>
     	    <attribute name="Specification-Version" value="${version}"/>
     	    <attribute name="Specification-Vendor" value="Apache Software Foundation"/>
     	    <attribute name="Implementation-Title" value="Apache Tomcat CLI"/>

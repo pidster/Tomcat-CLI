@@ -15,14 +15,14 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli.commands;
+package org.pidster.tomcat.util.cli.commands;
 
 import java.util.Collection;
 
-import org.apache.tomcat.util.cli.ACommand;
-import org.apache.tomcat.util.cli.Command;
-import org.apache.tomcat.util.cli.Descriptor;
-import org.apache.tomcat.util.cli.Usage;
+import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.Command;
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
@@ -46,7 +46,7 @@ public class HelpCommand extends ACommand {
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.tomcat.util.cli.ACommand#execute(org.apache.tomcat.util.cli
+     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
      * .Environment)
      */
     @Override

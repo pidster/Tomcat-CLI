@@ -15,7 +15,10 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
+
+import java.util.List;
+import java.util.SortedMap;
 
 /**
  * @author SWilliams
@@ -26,21 +29,22 @@ public interface Command {
     /**
      * @return environment
      */
-    public abstract Environment getEnvironment();
+    Environment getEnvironment();
 
     /**
      * @param environment
      */
-    public abstract void init(Environment environment);
+    void setEnvironment(Environment environment);
 
     /**
-     * Execute command
+     * 
      */
-    public abstract void execute();
+    void cleanup();
 
     /**
-     * @param commandLine
+     * @param options
+     * @param arguments
      */
-    public abstract void init(CommandLine commandLine);
+    void execute(SortedMap<String, String> options, List<String> arguments);
 
 }

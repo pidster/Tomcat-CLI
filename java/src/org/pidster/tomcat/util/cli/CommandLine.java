@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,4 +133,19 @@ public class CommandLine {
 
         return false;
     }
+
+    /**
+     * @return options
+     */
+    public SortedMap<String, String> getOptions() {
+        return options;
+    }
+
+    /**
+     * @return the arguments
+     */
+    public final List<String> getArguments() {
+        return arguments;
+    }
+
 }

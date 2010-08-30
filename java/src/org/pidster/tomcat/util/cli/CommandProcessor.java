@@ -15,9 +15,8 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,24 +27,19 @@ import java.util.List;
  */
 public class CommandProcessor {
 
-    private final CommandRegistry registry;
-
-    private final List<CommandLine> history;
-
-    private String commandName;
-
     private long count;
 
     private boolean interactive;
 
+    private final LinkedList<CommandLine> history;
+
     /**
      * @param registry
      */
-    public CommandProcessor(CommandRegistry registry) {
-        this.registry = registry;
-        this.history = new ArrayList<CommandLine>();
+    public CommandProcessor() {
         this.count = 0;
         this.interactive = false;
+        this.history = new LinkedList<CommandLine>();
     }
 
     /**
@@ -81,13 +75,6 @@ public class CommandProcessor {
 
         history.add(line);
 
-        if (line.hasCommand()) {
-            this.commandName = line.getCommandName();
-        }
-        else {
-            this.commandName = null;
-        }
-
         return line;
     }
 
@@ -95,6 +82,8 @@ public class CommandProcessor {
      * @return outcome
      */
     public boolean isExit() {
+
+        String commandName = history.getLast().getCommandName();
 
         if ("exit".equalsIgnoreCase(commandName))
             return true;
@@ -117,31 +106,6 @@ public class CommandProcessor {
      */
     public boolean isInteractive() {
         return this.interactive;
-    }
-
-    /**
-     * @return command
-     */
-    public boolean foundCommand() {
-
-        if (commandName == null)
-            return false;
-
-        return registry.isRegistered(commandName);
-    }
-
-    /**
-     * @return name
-     */
-    public String getCommandName() {
-        return commandName;
-    }
-
-    /**
-     * @return command
-     */
-    public Command getCommand() {
-        return registry.get(commandName);
     }
 
 }

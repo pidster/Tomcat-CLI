@@ -15,16 +15,16 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli.commands;
+package org.pidster.tomcat.util.cli.commands;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.tomcat.util.cli.ACommand;
-import org.apache.tomcat.util.cli.Descriptor;
-import org.apache.tomcat.util.cli.Usage;
+import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
@@ -38,7 +38,7 @@ public class DumpCommand extends ACommand {
      * (non-Javadoc)
      * 
      * @see
-     * org.apache.tomcat.util.cli.ACommand#execute(org.apache.tomcat.util.cli
+     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
      * .Environment)
      */
     @Override

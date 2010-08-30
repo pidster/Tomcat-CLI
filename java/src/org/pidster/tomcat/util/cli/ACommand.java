@@ -15,7 +15,10 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli;
+package org.pidster.tomcat.util.cli;
+
+import java.util.List;
+import java.util.SortedMap;
 
 /**
  * @author pidster
@@ -24,6 +27,8 @@ package org.apache.tomcat.util.cli;
 public abstract class ACommand implements Command {
 
     private Environment environment;
+    private SortedMap<String, String> options;
+    private List<String> arguments;
 
     /**
      * 
@@ -35,19 +40,7 @@ public abstract class ACommand implements Command {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.apache.tomcat.util.cli.Command#init(org.apache.tomcat.util.cli.CommandLine)
-     */
-    @Override
-    public void init(CommandLine commandLine) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.tomcat.util.cli.Command#getEnvironment()
+     * @see org.pidster.tomcat.util.cli.Command#getEnvironment()
      */
     @Override
     public Environment getEnvironment() {
@@ -57,20 +50,58 @@ public abstract class ACommand implements Command {
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.tomcat.util.cli.Command#init(org.apache.tomcat.util.cli.
+     * @see
+     * org.pidster.tomcat.util.cli.Command#init(org.pidster.tomcat.util.cli.
      * Environment)
      */
     @Override
-    public void init(Environment environment) {
+    public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    /**
+     * @return the options
+     */
+    protected final SortedMap<String, String> getOptions() {
+        return options;
+    }
+
+    /**
+     * @return the arguments
+     */
+    protected final List<String> getArguments() {
+        return arguments;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.tomcat.util.cli.Command#execute()
+     * @see org.pidster.tomcat.util.cli.Command#cleanup()
      */
     @Override
-    public abstract void execute();
+    public void cleanup() {
+        //
+    }
+
+    /**
+     * Execute command
+     */
+    protected abstract void execute();
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Command#execute(java.util.SortedMap,
+     * java.util.List)
+     */
+    @Override
+    public void execute(SortedMap<String, String> options,
+            List<String> arguments) {
+
+        this.options = options;
+        this.arguments = arguments;
+
+        this.execute();
+    }
 
 }

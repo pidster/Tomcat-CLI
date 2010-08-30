@@ -15,12 +15,12 @@
  *  limitations under the License.
  */
 
-package org.apache.tomcat.util.cli.commands;
+package org.pidster.tomcat.util.cli.commands;
 
-import org.apache.tomcat.util.cli.ACommand;
-import org.apache.tomcat.util.cli.Option;
-import org.apache.tomcat.util.cli.Descriptor;
-import org.apache.tomcat.util.cli.Usage;
+import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Option;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
@@ -40,7 +40,7 @@ public class StatusCommand extends ACommand {
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.tomcat.util.cli.ACommand#execute(org.apache.tomcat.
+     * @see org.pidster.tomcat.util.cli.ACommand#execute(org.apache.tomcat.
      * util.cli .Environment)
      */
     @Override
