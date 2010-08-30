@@ -38,4 +38,9 @@ public interface Command {
      */
     public abstract void execute();
 
+    /**
+     * @param commandLine
+     */
+    public abstract void init(CommandLine commandLine);
+
 }

@@ -35,6 +35,18 @@ public abstract class ACommand implements Command {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * org.apache.tomcat.util.cli.Command#init(org.apache.tomcat.util.cli.CommandLine)
+     */
+    @Override
+    public void init(CommandLine commandLine) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.tomcat.util.cli.Command#getEnvironment()
      */
     @Override

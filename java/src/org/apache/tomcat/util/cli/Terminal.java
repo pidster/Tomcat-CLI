@@ -8,9 +8,7 @@ import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.apache.tomcat.util.cli.commands.HelpCommand;
@@ -29,7 +27,7 @@ public class Terminal {
             if (arguments == null)
                 arguments = new String[0];
 
-            adjustClassLoader();
+            modifyClassLoader();
 
             Terminal terminal = new Terminal();
             terminal.process(arguments);
@@ -43,7 +41,7 @@ public class Terminal {
     /**
      * @throws MalformedURLException
      */
-    private static void adjustClassLoader() throws MalformedURLException {
+    private static void modifyClassLoader() throws MalformedURLException {
         URL[] urls = new URL[0];
 
         String catalinaHome = System.getenv("CATALINA_HOME");
@@ -54,8 +52,6 @@ public class Terminal {
 
         if ((catalinaHome != null) && (!catalinaHome.isEmpty())) {
             String libDir = catalinaHome + File.separator + "lib";
-
-            System.out.println("lib:" + libDir);
 
             File libs = new File(libDir);
             File[] files = libs.listFiles(new FilenameFilter() {
@@ -85,29 +81,24 @@ public class Terminal {
 
     // ---------------------------------------------------------------------
 
-    private final Map<String, Command> registry;
+    private final CommandProcessor processor;
 
     /**
      * 
      */
     public Terminal() {
 
-        this.registry = new HashMap<String, Command>();
+        CommandRegistry registry = new CommandRegistry();
 
         ServiceLoader<Command> loader = ServiceLoader.load(Command.class);
 
         for (Command command : loader) {
-            if (command.getClass().isAnnotationPresent(Descriptor.class)) {
-                Descriptor x = command.getClass().getAnnotation(
-                        Descriptor.class);
-                if (!registry.containsKey(x.name())) {
-                    registry.put(x.name(), command);
-                }
-            }
+            registry.register(command);
         }
 
         // Deliberately override any other help commands
-        registry.put("help", new HelpCommand(this.registry.values()));
+        registry.register("help", new HelpCommand(registry.commands()));
+        processor = new CommandProcessor(registry);
     }
 
     /**
@@ -115,58 +106,49 @@ public class Terminal {
      */
     public void process(String[] arguments) {
 
-        CommandProcessor processor = new CommandProcessor(registry);
+        Environment environment = new Environment();
 
-        Env env2 = processor.getEnvironment(arguments);
-
-        CommandParser parser = new CommandParser(registry, arguments);
-        boolean interactive = parser.isInteractive();
+        CommandLine line = processor.parseArguments(arguments);
+        boolean interactive = processor.isInteractive();
 
         // Is there a more elegant solution?
         // If it's the first time, or we're interactive
-        int index = 0;
-
-        while ((index == 0) || interactive) {
-
-            index++;
+        while (processor.first() || interactive) {
 
             // check this first, just in case
-            if (parser.isExit())
+            if (processor.isExit())
                 break;
 
-            Environment env = parser.getEnvironment();
-
-            if (!parser.hasCommand()) {
-                env.sysout("Usage: ");
+            // if there's no command and we're not interactive
+            if (!line.hasCommand() && (!interactive)) {
+                environment.sysout("Usage: \n");
+                break;
             }
-            else if (parser.foundCommand()) {
 
-                Command command = parser.getCommand();
+            // if we have a command and we didn't match it
+            if (line.hasCommand() && !processor.foundCommand()) {
+                environment.sysout("Command '%s' not found\n",
+                        processor.getCommandName());
+            }
 
-                if (parser.isVerbose())
-                    env.sysout("Initialising command '%s'...\n",
-                            parser.getCommandName());
+            // if we found a command
+            else if (processor.foundCommand()) {
 
-                command.init(env);
+                Command command = processor.getCommand();
 
-                if (parser.isVerbose())
-                    env.sysout("Executing '%s'...\n", parser.getCommandName());
+                command.init(environment);
 
                 try {
                     command.execute();
                 }
                 catch (Throwable t) {
-                    env.sysout(t);
+                    environment.sysout(t);
                 }
             }
-            else {
-                env.sysout("Command '%s' not found\n", parser.getCommandName());
-            }
 
-            if (interactive) {
-                env2 = processor.getEnvironment(env2.readPrompt());
-                parser = new CommandParser(registry, env.readPrompt());
-            }
+            // Update the command line, if we're still running
+            if (interactive)
+                line = processor.parseArguments(environment.readPrompt());
         }
     }
 }

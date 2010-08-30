@@ -18,16 +18,12 @@
 package org.apache.tomcat.util.cli;
 
 import java.io.Console;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author pidster
  * 
  */
 public class Environment {
-
-    private final SortedMap<String, String> options;
 
     private String prompt;
 
@@ -40,22 +36,6 @@ public class Environment {
         super();
         this.console = System.console();
         this.prompt = "> ";
-        this.options = new TreeMap<String, String>();
-    }
-
-    /**
-     * @return command line
-     */
-    public String[] readPrompt() {
-        String line = console.readLine(prompt);
-
-        line = line.replaceAll("[\\s\\ ]+", " ");
-
-        if (line.isEmpty()) {
-            return new String[0];
-        }
-
-        return line.split(" ");
     }
 
     /**
@@ -82,40 +62,6 @@ public class Environment {
     }
 
     /**
-     * @param option
-     */
-    public void setOption(String option) {
-
-        if (option.startsWith("--")) {
-            option = option.substring(2);
-        }
-
-        if (option.indexOf(':') > -1) {
-            String[] pair = option.split("\\:");
-            this.options.put(pair[0], pair[1]);
-        }
-        else {
-            this.options.put(option, "true");
-        }
-    }
-
-    /**
-     * @param option
-     * @return outcome
-     */
-    public boolean isOptionSet(String option) {
-        return this.options.containsKey(option);
-    }
-
-    /**
-     * @param option
-     * @return value
-     */
-    public String getOption(String option) {
-        return this.options.get(option);
-    }
-
-    /**
      * @return the prompt
      */
     public String getPrompt() {
@@ -133,6 +79,21 @@ public class Environment {
         }
 
         this.prompt = prompt;
+    }
+
+    /**
+     * @return command line
+     */
+    public String[] readPrompt() {
+        String line = console.readLine(prompt);
+
+        line = line.replaceAll("[\\s\\ ]+", " ");
+
+        if (line.isEmpty()) {
+            return new String[0];
+        }
+
+        return line.split(" ");
     }
 
 }
