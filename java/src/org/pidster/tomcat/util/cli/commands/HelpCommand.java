@@ -45,9 +45,7 @@ public class HelpCommand extends ACommand {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
-     * .Environment)
+     * @see org.pidster.tomcat.util.cli.Command#execute()
      */
     @Override
     public void execute() {
@@ -57,7 +55,8 @@ public class HelpCommand extends ACommand {
         for (Command command : this.commands) {
             s.append("Syntax: ");
 
-            Descriptor descriptor = command.getClass().getAnnotation(Descriptor.class);
+            Descriptor descriptor = command.getClass().getAnnotation(
+                    Descriptor.class);
             s.append(descriptor.name());
 
             if (command.getClass().isAnnotationPresent(Usage.class)) {
@@ -72,6 +71,6 @@ public class HelpCommand extends ACommand {
 
         s.append("\n");
 
-        getEnvironment().sysout(s.toString());
+        log(s.toString());
     }
 }

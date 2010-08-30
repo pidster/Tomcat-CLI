@@ -9,7 +9,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.pidster.tomcat.util.cli.commands.HelpCommand;
 
@@ -138,10 +140,31 @@ public class Terminal {
 
                 Command command = registry.get(line.getCommandName());
 
-                command.setEnvironment(environment);
-
                 try {
-                    command.execute(line.getOptions(), line.getArguments());
+
+                    Class<?> c = command.getClass();
+                    Descriptor d = c.getAnnotation(Descriptor.class);
+
+                    for (Option option : d.options()) {
+
+                        if (line.isOptionSet(option.extended())
+                                || line.isOptionSet(String.valueOf(option
+                                        .trigger()))) {
+                            continue;
+                        }
+
+                        if (option.required()) {
+                            // ERROR!
+                        }
+                    }
+
+                    Map<Option, String> options = matchOptions(registry, line);
+
+                    CommandConfig config = createConfig(environment, line);
+
+                    command.configure(config);
+
+                    command.execute();
                 }
                 catch (Throwable t) {
                     environment.sysout(t);
@@ -155,5 +178,36 @@ public class Terminal {
             if (interactive)
                 line = processor.parseArguments(environment.readPrompt());
         }
+    }
+
+    /**
+     * @param registry
+     * @param line
+     * @return
+     */
+    private Map<Option, String> matchOptions(CommandRegistry registry,
+            CommandLine line) {
+
+        Set<String> optionNames = line.getOptions().keySet();
+        for (String optionName : optionNames) {
+            if (registry.hasOption(line.getCommandName(), optionName)) {
+
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param env
+     * @param cl
+     * @return
+     */
+    private CommandConfig createConfig(Environment env, CommandLine cl) {
+
+        CommandConfig c = new CommandConfig(env, cl.getArguments(),
+                cl.getOptions());
+
+        return c;
     }
 }

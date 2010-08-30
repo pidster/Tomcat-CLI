@@ -25,6 +25,11 @@ import java.io.Console;
  */
 public class Environment {
 
+    /**
+     * 
+     */
+    private static final String DEFAULT_PROMPT = "> ";
+
     private String prompt;
 
     private final Console console;
@@ -35,15 +40,7 @@ public class Environment {
     public Environment() {
         super();
         this.console = System.console();
-        this.prompt = "> ";
-    }
-
-    /**
-     * @param fmt
-     * @param args
-     */
-    public void flush() {
-        console.flush();
+        this.prompt = DEFAULT_PROMPT;
     }
 
     /**
@@ -75,7 +72,7 @@ public class Environment {
     public void setPrompt(String prompt) {
 
         if (prompt == null || prompt.isEmpty()) {
-            prompt = "> ";
+            prompt = DEFAULT_PROMPT;
         }
 
         this.prompt = prompt;
@@ -84,7 +81,7 @@ public class Environment {
     /**
      * @return command line
      */
-    public String[] readPrompt() {
+    String[] readPrompt() {
         String line = console.readLine(prompt);
 
         line = line.replaceAll("[\\s\\ ]+", " ");

@@ -17,35 +17,33 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
+import org.pidster.tomcat.util.cli.ACommand;
 import org.pidster.tomcat.util.cli.Descriptor;
-import org.pidster.tomcat.util.cli.JMXCommand;
-import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
  * 
  */
-@Usage(syntax = "<options>", description = "Determine server status")
-@Descriptor(name = "status", options = {
-        @Option(trigger = 'e', setter = true, description = "Selects a specific Engine"),
-        @Option(trigger = 'h', setter = true, description = "Selects a specific Host"),
-        @Option(trigger = 'a', setter = true, description = "Selects a specific application context"),
-        @Option(trigger = 't', description = "Show thread info"),
-        @Option(trigger = 'c', description = "Show connector info"),
-        @Option(trigger = 'w', description = "Show webapps info"),
-        @Option(trigger = 's', description = "Show stats") })
-public class StatusCommand extends JMXCommand {
+@Usage(description = "Used for debugging. Tests JMX environment.")
+@Descriptor(name = "testjmx")
+public class TestJMXCommand extends ACommand {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.ACommand#execute(org.apache.tomcat.
-     * util.cli .Environment)
+     * @see
+     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
+     * .Environment)
      */
     @Override
     public void execute() {
-        log("Execute.internal: %s\n", this.getClass().getName());
+
+        StringBuilder s = new StringBuilder();
+
+        s.append("---------------------------------------------------------------- \n");
+
+        log(s.toString());
     }
 
 }

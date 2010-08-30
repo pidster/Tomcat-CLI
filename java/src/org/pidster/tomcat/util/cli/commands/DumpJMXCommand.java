@@ -43,7 +43,7 @@ public class DumpJMXCommand extends ACommand {
 
         s.append("---------------------------------------------------------------- \n");
 
-        getEnvironment().sysout(s.toString());
+        log(s.toString());
     }
 
 }

@@ -17,19 +17,16 @@
 
 package org.pidster.tomcat.util.cli;
 
-import java.util.List;
-import java.util.SortedMap;
-
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
 public interface Command {
 
     /**
-     * @param environment
+     * @param config
      */
-    void setEnvironment(Environment environment);
+    void configure(CommandConfig config);
 
     /**
      * 
@@ -40,6 +37,11 @@ public interface Command {
      * @param options
      * @param arguments
      */
-    void execute(SortedMap<String, String> options, List<String> arguments);
+    void execute();
+
+    /**
+     * @param message
+     */
+    void log(String message);
 
 }

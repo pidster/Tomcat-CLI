@@ -113,6 +113,14 @@ public class CommandRegistry {
     }
 
     /**
+     * @param name
+     * @return options
+     */
+    public Option[] getViableOptions(String name) {
+        return commandOptions.get(name);
+    }
+
+    /**
      * @return
      */
     public Collection<Command> commands() {
