@@ -15,31 +15,35 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.commands;
 
-import java.util.List;
-import java.util.SortedMap;
+import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
-public interface Command {
+@Usage(description = "Used for debugging. Dumps JMX environment and CLI state information.")
+@Descriptor(name = "dumpjmx")
+public class DumpJMXCommand extends ACommand {
 
-    /**
-     * @param environment
-     */
-    void setEnvironment(Environment environment);
-
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
+     * .Environment)
      */
-    void cleanup();
+    @Override
+    public void execute() {
 
-    /**
-     * @param options
-     * @param arguments
-     */
-    void execute(SortedMap<String, String> options, List<String> arguments);
+        StringBuilder s = new StringBuilder();
+
+        s.append("---------------------------------------------------------------- \n");
+
+        getEnvironment().sysout(s.toString());
+    }
 
 }

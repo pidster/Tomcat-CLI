@@ -141,7 +141,6 @@ public class Terminal {
                 command.setEnvironment(environment);
 
                 try {
-
                     command.execute(line.getOptions(), line.getArguments());
                 }
                 catch (Throwable t) {

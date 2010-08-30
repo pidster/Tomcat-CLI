@@ -40,16 +40,6 @@ public abstract class ACommand implements Command {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.Command#getEnvironment()
-     */
-    @Override
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * org.pidster.tomcat.util.cli.Command#init(org.pidster.tomcat.util.cli.
      * Environment)
@@ -57,20 +47,6 @@ public abstract class ACommand implements Command {
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
-    }
-
-    /**
-     * @return the options
-     */
-    protected final SortedMap<String, String> getOptions() {
-        return options;
-    }
-
-    /**
-     * @return the arguments
-     */
-    protected final List<String> getArguments() {
-        return arguments;
     }
 
     /*
@@ -82,11 +58,6 @@ public abstract class ACommand implements Command {
     public void cleanup() {
         //
     }
-
-    /**
-     * Execute command
-     */
-    protected abstract void execute();
 
     /*
      * (non-Javadoc)
@@ -103,5 +74,31 @@ public abstract class ACommand implements Command {
 
         this.execute();
     }
+
+    /**
+     * @return environment
+     */
+    protected final Environment getEnvironment() {
+        return environment;
+    }
+
+    /**
+     * @return the options
+     */
+    protected final SortedMap<String, String> getOptions() {
+        return options;
+    }
+
+    /**
+     * @return the arguments
+     */
+    protected final List<String> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Execute command
+     */
+    protected abstract void execute();
 
 }
