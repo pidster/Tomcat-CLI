@@ -115,7 +115,7 @@ public class CommandRegistryImpl implements CommandRegistry {
      * .tomcat.util.cli.Command)
      */
     @Override
-    public List<Option> getViableOptions(Command command) {
+    public List<Option> getOptions(Command command) {
         return commandOptions.get(command);
     }
 

@@ -37,7 +37,7 @@ public interface CommandRegistry {
      * @param command
      * @return options
      */
-    public abstract List<Option> getViableOptions(Command command);
+    public abstract List<Option> getOptions(Command command);
 
     /**
      * @return
