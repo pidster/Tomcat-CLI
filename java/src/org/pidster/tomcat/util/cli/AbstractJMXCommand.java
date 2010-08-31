@@ -1,8 +1,8 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
  *  this work for additional information regarding copyright ownership.
  *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  (the "License"); you may not use this file except in compliance with
  *  the License.  You may obtain a copy of the License at
  *
@@ -17,14 +17,29 @@
 
 package org.pidster.tomcat.util.cli;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+
+import org.pidster.tomcat.util.cli.util.DateTime;
+
+import com.sun.tools.attach.AgentInitializationException;
+import com.sun.tools.attach.AgentLoadException;
+import com.sun.tools.attach.AttachNotSupportedException;
+import com.sun.tools.attach.VirtualMachine;
 
 import sun.management.ConnectorAddressLink;
 
@@ -36,8 +51,9 @@ import sun.management.ConnectorAddressLink;
         @Option(name = "pid", single = 'i', setter = true, description = "The PID to attach to"),
         @Option(name = "jmx", single = 'u', setter = true, description = "The JMX URL to connect to"),
         @Option(name = "port", single = 'p', setter = true, description = "The JMX port to connect to"),
-        @Option(name = "username", single = 'u', setter = true, description = "The JMX URL to connect to"),
-        @Option(name = "password", single = 'u', setter = true, description = "The JMX URL to connect to")
+        @Option(name = "username", single = 'u', setter = true, description = "The JMX username to use"),
+        @Option(name = "password", single = 'c', setter = true, description = "The JMX password credential to use"),
+        @Option(name = "inject", single = 'j', setter = true, description = "Inject the management agent into a running PID")
 })
 public abstract class AbstractJMXCommand extends AbstractCommand {
 
@@ -47,7 +63,11 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     protected static final String DEFAULT_JMX_URI = "/jmxrmi";
 
-    private MBeanServerConnection connection;
+    protected static final String LOCAL_CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
+
+    private volatile static MBeanServerConnection connection;
+
+    private Map<String, Object> runtimeProps;
 
     /**
      * 
@@ -62,22 +82,99 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @see org.pidster.tomcat.util.cli.AbstractCommand#configure()
      */
     @Override
-    public void configure() {
+    protected void configure() throws CommandException {
 
         try {
-            String serviceURL = serviceURL();
-            Map<String, Object> properties = connectorProperties();
 
-            JMXServiceURL jmxURL = new JMXServiceURL(serviceURL);
-            JMXConnector connector = JMXConnectorFactory.newJMXConnector(
-                    jmxURL, properties);
+            // Not exactly thread safe, but it'll do for now
+            if (connection == null) {
+                String serviceURL = serviceURL();
 
-            connector.connect();
+                Map<String, Object> properties = connectorProperties();
 
-            this.connection = connector.getMBeanServerConnection();
+                JMXServiceURL jmxURL = new JMXServiceURL(serviceURL);
+                JMXConnector connector = JMXConnectorFactory.newJMXConnector(
+                        jmxURL, properties);
+
+                connector.connect();
+                connection = connector.getMBeanServerConnection();
+            }
+
+            runtimeProps = new HashMap<String, Object>();
+
+            // ------------------------------------------------------------
+            // acquire runtime attributes
+            ObjectName query = ObjectName.getInstance("java.lang:type=Runtime");
+            String[] arr = new String[] {
+                    "Name", "Uptime", "StartTime", "VmName", "VmVendor",
+                    "VmVersion"
+            };
+
+            AttributeList list = connection.getAttributes(query, arr);
+            for (Attribute attribute : list.asList()) {
+                runtimeProps.put(attribute.getName(), attribute.getValue());
+            }
+
+            // ------------------------------------------------------------
+            // acquire server attributes
+            query = ObjectName.getInstance("*:type=Server");
+            arr = new String[] {
+                "serverInfo"
+            };
+
+            TreeSet<ObjectName> servers = new TreeSet<ObjectName>(
+                    connection.queryNames(query, null));
+
+            list = connection.getAttributes(servers.first(), arr);
+            for (Attribute attribute : list.asList()) {
+                runtimeProps.put(attribute.getName(), attribute.getValue());
+            }
+
+            // ------------------------------------------------------------
+            // display connection information
+            StringBuilder s = new StringBuilder();
+
+            s.append("Connected to ");
+            s.append(runtimeProps.get("serverInfo"));
+            s.append(" [");
+            s.append(runtimeProps.get("Name"));
+
+            Object uptime = runtimeProps.get("Uptime");
+            if (uptime != null) {
+                s.append(", uptime:");
+                s.append(DateTime.formatUptime((Long) uptime));
+            }
+
+            s.append("]\n");
+
+            if (isVerbose()) {
+                s.append("- ");
+                s.append(runtimeProps.get("VmName"));
+                s.append(" (");
+                s.append(runtimeProps.get("VmVendor"));
+                s.append(" ");
+                s.append(runtimeProps.get("VmVersion"));
+                s.append(")");
+                s.append("\n");
+            }
+
+            log(s.toString());
         }
         catch (IOException ioe) {
-            ioe.printStackTrace();
+            throw new CommandException("Connection FAILED: " + ioe.getMessage());
+        }
+        catch (MalformedObjectNameException mone) {
+            throw new CommandException("Connection FAILED: "
+                    + mone.getMessage());
+        }
+        catch (NullPointerException npe) {
+            throw new CommandException("Connection FAILED: " + npe.getMessage());
+        }
+        catch (InstanceNotFoundException infe) {
+            throw new CommandException(infe.getMessage(), infe.getCause());
+        }
+        catch (ReflectionException re) {
+            throw new CommandException(re.getMessage(), re.getCause());
         }
     }
 
@@ -85,7 +182,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return connection
      */
     protected MBeanServerConnection getConnection() {
-        return this.connection;
+        return connection;
     }
 
     /**
@@ -102,7 +199,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             }
             else {
                 password = getConfig().getEnvironment().readPrompt(
-                        "JMX Password: ")[0];
+                        "Please enter the JMX password: ")[0];
             }
 
             String[] pair = new String[] {
@@ -127,6 +224,40 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         else if (getConfig().isOptionSet("pid")) {
             int pid = Integer.parseInt(getConfig().getOptionValue("pid"));
             serviceURL = ConnectorAddressLink.importFrom(pid);
+            if (serviceURL == null)
+                throw new RuntimeException(
+                        "JMX local connector not found in PID: " + pid);
+        }
+
+        else if (getConfig().isOptionSet("inject")) {
+            String pid = getConfig().getOptionValue("inject");
+
+            try {
+                VirtualMachine machine = VirtualMachine.attach(pid);
+                String javaHome = machine.getSystemProperties().getProperty(
+                        "java.home");
+
+                if (machine.getAgentProperties().contains(
+                        LOCAL_CONNECTOR_ADDRESS)) {
+                    log("WARN: Local management agent already installed...");
+                }
+
+                String agent = javaHome + File.separator + "lib"
+                        + File.separator + "management-agent.jar";
+
+                machine.loadAgent(agent);
+                serviceURL = machine.getAgentProperties().getProperty(
+                        LOCAL_CONNECTOR_ADDRESS);
+            }
+            catch (AttachNotSupportedException e) {
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
+            catch (AgentLoadException e) {
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
+            catch (AgentInitializationException e) {
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
         }
 
         else {
@@ -149,6 +280,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
             serviceURL = s.toString();
         }
+
         return serviceURL;
     }
 }

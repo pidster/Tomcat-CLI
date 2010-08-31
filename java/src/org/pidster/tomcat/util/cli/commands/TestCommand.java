@@ -18,6 +18,8 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import org.pidster.tomcat.util.cli.AbstractCommand;
+import org.pidster.tomcat.util.cli.CommandConfig;
+import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -33,21 +35,48 @@ public class TestCommand extends AbstractCommand {
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat.util.cli
-     * .Environment)
+     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
+     * .util.cli .Environment)
      */
     @Override
     public void execute() {
+        log("- TEST EXEC ----------------------------------------------------------------- \n");
+    }
 
-        StringBuilder s = new StringBuilder();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.AbstractCommand#configure(org.pidster.tomcat
+     * .util.cli.CommandConfig)
+     */
+    @Override
+    public void configure(CommandConfig config) throws CommandException {
+        super.configure(config);
+        log("- TEST STARTS --------------------------------------------------------------- \n");
+    }
 
-        s.append("- TEST STARTS --------------------------------------------------------------- \n");
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#configure()
+     */
+    @Override
+    protected void configure() throws CommandException {
+        log("- TEST CONFIG --------------------------------------------------------------- \n");
+        super.configure();
+    }
 
-        s.append("");
-
-        s.append("- TEST ENDS ----------------------------------------------------------------- \n");
-
-        log(s.toString());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        log("- TEST CLEANUP -------------------------------------------------------------- \n");
+        super.cleanup();
+        log("- TEST ENDS ----------------------------------------------------------------- \n");
     }
 
 }

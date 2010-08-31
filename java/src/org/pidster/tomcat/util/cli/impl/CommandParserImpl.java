@@ -28,7 +28,7 @@ import org.pidster.tomcat.util.cli.CommandParser;
  * @author pidster
  * 
  */
-public class CommandProcessorImpl implements CommandParser {
+public class CommandParserImpl implements CommandParser {
 
     private long count;
 
@@ -39,7 +39,7 @@ public class CommandProcessorImpl implements CommandParser {
     /**
      * @param registry
      */
-    public CommandProcessorImpl() {
+    public CommandParserImpl() {
         this.count = 0;
         this.interactive = false;
         this.history = new LinkedList<CommandLine>();
@@ -48,8 +48,7 @@ public class CommandProcessorImpl implements CommandParser {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandParser#parseArguments(java.lang
+     * @see org.pidster.tomcat.util.cli.CommandParser#parseArguments(java.lang
      * .String)
      */
     @Override
@@ -65,7 +64,6 @@ public class CommandProcessorImpl implements CommandParser {
         arguments.addAll(Arrays.asList(argArray));
 
         if (arguments.contains("--interactive")) {
-            arguments.remove("--interactive");
             this.interactive = true;
         }
 

@@ -15,48 +15,17 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
-
-import java.util.List;
-import java.util.Set;
+package org.pidster.tomcat.util.cli.impl;
 
 /**
  * @author pidster
  * 
  */
-public interface CommandConfig {
+public class Constants {
 
     /**
-     * @return the environment
+     * package name
      */
-    public abstract Environment getEnvironment();
-
-    /**
-     * @return the arguments
-     */
-    public abstract List<String> getArguments();
-
-    /**
-     * @param name
-     * @return
-     */
-    public abstract Option getOption(String name);
-
-    /**
-     * @param name
-     * @return outcome
-     */
-    public abstract boolean isOptionSet(String name);
-
-    /**
-     * @param name
-     * @return value
-     */
-    public abstract String getOptionValue(String name);
-
-    /**
-     * @return options
-     */
-    public abstract Set<Option> getOptions();
+    public static final String PACKAGE_NAME = "org.pidster.tomcat.util.cli.impl";
 
 }

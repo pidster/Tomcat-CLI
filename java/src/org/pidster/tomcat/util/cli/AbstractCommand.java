@@ -22,7 +22,8 @@ package org.pidster.tomcat.util.cli;
  * 
  */
 @Options({
-    @Option(name = "verbose", single = 'v', description = "Enable verbose output")
+        @Option(name = "verbose", single = 'v', description = "Enable verbose output"),
+        @Option(name = "interactive", single = 'r', description = "Enable interactive prompt")
 })
 public abstract class AbstractCommand implements Command {
 
@@ -43,7 +44,7 @@ public abstract class AbstractCommand implements Command {
      * EnvironmentImpl)
      */
     @Override
-    public void configure(CommandConfig config) {
+    public void configure(CommandConfig config) throws CommandException {
         this.config = config;
         configure();
     }
@@ -51,7 +52,7 @@ public abstract class AbstractCommand implements Command {
     /**
      * 
      */
-    protected void configure() {
+    protected void configure() throws CommandException {
 
     }
 

@@ -53,10 +53,16 @@ public class EnvironmentImpl implements Environment {
      */
     @Override
     public void sysout(String fmt, Object... args) {
-        if (!fmt.endsWith("\n")) {
-            fmt += "\n";
+        try {
+            if (!fmt.endsWith("\n")) {
+                fmt += "\n";
+            }
+            console.format(fmt, args);
         }
-        console.format(fmt, args);
+        catch (Exception e) {
+            System.out.println("Error: " + fmt);
+            // e.printStackTrace();
+        }
     }
 
     /*

@@ -19,6 +19,7 @@ package org.pidster.tomcat.util.cli.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.pidster.tomcat.util.cli.CommandConfig;
 import org.pidster.tomcat.util.cli.Environment;
@@ -39,14 +40,16 @@ public class CommandConfigImpl implements CommandConfig {
      * @param arguments
      * @param options
      */
-    public CommandConfigImpl(Environment environmentImpl, List<String> arguments,
-            Map<Option, String> options) {
+    public CommandConfigImpl(Environment environmentImpl,
+            List<String> arguments, Map<Option, String> options) {
         this.environmentImpl = environmentImpl;
         this.arguments = arguments;
         this.options = options;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.CommandConfig#getEnvironment()
      */
     @Override
@@ -54,7 +57,9 @@ public class CommandConfigImpl implements CommandConfig {
         return environmentImpl;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.CommandConfig#getArguments()
      */
     @Override
@@ -62,8 +67,11 @@ public class CommandConfigImpl implements CommandConfig {
         return arguments;
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getOption(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.CommandConfig#getOption(java.lang.String)
      */
     @Override
     public final Option getOption(String name) {
@@ -75,8 +83,11 @@ public class CommandConfigImpl implements CommandConfig {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.CommandConfig#isOptionSet(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.CommandConfig#isOptionSet(java.lang.String)
      */
     @Override
     public final boolean isOptionSet(String name) {
@@ -88,17 +99,31 @@ public class CommandConfigImpl implements CommandConfig {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getOptionValue(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.CommandConfig#getOptionValue(java.lang.String
+     * )
      */
     @Override
     public final String getOptionValue(String name) {
         for (Option option : options.keySet()) {
             if (option.name().equals(name)) {
-                return option.value();
+                return options.get(option);
             }
         }
         return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.CommandConfig#getOptions()
+     */
+    @Override
+    public Set<Option> getOptions() {
+        return options.keySet();
     }
 
 }

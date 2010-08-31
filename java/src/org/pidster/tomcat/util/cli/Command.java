@@ -25,8 +25,9 @@ public interface Command {
 
     /**
      * @param config
+     * @throws CommandException
      */
-    void configure(CommandConfig config);
+    void configure(CommandConfig config) throws CommandException;
 
     /**
      * 

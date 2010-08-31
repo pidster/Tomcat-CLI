@@ -17,46 +17,37 @@
 
 package org.pidster.tomcat.util.cli;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * @author pidster
  * 
  */
-public interface CommandConfig {
+public class CommandException extends Exception {
+
+    private static final long serialVersionUID = 1L;
 
     /**
-     * @return the environment
+     * @param message
      */
-    public abstract Environment getEnvironment();
+    public CommandException(String message) {
+        super(message);
+        // TODO Auto-generated constructor stub
+    }
 
     /**
-     * @return the arguments
+     * @param cause
      */
-    public abstract List<String> getArguments();
+    public CommandException(Throwable cause) {
+        super(cause);
+        // TODO Auto-generated constructor stub
+    }
 
     /**
-     * @param name
-     * @return
+     * @param message
+     * @param cause
      */
-    public abstract Option getOption(String name);
-
-    /**
-     * @param name
-     * @return outcome
-     */
-    public abstract boolean isOptionSet(String name);
-
-    /**
-     * @param name
-     * @return value
-     */
-    public abstract String getOptionValue(String name);
-
-    /**
-     * @return options
-     */
-    public abstract Set<Option> getOptions();
+    public CommandException(String message, Throwable cause) {
+        super(message, cause);
+        // TODO Auto-generated constructor stub
+    }
 
 }

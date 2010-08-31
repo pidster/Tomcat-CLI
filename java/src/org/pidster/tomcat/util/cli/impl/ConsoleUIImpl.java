@@ -21,11 +21,14 @@ import org.pidster.tomcat.util.cli.util.StringManager;
 public class ConsoleUIImpl implements ConsoleUI {
 
     private static final StringManager manager = StringManager
-            .getManager("org.pidster.tomcat.util.cli.impl");
+            .getManager(Constants.PACKAGE_NAME);
 
-    private final CommandParser processor;
+    private final CommandParser commandParser;
+    
     private final CommandRegistryImpl registry;
-    private final OptionParser parser;
+    
+    private final OptionParser optionParser;
+    
     private final EnvironmentImpl environmentImpl;
 
     /**
@@ -34,9 +37,9 @@ public class ConsoleUIImpl implements ConsoleUI {
     public ConsoleUIImpl() {
 
         this.registry = new CommandRegistryImpl();
-        this.processor = new CommandProcessorImpl();
+        this.commandParser = new CommandParserImpl();
         this.environmentImpl = new EnvironmentImpl();
-        this.parser = new OptionParser(registry.getOptions());
+        this.optionParser = new OptionParserImpl(registry.getOptions());
     }
 
     /*
@@ -63,15 +66,15 @@ public class ConsoleUIImpl implements ConsoleUI {
     @Override
     public void process(String[] arguments) {
 
-        CommandLine line = processor.parseArguments(arguments);
-        boolean interactive = processor.isInteractive();
+        CommandLine line = commandParser.parseArguments(arguments);
+        boolean interactive = commandParser.isInteractive();
 
         // Is there a more elegant solution?
         // If it's the first time, or we're interactive
-        while (processor.first() || interactive) {
+        while (commandParser.first() || interactive) {
 
             // check this first, just in case
-            if (processor.isExit())
+            if (commandParser.isExit())
                 break;
 
             // if there's no command and we're not interactive
@@ -94,8 +97,8 @@ public class ConsoleUIImpl implements ConsoleUI {
 
                 try {
 
-                    Map<Option, String> activeOptions = parser.activeOptions(
-                            line.getOptions(), command);
+                    Map<Option, String> activeOptions = optionParser
+                            .activeOptions(line.getOptions(), command);
 
                     CommandConfig config = new CommandConfigImpl(
                             environmentImpl, line.getArguments(), activeOptions);
@@ -114,7 +117,8 @@ public class ConsoleUIImpl implements ConsoleUI {
 
             // Update the command line, if we're still running
             if (interactive)
-                line = processor.parseArguments(environmentImpl.readPrompt());
+                line = commandParser.parseArguments(environmentImpl
+                        .readPrompt());
         }
     }
 

@@ -30,23 +30,23 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(description = "Used for debugging. Dumps environment and CLI state information.")
-@Descriptor(name = "dump")
-public class DumpCommand extends AbstractCommand {
+@Usage(description = "Used for debugging. Dumps environment.")
+@Descriptor(name = "dumpenv")
+public class DumpEnvCommand extends AbstractCommand {
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat.util.cli
-     * .Environment)
+     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
+     * .util.cli .Environment)
      */
     @Override
     public void execute() {
 
         StringBuilder s = new StringBuilder();
 
-        s.append("---------------------------------------------------------------- \n");
+        s.append("- DUMP STARTS --------------------------------------------------------------- \n");
 
         Properties properties = System.getProperties();
         s.append("\nDumping System environment variables...\n");
@@ -62,7 +62,7 @@ public class DumpCommand extends AbstractCommand {
             s.append("\n");
         }
 
-        s.append("---------------------------------------------------------------- \n");
+        s.append("----------------------------------------------------------------------------- \n");
 
         Map<String, String> environment = System.getenv();
 
@@ -75,6 +75,8 @@ public class DumpCommand extends AbstractCommand {
             s.append(environment.get(name));
             s.append("\n");
         }
+
+        s.append("- DUMP ENDS ----------------------------------------------------------------- \n");
 
         System.out.println(s.toString());
     }

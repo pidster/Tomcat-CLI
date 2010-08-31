@@ -18,6 +18,8 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;
+import org.pidster.tomcat.util.cli.CommandConfig;
+import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -38,16 +40,42 @@ public class TestJMXCommand extends AbstractJMXCommand {
      */
     @Override
     public void execute() {
-
-        StringBuilder s = new StringBuilder();
-
-        s.append("- TEST STARTS --------------------------------------------------------------- \n");
-
-        s.append("");
-
-        s.append("- TEST ENDS ----------------------------------------------------------------- \n");
-
-        log(s.toString());
+        log("- TEST EXEC ----------------------------------------------------------------- \n");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.AbstractCommand#configure(org.pidster.tomcat
+     * .util.cli.CommandConfig)
+     */
+    @Override
+    public void configure(CommandConfig config) throws CommandException {
+        super.configure(config);
+        log("- TEST STARTS --------------------------------------------------------------- \n");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#configure()
+     */
+    @Override
+    protected void configure() throws CommandException {
+        log("- TEST CONFIG --------------------------------------------------------------- \n");
+        super.configure();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        log("- TEST CLEANUP -------------------------------------------------------------- \n");
+        super.cleanup();
+        log("- TEST ENDS ----------------------------------------------------------------- \n");
+    }
 }
