@@ -36,9 +36,6 @@ import javax.management.remote.JMXServiceURL;
 
 import org.pidster.tomcat.util.cli.util.DateTime;
 
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 
 import sun.management.ConnectorAddressLink;
