@@ -71,13 +71,6 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     private Map<String, Object> runtimeProps;
 
-    /**
-     * 
-     */
-    protected AbstractJMXCommand() {
-        super();
-    }
-
     /*
      * (non-Javadoc)
      * 
