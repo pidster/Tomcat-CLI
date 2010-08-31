@@ -22,13 +22,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.pidster.tomcat.util.cli.CommandLine;
-import org.pidster.tomcat.util.cli.CommandProcessor;
+import org.pidster.tomcat.util.cli.CommandParser;
 
 /**
  * @author pidster
  * 
  */
-public class CommandProcessorImpl implements CommandProcessor {
+public class CommandProcessorImpl implements CommandParser {
 
     private long count;
 
@@ -49,7 +49,7 @@ public class CommandProcessorImpl implements CommandProcessor {
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.CommandProcessor#parseArguments(java.lang
+     * org.pidster.tomcat.util.cli.CommandParser#parseArguments(java.lang
      * .String)
      */
     @Override
@@ -88,7 +88,7 @@ public class CommandProcessorImpl implements CommandProcessor {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.CommandProcessor#isExit()
+     * @see org.pidster.tomcat.util.cli.CommandParser#isExit()
      */
     @Override
     public boolean isExit() {
@@ -109,7 +109,7 @@ public class CommandProcessorImpl implements CommandProcessor {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.CommandProcessor#first()
+     * @see org.pidster.tomcat.util.cli.CommandParser#first()
      */
     @Override
     public boolean first() {
@@ -120,7 +120,7 @@ public class CommandProcessorImpl implements CommandProcessor {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.CommandProcessor#isInteractive()
+     * @see org.pidster.tomcat.util.cli.CommandParser#isInteractive()
      */
     @Override
     public boolean isInteractive() {

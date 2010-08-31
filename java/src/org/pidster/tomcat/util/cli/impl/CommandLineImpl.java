@@ -86,6 +86,7 @@ public class CommandLineImpl implements Serializable, CommandLine {
      * @param option
      */
     public void addOption(String option) {
+        System.out.println("option: " + option);
         this.options.add(option);
     }
 

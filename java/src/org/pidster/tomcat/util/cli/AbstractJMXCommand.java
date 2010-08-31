@@ -35,6 +35,7 @@ import sun.management.ConnectorAddressLink;
 @Options({
         @Option(name = "pid", single = 'i', setter = true, description = "The PID to attach to"),
         @Option(name = "jmx", single = 'u', setter = true, description = "The JMX URL to connect to"),
+        @Option(name = "port", single = 'p', setter = true, description = "The JMX port to connect to"),
         @Option(name = "username", single = 'u', setter = true, description = "The JMX URL to connect to"),
         @Option(name = "password", single = 'u', setter = true, description = "The JMX URL to connect to")
 })

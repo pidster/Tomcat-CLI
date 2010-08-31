@@ -8,7 +8,7 @@ import java.util.Map;
 import org.pidster.tomcat.util.cli.Command;
 import org.pidster.tomcat.util.cli.CommandConfig;
 import org.pidster.tomcat.util.cli.CommandLine;
-import org.pidster.tomcat.util.cli.CommandProcessor;
+import org.pidster.tomcat.util.cli.CommandParser;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.OptionParser;
 import org.pidster.tomcat.util.cli.ConsoleUI;
@@ -23,7 +23,7 @@ public class ConsoleUIImpl implements ConsoleUI {
     private static final StringManager manager = StringManager
             .getManager("org.pidster.tomcat.util.cli.impl");
 
-    private final CommandProcessor processor;
+    private final CommandParser processor;
     private final CommandRegistryImpl registry;
     private final OptionParser parser;
     private final EnvironmentImpl environmentImpl;

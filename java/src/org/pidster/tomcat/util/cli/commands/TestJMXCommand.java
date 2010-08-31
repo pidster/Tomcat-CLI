@@ -17,7 +17,7 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
-import org.pidster.tomcat.util.cli.AbstractCommand;
+import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -27,14 +27,14 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(description = "Used for debugging. Tests JMX environment.")
 @Descriptor(name = "testjmx")
-public class TestJMXCommand extends AbstractCommand {
+public class TestJMXCommand extends AbstractJMXCommand {
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat.util.cli
-     * .Environment)
+     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
+     * .util.cli .Environment)
      */
     @Override
     public void execute() {

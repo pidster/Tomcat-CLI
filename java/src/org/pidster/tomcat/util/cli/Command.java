@@ -31,6 +31,11 @@ public interface Command {
     /**
      * 
      */
+    CommandConfig getConfig();
+
+    /**
+     * 
+     */
     void cleanup();
 
     /**

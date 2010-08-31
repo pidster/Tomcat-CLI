@@ -21,7 +21,7 @@ package org.pidster.tomcat.util.cli;
  * @author pidster
  *
  */
-public interface CommandProcessor {
+public interface CommandParser {
 
     /**
      * @param argArray

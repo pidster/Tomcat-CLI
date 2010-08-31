@@ -21,6 +21,9 @@ package org.pidster.tomcat.util.cli;
  * @author pidster
  * 
  */
+@Options({
+    @Option(name = "verbose", single = 'v', description = "Enable verbose output")
+})
 public abstract class AbstractCommand implements Command {
 
     private CommandConfig config;
@@ -62,28 +65,39 @@ public abstract class AbstractCommand implements Command {
         //
     }
 
-    /**
-     * @return the config
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Command#getConfig()
      */
-    protected final CommandConfig getConfig() {
+    @Override
+    public final CommandConfig getConfig() {
         return config;
     }
 
     /*
+     * 
      * (non-Javadoc)
      * 
      * @see org.pidster.tomcat.util.cli.Command#log(java.lang.String)
      */
     @Override
-    public void log(String message) {
+    public final void log(String message) {
         getConfig().getEnvironment().sysout(message, new Object[] {});
     }
 
     /**
      * 
      */
-    public void log(String message, Object... args) {
+    protected final void log(String message, Object... args) {
         getConfig().getEnvironment().sysout(message, args);
+    }
+
+    /**
+     * @return outcome
+     */
+    protected final boolean isVerbose() {
+        return getConfig().isOptionSet("verbose");
     }
 
 }

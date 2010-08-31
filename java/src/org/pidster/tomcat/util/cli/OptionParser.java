@@ -49,9 +49,12 @@ public class OptionParser {
 
         for (Option option : viableOptions) {
 
-            for (String argument : options) {
+            LOOP: for (String argument : options) {
 
-                String ext = "--".concat(option.extended());
+                System.out.println("Check " + option.name() + " argument: "
+                        + argument);
+
+                String ext = "--".concat(option.name());
                 String sng = "-" + option.single();
 
                 if (argument.startsWith(ext) || argument.startsWith(sng)) {
@@ -71,6 +74,7 @@ public class OptionParser {
                     }
 
                     activeOptions.put(option, value);
+                    break LOOP;
                 }
             }
 
