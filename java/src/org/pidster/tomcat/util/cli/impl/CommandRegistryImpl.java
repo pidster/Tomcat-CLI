@@ -17,14 +17,18 @@
 
 package org.pidster.tomcat.util.cli.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.pidster.tomcat.util.cli.Command;
 import org.pidster.tomcat.util.cli.CommandRegistry;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;
+import org.pidster.tomcat.util.cli.Options;
 
 /**
  * @author pidster
@@ -34,14 +38,14 @@ public class CommandRegistryImpl implements CommandRegistry {
 
     private final Map<String, Command> commands;
 
-    private final Map<Command, Option[]> commandOptions;
+    private final Map<Command, List<Option>> commandOptions;
 
     /**
      * 
      */
     public CommandRegistryImpl() {
         this.commands = new HashMap<String, Command>();
-        this.commandOptions = new HashMap<Command, Option[]>();
+        this.commandOptions = new HashMap<Command, List<Option>>();
     }
 
     /**
@@ -71,15 +75,29 @@ public class CommandRegistryImpl implements CommandRegistry {
         if (!c.isAnnotationPresent(Descriptor.class))
             return;
 
-        Descriptor d = c.getAnnotation(Descriptor.class);
-
         commands.put(name, command);
-        commandOptions.put(command, d.options());
 
+        List<Option> options = new ArrayList<Option>();
+
+        while (!Object.class.equals(c)) {
+
+            if (c.isAnnotationPresent(Options.class)) {
+                Options o = c.getAnnotation(Options.class);
+                options.addAll(Arrays.asList(o.value()));
+            }
+
+            c = c.getSuperclass();
+        }
+
+        commandOptions.put(command, options);
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.CommandRegistry#isRegistered(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.CommandRegistry#isRegistered(java.lang.String
+     * )
      */
     @Override
     public boolean isRegistered(String name) {
@@ -89,23 +107,31 @@ public class CommandRegistryImpl implements CommandRegistry {
         return commands.containsKey(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.CommandRegistry#getViableOptions(org.pidster.tomcat.util.cli.Command)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.CommandRegistry#getViableOptions(org.pidster
+     * .tomcat.util.cli.Command)
      */
     @Override
-    public Option[] getViableOptions(Command command) {
+    public List<Option> getViableOptions(Command command) {
         return commandOptions.get(command);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.CommandRegistry#commands()
      */
     @Override
-    public Collection<Command> commands() {
+    public Collection<Command> getCommands() {
         return this.commands.values();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.CommandRegistry#get(java.lang.String)
      */
     @Override
@@ -113,11 +139,13 @@ public class CommandRegistryImpl implements CommandRegistry {
         return this.commands.get(commandName);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.CommandRegistry#getOptions()
      */
     @Override
-    public Map<Command, Option[]> getOptions() {
+    public Map<Command, List<Option>> getOptions() {
         return this.commandOptions;
     }
 

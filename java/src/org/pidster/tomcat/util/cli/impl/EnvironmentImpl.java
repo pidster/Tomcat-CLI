@@ -94,12 +94,14 @@ public class EnvironmentImpl implements Environment {
         this.prompt = prompt;
     }
 
-    /**
-     * @return command line
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Environment#readPrompt(java.lang.String)
      */
-    String[] readPrompt() {
+    @Override
+    public String[] readPrompt(String prompt) {
         String line = console.readLine(prompt);
-
         line = line.replaceAll("[\\s\\ ]+", " ");
 
         if (line.isEmpty()) {
@@ -107,6 +109,13 @@ public class EnvironmentImpl implements Environment {
         }
 
         return line.split(" ");
+    }
+
+    /*
+     * 
+     */
+    String[] readPrompt() {
+        return readPrompt(prompt);
     }
 
 }

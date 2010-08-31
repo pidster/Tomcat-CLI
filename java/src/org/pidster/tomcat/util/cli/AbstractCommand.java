@@ -28,7 +28,7 @@ public abstract class AbstractCommand implements Command {
     /**
      * 
      */
-    public AbstractCommand() {
+    protected AbstractCommand() {
         super();
     }
 
@@ -42,6 +42,14 @@ public abstract class AbstractCommand implements Command {
     @Override
     public void configure(CommandConfig config) {
         this.config = config;
+        configure();
+    }
+
+    /**
+     * 
+     */
+    protected void configure() {
+
     }
 
     /*

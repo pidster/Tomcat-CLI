@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * @author pidster
- *
+ * 
  */
 public interface CommandConfig {
 
@@ -49,7 +49,7 @@ public interface CommandConfig {
 
     /**
      * @param name
-     * @return outcome
+     * @return value
      */
     public abstract String getOptionValue(String name);
 

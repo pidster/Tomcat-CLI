@@ -19,7 +19,7 @@ package org.pidster.tomcat.util.cli;
 
 /**
  * @author pidster
- *
+ * 
  */
 public interface Environment {
 
@@ -44,5 +44,11 @@ public interface Environment {
      *            prompt to set
      */
     public abstract void setPrompt(String prompt);
+
+    /**
+     * @param prompt
+     * @return command line
+     */
+    public abstract String[] readPrompt(String prompt);
 
 }

@@ -18,11 +18,12 @@
 package org.pidster.tomcat.util.cli;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author pidster
- *
+ * 
  */
 public interface CommandRegistry {
 
@@ -36,12 +37,12 @@ public interface CommandRegistry {
      * @param command
      * @return options
      */
-    public abstract Option[] getViableOptions(Command command);
+    public abstract List<Option> getViableOptions(Command command);
 
     /**
      * @return
      */
-    public abstract Collection<Command> commands();
+    public abstract Collection<Command> getCommands();
 
     /**
      * @param commandName
@@ -52,6 +53,6 @@ public interface CommandRegistry {
     /**
      * @return options
      */
-    public abstract Map<Command, Option[]> getOptions();
+    public abstract Map<Command, List<Option>> getOptions();
 
 }

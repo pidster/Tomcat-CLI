@@ -27,12 +27,12 @@ import java.util.Map;
  */
 public class OptionParser {
 
-    private final Map<Command, Option[]> commandOptions;
+    private final Map<Command, List<Option>> commandOptions;
 
     /**
      * @param options
      */
-    public OptionParser(Map<Command, Option[]> options) {
+    public OptionParser(Map<Command, List<Option>> options) {
         this.commandOptions = options;
     }
 
@@ -45,7 +45,7 @@ public class OptionParser {
             Command command) {
 
         Map<Option, String> activeOptions = new HashMap<Option, String>();
-        Option[] viableOptions = commandOptions.get(command);
+        List<Option> viableOptions = commandOptions.get(command);
 
         for (Option option : viableOptions) {
 

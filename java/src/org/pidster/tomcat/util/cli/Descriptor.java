@@ -34,6 +34,4 @@ public @interface Descriptor {
 
     String name();
 
-    Option[] options() default {};
-
 }

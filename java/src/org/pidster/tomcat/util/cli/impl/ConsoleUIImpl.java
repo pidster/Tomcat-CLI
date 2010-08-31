@@ -52,7 +52,7 @@ public class ConsoleUIImpl implements ConsoleUI {
         }
 
         // Deliberately override any other help commands
-        this.registry.register("help", new HelpCommand(registry.commands()));
+        this.registry.register("help", new HelpCommand(registry.getCommands()));
     }
 
     /*
