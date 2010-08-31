@@ -18,100 +18,40 @@
 package org.pidster.tomcat.util.cli;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author pidster
- * 
+ *
  */
-public class CommandRegistry {
-
-    private final Map<String, Command> commands;
-
-    private final Map<Command, Option[]> commandOptions;
-
-    /**
-     * 
-     */
-    public CommandRegistry() {
-        this.commands = new HashMap<String, Command>();
-        this.commandOptions = new HashMap<Command, Option[]>();
-    }
-
-    /**
-     * @param command
-     */
-    public void register(Command command) {
-
-        Class<?> c = command.getClass();
-        if (!c.isAnnotationPresent(Descriptor.class))
-            return;
-
-        Descriptor d = c.getAnnotation(Descriptor.class);
-
-        if (commands.containsKey(d.name()))
-            return;
-
-        register(d.name(), command);
-    }
-
-    /**
-     * @param name
-     * @param command
-     */
-    void register(String name, Command command) {
-
-        Class<?> c = command.getClass();
-        if (!c.isAnnotationPresent(Descriptor.class))
-            return;
-
-        Descriptor d = c.getAnnotation(Descriptor.class);
-
-        commands.put(name, command);
-        commandOptions.put(command, d.options());
-
-    }
+public interface CommandRegistry {
 
     /**
      * @param name
      * @return outcome
      */
-    public boolean isRegistered(String name) {
-        if (name == null) {
-            return false;
-        }
-        return commands.containsKey(name);
-    }
+    public abstract boolean isRegistered(String name);
 
     /**
      * @param command
      * @return options
      */
-    public Option[] getViableOptions(Command command) {
-        return commandOptions.get(command);
-    }
+    public abstract Option[] getViableOptions(Command command);
 
     /**
      * @return
      */
-    public Collection<Command> commands() {
-        return this.commands.values();
-    }
+    public abstract Collection<Command> commands();
 
     /**
      * @param commandName
      * @return command
      */
-    public Command get(String commandName) {
-        return this.commands.get(commandName);
-    }
+    public abstract Command get(String commandName);
 
     /**
      * @return options
      */
-    public Map<Command, Option[]> getOptions() {
-        return this.commandOptions;
-    }
+    public abstract Map<Command, Option[]> getOptions();
 
 }

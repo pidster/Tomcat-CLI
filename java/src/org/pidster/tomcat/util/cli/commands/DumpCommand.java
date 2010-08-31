@@ -22,7 +22,7 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.AbstractCommand;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -32,13 +32,13 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(description = "Used for debugging. Dumps environment and CLI state information.")
 @Descriptor(name = "dump")
-public class DumpCommand extends ACommand {
+public class DumpCommand extends AbstractCommand {
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.ACommand#execute(org.pidster.tomcat.util.cli
+     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat.util.cli
      * .Environment)
      */
     @Override

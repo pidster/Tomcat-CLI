@@ -21,27 +21,61 @@ package org.pidster.tomcat.util.cli;
  * @author pidster
  * 
  */
-public abstract class JMXCommand extends ACommand {
+public abstract class AbstractCommand implements Command {
+
+    private CommandConfig config;
 
     /**
      * 
      */
-    public JMXCommand() {
-        // TODO Auto-generated constructor stub
+    public AbstractCommand() {
+        super();
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.pidster.tomcat.util.cli.ACommand#configure(org.pidster.tomcat.util
-     * .cli.CommandConfig)
+     * org.pidster.tomcat.util.cli.Command#init(org.pidster.tomcat.util.cli.
+     * EnvironmentImpl)
      */
     @Override
     public void configure(CommandConfig config) {
-        super.configure(config);
+        this.config = config;
+    }
 
-        // Do JMX connector config
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Command#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        //
+    }
+
+    /**
+     * @return the config
+     */
+    protected final CommandConfig getConfig() {
+        return config;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Command#log(java.lang.String)
+     */
+    @Override
+    public void log(String message) {
+        getConfig().getEnvironment().sysout(message, new Object[] {});
+    }
+
+    /**
+     * 
+     */
+    public void log(String message, Object... args) {
+        getConfig().getEnvironment().sysout(message, args);
     }
 
 }

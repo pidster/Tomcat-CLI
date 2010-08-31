@@ -19,7 +19,7 @@ package org.pidster.tomcat.util.cli.commands;
 
 import java.util.Collection;
 
-import org.pidster.tomcat.util.cli.ACommand;
+import org.pidster.tomcat.util.cli.AbstractCommand;
 import org.pidster.tomcat.util.cli.Command;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
@@ -30,7 +30,7 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(syntax = "<command>", description = "Display help")
 @Descriptor(name = "help")
-public class HelpCommand extends ACommand {
+public class HelpCommand extends AbstractCommand {
 
     private final Collection<Command> commands;
 

@@ -17,80 +17,32 @@
 
 package org.pidster.tomcat.util.cli;
 
-import java.io.Console;
-
 /**
  * @author pidster
- * 
+ *
  */
-public class Environment {
-
-    /**
-     * 
-     */
-    private static final String DEFAULT_PROMPT = "> ";
-
-    private String prompt;
-
-    private final Console console;
-
-    /**
-     * 
-     */
-    public Environment() {
-        super();
-        this.console = System.console();
-        this.prompt = DEFAULT_PROMPT;
-    }
+public interface Environment {
 
     /**
      * @param fmt
      * @param args
      */
-    public void sysout(String fmt, Object... args) {
-        console.format(fmt, args);
-    }
+    public abstract void sysout(String fmt, Object... args);
 
     /**
      * @param throwable
      */
-    public void sysout(Throwable throwable) {
-        throwable.printStackTrace(System.out);
-    }
+    public abstract void sysout(Throwable throwable);
 
     /**
      * @return the prompt
      */
-    public String getPrompt() {
-        return prompt;
-    }
+    public abstract String getPrompt();
 
     /**
      * @param the
      *            prompt to set
      */
-    public void setPrompt(String prompt) {
-
-        if (prompt == null || prompt.isEmpty()) {
-            prompt = DEFAULT_PROMPT;
-        }
-
-        this.prompt = prompt;
-    }
-
-    /**
-     * @return command line
-     */
-    String[] readPrompt() {
-        String line = console.readLine(prompt);
-
-        line = line.replaceAll("[\\s\\ ]+", " ");
-
-        if (line.isEmpty()) {
-            return new String[0];
-        }
-
-        return line.split(" ");
-    }
+    public abstract void setPrompt(String prompt);
 
 }

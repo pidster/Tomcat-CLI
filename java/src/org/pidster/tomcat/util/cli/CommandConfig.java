@@ -18,81 +18,39 @@
 package org.pidster.tomcat.util.cli;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author pidster
- * 
+ *
  */
-public class CommandConfig {
-
-    private final Environment environment;
-    private final List<String> arguments;
-    private final Map<Option, String> options;
-
-    /**
-     * @param environment
-     * @param arguments
-     * @param options
-     */
-    public CommandConfig(Environment environment, List<String> arguments,
-            Map<Option, String> options) {
-        this.environment = environment;
-        this.arguments = arguments;
-        this.options = options;
-    }
+public interface CommandConfig {
 
     /**
      * @return the environment
      */
-    public final Environment getEnvironment() {
-        return environment;
-    }
+    public abstract Environment getEnvironment();
 
     /**
      * @return the arguments
      */
-    public final List<String> getArguments() {
-        return arguments;
-    }
+    public abstract List<String> getArguments();
 
     /**
      * @param name
      * @return
      */
-    public final Option getOption(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return option;
-            }
-        }
-        return null;
-    }
+    public abstract Option getOption(String name);
 
     /**
      * @param name
      * @return outcome
      */
-    public final boolean isOptionSet(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    public abstract boolean isOptionSet(String name);
 
     /**
      * @param name
      * @return outcome
      */
-    public final String getOptionValue(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return option.value();
-            }
-        }
-        return null;
-    }
+    public abstract String getOptionValue(String name);
 
 }

@@ -17,95 +17,31 @@
 
 package org.pidster.tomcat.util.cli;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * @author pidster
- * 
+ *
  */
-public class CommandProcessor {
-
-    private long count;
-
-    private boolean interactive;
-
-    private final LinkedList<CommandLine> history;
-
-    /**
-     * @param registry
-     */
-    public CommandProcessor() {
-        this.count = 0;
-        this.interactive = false;
-        this.history = new LinkedList<CommandLine>();
-    }
+public interface CommandProcessor {
 
     /**
      * @param argArray
      * @return
      */
-    public CommandLine parseArguments(String... argArray) {
-
-        if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
-            argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
-        }
-
-        // this.history.put(count, arguments);
-
-        List<String> arguments = new LinkedList<String>();
-        arguments.addAll(Arrays.asList(argArray));
-
-        if (arguments.contains("--interactive")) {
-            arguments.remove("--interactive");
-            this.interactive = true;
-        }
-
-        CommandLine line = new CommandLine();
-
-        for (String arg : arguments) {
-            if (arg.startsWith("-")) {
-                line.addOption(arg);
-            }
-            else {
-                line.addArgument(arg);
-            }
-        }
-
-        history.add(line);
-
-        return line;
-    }
+    public abstract CommandLine parseArguments(String... argArray);
 
     /**
      * @return outcome
      */
-    public boolean isExit() {
-
-        String commandName = history.getLast().getCommandName();
-
-        if ("exit".equalsIgnoreCase(commandName))
-            return true;
-        if ("quit".equalsIgnoreCase(commandName))
-            return true;
-
-        return false;
-    }
+    public abstract boolean isExit();
 
     /**
      * @return
      */
-    public boolean first() {
-        count++;
-        return (count <= 1);
-    }
+    public abstract boolean first();
 
     /**
      * @return
      */
-    public boolean isInteractive() {
-        return this.interactive;
-    }
+    public abstract boolean isInteractive();
 
 }

@@ -18,7 +18,7 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import org.pidster.tomcat.util.cli.Descriptor;
-import org.pidster.tomcat.util.cli.JMXCommand;
+import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -35,12 +35,12 @@ import org.pidster.tomcat.util.cli.Usage;
         @Option(name = "connectors", single = 'c', description = "Show connector info"),
         @Option(name = "webapps", single = 'w', description = "Show webapps info"),
         @Option(name = "stats", single = 's', description = "Show stats") })
-public class StatusCommand extends JMXCommand {
+public class StatusCommand extends AbstractJMXCommand {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.ACommand#execute(org.apache.tomcat.
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#execute(org.apache.tomcat.
      * util.cli .Environment)
      */
     @Override
