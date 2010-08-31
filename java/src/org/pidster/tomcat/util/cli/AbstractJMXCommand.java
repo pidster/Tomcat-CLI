@@ -249,13 +249,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                 serviceURL = machine.getAgentProperties().getProperty(
                         LOCAL_CONNECTOR_ADDRESS);
             }
-            catch (AttachNotSupportedException e) {
-                throw new RuntimeException(e.getMessage(), e.getCause());
-            }
-            catch (AgentLoadException e) {
-                throw new RuntimeException(e.getMessage(), e.getCause());
-            }
-            catch (AgentInitializationException e) {
+            catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e.getCause());
             }
         }
@@ -263,7 +257,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         else {
             String port = DEFAULT_JMX_PORT;
             if (getConfig().isOptionSet("port"))
-                getConfig().getOptionValue("port");
+                port = getConfig().getOptionValue("port");
 
             String host = DEFAULT_JMX_HOST;
             if (getConfig().isOptionSet("host"))
@@ -280,6 +274,8 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
             serviceURL = s.toString();
         }
+
+        log("Connecting via URL: " + serviceURL);
 
         return serviceURL;
     }
