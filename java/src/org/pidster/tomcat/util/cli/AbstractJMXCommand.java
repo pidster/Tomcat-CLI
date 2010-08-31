@@ -21,14 +21,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.QueryExp;
 import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -183,6 +186,56 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      */
     protected MBeanServerConnection getConnection() {
         return connection;
+    }
+
+    /**
+     * @param on
+     * @param qe
+     * @return
+     * @throws IOException
+     */
+    protected SortedSet<ObjectName> query(ObjectName on, QueryExp qe)
+            throws IOException {
+
+        SortedSet<ObjectName> names = new TreeSet<ObjectName>(getConnection()
+                .queryNames(on, qe));
+
+        return names;
+    }
+
+    /**
+     * @param obj
+     * @param attribute
+     * @return obj
+     */
+    protected Object attribute(ObjectName obj, String attribute) {
+
+        try {
+            return getConnection().getAttribute(obj, attribute);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param name
+     * @param operationName
+     * @param params
+     * @param signature
+     * @return
+     * @throws InstanceNotFoundException
+     * @throws MBeanException
+     * @throws ReflectionException
+     * @throws IOException
+     * @see javax.management.MBeanServerConnection#invoke(javax.management.ObjectName,
+     *      java.lang.String, java.lang.Object[], java.lang.String[])
+     */
+    protected Object invoke(ObjectName name, String operationName,
+            Object[] params, String[] signature)
+            throws InstanceNotFoundException, MBeanException,
+            ReflectionException, IOException {
+        return connection.invoke(name, operationName, params, signature);
     }
 
     /**

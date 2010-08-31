@@ -88,6 +88,8 @@ public class DumpJMXCommand extends AbstractJMXCommand {
                 q.append("*");
             }
 
+            // log(q.toString());
+
             name = ObjectName.getInstance(q.toString());
 
             TreeSet<ObjectName> names = new TreeSet<ObjectName>(

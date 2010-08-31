@@ -30,6 +30,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Option;
@@ -43,8 +44,8 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "<options>", description = "Determine server status")
 @Descriptor(name = "status")
 @Options({
-        @Option(name = "engine", single = 'e', setter = true, description = "Selects a specific Engine"),
-        @Option(name = "hostname", single = 'n', setter = true, description = "Selects a specific Host"),
+        @Option(name = "engine", single = 'e', setter = true, value = "*", description = "Selects a specific Engine"),
+        @Option(name = "hostname", single = 'n', setter = true, value = "*", description = "Selects a specific Host"),
         @Option(name = "webapp", single = 'a', setter = true, description = "Selects a specific application context"),
         @Option(name = "threads", single = 't', description = "Show thread info"),
         @Option(name = "connectors", single = 'c', description = "Show connector info"),
@@ -65,7 +66,7 @@ public class StatusCommand extends AbstractJMXCommand {
      * util.cli .Environment)
      */
     @Override
-    public void execute() {
+    public void execute() throws CommandException {
 
         try {
             ObjectName server = queryNames("*:type=Server").first();
@@ -187,9 +188,11 @@ public class StatusCommand extends AbstractJMXCommand {
             String engineName = (String) getAttribute(engine, "name");
 
             s.append(String.format("\n  Engine:%1s", engineName));
+
             s.append(" [");
             s.append("defaultHost=");
             s.append(getAttribute(engine, "defaultHost"));
+
             Object jvmRoute = getAttribute(engine, "jvmRoute");
             if (jvmRoute != null) {
                 s.append(", jvmRoute=");
@@ -414,6 +417,7 @@ public class StatusCommand extends AbstractJMXCommand {
 
                 String query = engineName + ":type=Manager,path=" + path
                         + ",host=" + hostname;
+
                 SortedSet<ObjectName> managers = queryNames(query);
                 ObjectName manager = managers.first();
 

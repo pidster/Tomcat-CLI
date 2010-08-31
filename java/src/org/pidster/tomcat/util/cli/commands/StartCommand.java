@@ -15,40 +15,24 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.commands;
+
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
  * 
  */
-public interface Command {
-
-    /**
-     * @param config
-     * @throws CommandException
-     */
-    void configure(CommandConfig config) throws CommandException;
+@Usage(syntax = "<options>", description = "Start an application")
+@Descriptor(name = "start")
+public class StartCommand extends AbstractWebappCommand {
 
     /**
      * 
      */
-    CommandConfig getConfig();
-
-    /**
-     * 
-     */
-    void cleanup();
-
-    /**
-     * @param options
-     * @param arguments
-     * @throws CommandException
-     */
-    void execute() throws CommandException;
-
-    /**
-     * @param message
-     */
-    void log(String message);
+    public StartCommand() {
+        super("start");
+    }
 
 }
