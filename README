@@ -1,5 +1,6 @@
 This is a Command Line Interface for Tomcat 7.0, which requires Java 6.
-(It might also work for other versions running on Java 6.)
+This library might also work for other versions of Tomcat running on 
+Java 6.
 
 Connect to the local JMX connector on the specified process:
   java -jar tomcat-cli.jar status --pid:<PID>
