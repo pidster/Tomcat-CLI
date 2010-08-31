@@ -17,20 +17,22 @@
 
 package org.pidster.tomcat.util.cli;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author pidster
  * 
  */
-public class CommandLine {
+public class CommandLine implements Serializable {
 
-    private final SortedMap<String, String> options;
+    private static final long serialVersionUID = 1L;
 
     private final List<String> arguments;
+
+    private final List<String> options;
 
     private String prompt;
 
@@ -39,8 +41,8 @@ public class CommandLine {
      */
     public CommandLine() {
         this.prompt = "> ";
-        this.options = new TreeMap<String, String>();
         this.arguments = new ArrayList<String>();
+        this.options = new ArrayList<String>();
     }
 
     /**
@@ -63,56 +65,56 @@ public class CommandLine {
         this.prompt = prompt;
     }
 
-    /**
-     * @return is verbose
-     */
-    public boolean isVerbose() {
-        return isOptionSet("verbose");
-    }
+    // /**
+    // * @return is verbose
+    // */
+    // public boolean isVerbose() {
+    // return isOptionSet("verbose");
+    // }
+    //
+    // /**
+    // * @param option
+    // */
+    // public void setOption(String option) {
+    //
+    // if (option.startsWith("--")) {
+    // option = option.substring(2);
+    // }
+    //
+    // else if (option.startsWith("-")) {
+    // option = option.substring(1);
+    // }
+    //
+    // if (option.indexOf(':') > -1) {
+    // String[] pair = option.split("\\:");
+    // this.options.put(pair[0], pair[1]);
+    // }
+    // else {
+    // this.options.put(option, "true");
+    // }
+    // }
+    //
+    // /**
+    // * @param option
+    // * @return outcome
+    // */
+    // public boolean isOptionSet(String option) {
+    // return this.options.containsKey(option);
+    // }
 
     /**
-     * @param option
-     */
-    public void setOption(String option) {
-
-        if (option.startsWith("--")) {
-            option = option.substring(2);
-        }
-
-        else if (option.startsWith("-")) {
-            option = option.substring(1);
-        }
-
-        if (option.indexOf(':') > -1) {
-            String[] pair = option.split("\\:");
-            this.options.put(pair[0], pair[1]);
-        }
-        else {
-            this.options.put(option, "true");
-        }
-    }
-
-    /**
-     * @param option
-     * @return outcome
-     */
-    public boolean isOptionSet(String option) {
-        return this.options.containsKey(option);
-    }
-
-    /**
-     * @param option
+     * @param options
      * @return value
      */
-    public String getOption(String option) {
-        return this.options.get(option);
+    public List<String> getOptions() {
+        return this.options;
     }
 
     /**
-     * @param argument
+     * @param option
      */
-    public void addArgument(String argument) {
-        this.arguments.add(argument);
+    public void addOption(String option) {
+        this.options.add(option);
     }
 
     /**
@@ -134,18 +136,28 @@ public class CommandLine {
         return false;
     }
 
+    // /**
+    // * @return options
+    // */
+    // public SortedMap<String, String> getOptions() {
+    // return options;
+    // }
+
     /**
-     * @return options
+     * @param argument
      */
-    public SortedMap<String, String> getOptions() {
-        return options;
+    public void addArgument(String argument) {
+        this.arguments.add(argument);
     }
 
     /**
      * @return the arguments
      */
     public final List<String> getArguments() {
-        return arguments;
+        if (arguments.size() > 1) {
+            return arguments.subList(1, arguments.size() - 1);
+        }
+        return Collections.emptyList();
     }
 
 }

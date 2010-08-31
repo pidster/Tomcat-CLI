@@ -28,13 +28,13 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(syntax = "<options>", description = "Determine server status")
 @Descriptor(name = "status", options = {
-        @Option(trigger = 'e', setter = true, description = "Selects a specific Engine"),
-        @Option(trigger = 'h', setter = true, description = "Selects a specific Host"),
-        @Option(trigger = 'a', setter = true, description = "Selects a specific application context"),
-        @Option(trigger = 't', description = "Show thread info"),
-        @Option(trigger = 'c', description = "Show connector info"),
-        @Option(trigger = 'w', description = "Show webapps info"),
-        @Option(trigger = 's', description = "Show stats") })
+        @Option(name = "engine", single = 'e', setter = true, description = "Selects a specific Engine"),
+        @Option(name = "host", single = 'h', setter = true, description = "Selects a specific Host"),
+        @Option(name = "webapp", single = 'a', setter = true, description = "Selects a specific application context"),
+        @Option(name = "threads", single = 't', description = "Show thread info"),
+        @Option(name = "connectors", single = 'c', description = "Show connector info"),
+        @Option(name = "webapps", single = 'w', description = "Show webapps info"),
+        @Option(name = "stats", single = 's', description = "Show stats") })
 public class StatusCommand extends JMXCommand {
 
     /*

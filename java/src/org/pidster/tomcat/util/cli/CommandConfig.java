@@ -28,7 +28,7 @@ public class CommandConfig {
 
     private final Environment environment;
     private final List<String> arguments;
-    private final Map<String, String> options;
+    private final Map<Option, String> options;
 
     /**
      * @param environment
@@ -36,12 +36,10 @@ public class CommandConfig {
      * @param options
      */
     public CommandConfig(Environment environment, List<String> arguments,
-            Map<String, String> options) {
+            Map<Option, String> options) {
         this.environment = environment;
         this.arguments = arguments;
         this.options = options;
-
-        //
     }
 
     /**
@@ -59,10 +57,42 @@ public class CommandConfig {
     }
 
     /**
-     * @return the options
+     * @param name
+     * @return
      */
-    public final Map<String, String> getOptions() {
-        return options;
+    public final Option getOption(String name) {
+        for (Option option : options.keySet()) {
+            if (option.name().equals(name)) {
+                return option;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param name
+     * @return outcome
+     */
+    public final boolean isOptionSet(String name) {
+        for (Option option : options.keySet()) {
+            if (option.name().equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param name
+     * @return outcome
+     */
+    public final String getOptionValue(String name) {
+        for (Option option : options.keySet()) {
+            if (option.name().equals(name)) {
+                return option.value();
+            }
+        }
+        return null;
     }
 
 }

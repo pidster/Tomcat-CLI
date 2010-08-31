@@ -43,30 +43,30 @@ public class CommandProcessor {
     }
 
     /**
-     * @param arguments
+     * @param argArray
      * @return
      */
-    public CommandLine parseArguments(String... arguments) {
+    public CommandLine parseArguments(String... argArray) {
 
-        if ((arguments.length == 1) && (arguments[0].indexOf(' ') > -1)) {
-            arguments = arguments[0].replaceAll("[\\s ]+", " ").split(" ");
+        if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
+            argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
         }
 
         // this.history.put(count, arguments);
 
-        List<String> original = new LinkedList<String>();
-        original.addAll(Arrays.asList(arguments));
+        List<String> arguments = new LinkedList<String>();
+        arguments.addAll(Arrays.asList(argArray));
 
-        if (original.contains("--interactive")) {
-            original.remove("--interactive");
+        if (arguments.contains("--interactive")) {
+            arguments.remove("--interactive");
             this.interactive = true;
         }
 
         CommandLine line = new CommandLine();
 
-        for (String arg : original) {
-            if (arg.startsWith("--") || arg.startsWith("-")) {
-                line.setOption(arg);
+        for (String arg : arguments) {
+            if (arg.startsWith("-")) {
+                line.addOption(arg);
             }
             else {
                 line.addArgument(arg);

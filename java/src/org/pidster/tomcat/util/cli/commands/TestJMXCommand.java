@@ -41,7 +41,11 @@ public class TestJMXCommand extends ACommand {
 
         StringBuilder s = new StringBuilder();
 
-        s.append("---------------------------------------------------------------- \n");
+        s.append("- TEST STARTS --------------------------------------------------------------- \n");
+
+        s.append("");
+
+        s.append("- TEST ENDS ----------------------------------------------------------------- \n");
 
         log(s.toString());
     }

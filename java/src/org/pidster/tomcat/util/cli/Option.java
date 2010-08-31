@@ -18,9 +18,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Option {
 
-    char trigger();
+    String name();
+
+    char single();
 
     String extended() default "";
+
+    String value() default "";
 
     String description();
 

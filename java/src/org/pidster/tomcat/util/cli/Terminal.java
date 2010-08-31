@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 import org.pidster.tomcat.util.cli.commands.HelpCommand;
 
@@ -85,31 +84,33 @@ public class Terminal {
 
     private final CommandProcessor processor;
     private final CommandRegistry registry;
+    private final OptionParser parser;
+    private final Environment environment;
 
     /**
      * 
      */
     public Terminal() {
 
-        registry = new CommandRegistry();
+        this.registry = new CommandRegistry();
 
         ServiceLoader<Command> loader = ServiceLoader.load(Command.class);
 
         for (Command command : loader) {
-            registry.register(command);
+            this.registry.register(command);
         }
 
         // Deliberately override any other help commands
-        registry.register("help", new HelpCommand(registry.commands()));
-        processor = new CommandProcessor();
+        this.registry.register("help", new HelpCommand(registry.commands()));
+        this.parser = new OptionParser(registry.getOptions());
+        this.processor = new CommandProcessor();
+        this.environment = new Environment();
     }
 
     /**
      * @param arguments
      */
     public void process(String[] arguments) {
-
-        Environment environment = new Environment();
 
         CommandLine line = processor.parseArguments(arguments);
         boolean interactive = processor.isInteractive();
@@ -142,25 +143,11 @@ public class Terminal {
 
                 try {
 
-                    Class<?> c = command.getClass();
-                    Descriptor d = c.getAnnotation(Descriptor.class);
+                    Map<Option, String> activeOptions = parser.activeOptions(
+                            line.getOptions(), command);
 
-                    for (Option option : d.options()) {
-
-                        if (line.isOptionSet(option.extended())
-                                || line.isOptionSet(String.valueOf(option
-                                        .trigger()))) {
-                            continue;
-                        }
-
-                        if (option.required()) {
-                            // ERROR!
-                        }
-                    }
-
-                    Map<Option, String> options = matchOptions(registry, line);
-
-                    CommandConfig config = createConfig(environment, line);
+                    CommandConfig config = new CommandConfig(environment,
+                            line.getArguments(), activeOptions);
 
                     command.configure(config);
 
@@ -180,34 +167,4 @@ public class Terminal {
         }
     }
 
-    /**
-     * @param registry
-     * @param line
-     * @return
-     */
-    private Map<Option, String> matchOptions(CommandRegistry registry,
-            CommandLine line) {
-
-        Set<String> optionNames = line.getOptions().keySet();
-        for (String optionName : optionNames) {
-            if (registry.hasOption(line.getCommandName(), optionName)) {
-
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param env
-     * @param cl
-     * @return
-     */
-    private CommandConfig createConfig(Environment env, CommandLine cl) {
-
-        CommandConfig c = new CommandConfig(env, cl.getArguments(),
-                cl.getOptions());
-
-        return c;
-    }
 }

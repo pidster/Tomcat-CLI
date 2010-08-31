@@ -17,17 +17,70 @@
 
 package org.pidster.tomcat.util.cli;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * @author SWilliams
- *
+ * @author pidster
+ * 
  */
 public class OptionParser {
 
+    private final Map<Command, Option[]> commandOptions;
+
     /**
-     * 
+     * @param options
      */
-    public OptionParser() {
-        // TODO Auto-generated constructor stub
+    public OptionParser(Map<Command, Option[]> options) {
+        this.commandOptions = options;
+    }
+
+    /**
+     * @param line
+     * @param command
+     * @return options
+     */
+    public Map<Option, String> activeOptions(List<String> options,
+            Command command) {
+
+        Map<Option, String> activeOptions = new HashMap<Option, String>();
+        Option[] viableOptions = commandOptions.get(command);
+
+        for (Option option : viableOptions) {
+
+            for (String argument : options) {
+
+                String ext = "--".concat(option.extended());
+                String sng = "-" + option.single();
+
+                if (argument.startsWith(ext) || argument.startsWith(sng)) {
+
+                    String value = option.value();
+
+                    if (argument.indexOf(':') > -1) {
+                        value = argument.substring(argument.indexOf(':') + 1);
+                    }
+                    else {
+                        value = option.value();
+                    }
+
+                    if (option.setter() && value.isEmpty()) {
+                        throw new IllegalArgumentException("Option "
+                                + option.name() + " must have value");
+                    }
+
+                    activeOptions.put(option, value);
+                }
+            }
+
+            // check to see if this option is required
+            if (option.required() && !activeOptions.containsKey(option)) {
+                throw new IllegalArgumentException("Option "
+                        + option.extended() + " is required");
+            }
+        }
+        return activeOptions;
     }
 
 }

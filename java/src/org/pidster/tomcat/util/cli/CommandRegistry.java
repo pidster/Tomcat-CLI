@@ -18,8 +18,8 @@
 package org.pidster.tomcat.util.cli;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author pidster
@@ -29,14 +29,14 @@ public class CommandRegistry {
 
     private final Map<String, Command> commands;
 
-    private final Map<String, Option[]> commandOptions;
+    private final Map<Command, Option[]> commandOptions;
 
     /**
      * 
      */
     public CommandRegistry() {
-        this.commands = new TreeMap<String, Command>();
-        this.commandOptions = new TreeMap<String, Option[]>();
+        this.commands = new HashMap<String, Command>();
+        this.commandOptions = new HashMap<Command, Option[]>();
     }
 
     /**
@@ -69,7 +69,7 @@ public class CommandRegistry {
         Descriptor d = c.getAnnotation(Descriptor.class);
 
         commands.put(name, command);
-        commandOptions.put(name, d.options());
+        commandOptions.put(command, d.options());
 
     }
 
@@ -85,39 +85,11 @@ public class CommandRegistry {
     }
 
     /**
-     * @param name
-     * @return outcome
-     */
-    public boolean hasOption(String name, String option) {
-
-        if ((name == null) || (name.isEmpty()))
-            return false;
-
-        if ((option == null) || (option.isEmpty()))
-            return false;
-
-        if (!commandOptions.containsKey(name))
-            return false;
-
-        Option[] options = commandOptions.get(name);
-
-        for (Option o : options) {
-            if (o.trigger() == option.charAt(0))
-                return true;
-
-            if (o.extended().equalsIgnoreCase(option))
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param name
+     * @param command
      * @return options
      */
-    public Option[] getViableOptions(String name) {
-        return commandOptions.get(name);
+    public Option[] getViableOptions(Command command) {
+        return commandOptions.get(command);
     }
 
     /**
@@ -133,6 +105,13 @@ public class CommandRegistry {
      */
     public Command get(String commandName) {
         return this.commands.get(commandName);
+    }
+
+    /**
+     * @return options
+     */
+    public Map<Command, Option[]> getOptions() {
+        return this.commandOptions;
     }
 
 }
