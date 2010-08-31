@@ -36,8 +36,6 @@ public @interface Option {
 
     char single();
 
-    String extended() default "";
-
     String value() default "";
 
     String description();

@@ -90,8 +90,8 @@ public class OptionParserImpl implements OptionParser {
 
             // check to see if this option is required
             if (option.required() && !activeOptions.containsKey(option)) {
-                throw new IllegalArgumentException("Option "
-                        + option.extended() + " is required");
+                throw new IllegalArgumentException("Option '" + option.name()
+                        + "' is required");
             }
         }
         return activeOptions;

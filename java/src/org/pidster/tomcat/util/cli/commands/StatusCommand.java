@@ -44,7 +44,7 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "status")
 @Options({
         @Option(name = "engine", single = 'e', setter = true, description = "Selects a specific Engine"),
-        @Option(name = "host", single = 'h', setter = true, description = "Selects a specific Host"),
+        @Option(name = "hostname", single = 'n', setter = true, description = "Selects a specific Host"),
         @Option(name = "webapp", single = 'a', setter = true, description = "Selects a specific application context"),
         @Option(name = "threads", single = 't', description = "Show thread info"),
         @Option(name = "connectors", single = 'c', description = "Show connector info"),
@@ -317,8 +317,8 @@ public class StatusCommand extends AbstractJMXCommand {
 
             String hostname = (String) getAttribute(host, "name");
 
-            if (getConfig().isOptionSet("host")) {
-                if (!getConfig().getOptionValue("host").equals(hostname))
+            if (getConfig().isOptionSet("hostname")) {
+                if (!getConfig().getOptionValue("hostname").equals(hostname))
                     continue;
             }
 
@@ -340,7 +340,8 @@ public class StatusCommand extends AbstractJMXCommand {
                 s.append("]");
             }
 
-            if (super.getConfig().isOptionSet("webapps")
+            if ((getConfig().isOptionSet("webapps") || getConfig().isOptionSet(
+                    "webapp"))
                     && (webapps.length > 0)) {
                 s.append(webapps(engineName, hostname, webapps));
                 if (hosts.size() > 1) {
@@ -390,8 +391,8 @@ public class StatusCommand extends AbstractJMXCommand {
             String started = "";
             String docBase = (String) getAttribute(webapp, "docBase");
 
-            if (getConfig().isOptionSet("app")) {
-                if (!getConfig().getOptionValue("app").equals(docBase))
+            if (getConfig().isOptionSet("webapp")) {
+                if (!getConfig().getOptionValue("webapp").equals(docBase))
                     continue;
             }
 

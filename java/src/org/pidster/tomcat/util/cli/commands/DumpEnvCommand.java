@@ -30,8 +30,8 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(description = "Used for debugging. Dumps environment.")
-@Descriptor(name = "dumpenv")
+@Usage(description = "Dump environment")
+@Descriptor(name = "env")
 public class DumpEnvCommand extends AbstractCommand {
 
     /*

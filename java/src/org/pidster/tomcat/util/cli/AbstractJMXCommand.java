@@ -54,6 +54,8 @@ import sun.management.ConnectorAddressLink;
 })
 public abstract class AbstractJMXCommand extends AbstractCommand {
 
+    protected static final String DEFAULT_JMX_PROTOCOL = "service:jmx:rmi:///jndi/rmi://";
+
     protected static final String DEFAULT_JMX_PORT = "1099";
 
     protected static final String DEFAULT_JMX_HOST = "127.0.0.1";
@@ -102,6 +104,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             // ------------------------------------------------------------
             // acquire runtime attributes
             ObjectName query = ObjectName.getInstance("java.lang:type=Runtime");
+
             String[] arr = new String[] {
                     "Name", "Uptime", "StartTime", "VmName", "VmVendor",
                     "VmVersion"
@@ -263,7 +266,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             String path = DEFAULT_JMX_URI;
 
             StringBuilder s = new StringBuilder();
-            s.append("service:jmx:rmi:///jndi/rmi://");
+            s.append(DEFAULT_JMX_PROTOCOL);
             s.append(host);
             s.append(":");
             s.append(port);
@@ -272,7 +275,8 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             serviceURL = s.toString();
         }
 
-        log("Connecting via URL: " + serviceURL);
+        if (isVerbose())
+            log("Connecting via URL: " + serviceURL);
 
         return serviceURL;
     }
