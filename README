@@ -1,0 +1,16 @@
+This is a Command Line Interface for Tomcat 7.0, which requires Java 6.
+(It might also work for other versions running on Java 6.)
+
+Connect to the local JMX connector on the specified process:
+  java -jar tomcat-cli.jar status --pid:<PID>
+
+Inject the Java 6 Management Agent into the specified process:
+  java -jar tomcat-cli.jar status --inject:<PID>
+
+Connect to the localhost JMX connector on the specified port:
+  java -jar tomcat-cli.jar status --port:<portnum>
+
+Connect to a process by guessing which is Tomcat:
+  java -jar tomcat-cli.jar status --guess
+
+ 
