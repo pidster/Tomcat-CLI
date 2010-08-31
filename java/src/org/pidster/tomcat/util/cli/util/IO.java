@@ -15,20 +15,20 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.util;
 
 import java.io.Closeable;
 
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
-public class Util {
+public class IO {
 
     /**
      * 
      */
-    private Util() {
+    private IO() {
         //
     }
 

@@ -11,13 +11,17 @@ import org.pidster.tomcat.util.cli.CommandLine;
 import org.pidster.tomcat.util.cli.CommandProcessor;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.OptionParser;
-import org.pidster.tomcat.util.cli.Terminal;
+import org.pidster.tomcat.util.cli.ConsoleUI;
 import org.pidster.tomcat.util.cli.commands.HelpCommand;
+import org.pidster.tomcat.util.cli.util.StringManager;
 
 /**
  * @author pidster
  */
-public class TerminalImpl implements Terminal {
+public class ConsoleUIImpl implements ConsoleUI {
+
+    private static final StringManager manager = StringManager
+            .getManager("org.pidster.tomcat.util.cli.impl");
 
     private final CommandProcessor processor;
     private final CommandRegistryImpl registry;
@@ -27,7 +31,7 @@ public class TerminalImpl implements Terminal {
     /**
      * 
      */
-    public TerminalImpl() {
+    public ConsoleUIImpl() {
 
         this.registry = new CommandRegistryImpl();
         this.processor = new CommandProcessorImpl();
@@ -38,7 +42,7 @@ public class TerminalImpl implements Terminal {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.Terminal#register(java.lang.Iterable)
+     * @see org.pidster.tomcat.util.cli.ConsoleUI#register(java.lang.Iterable)
      */
     @Override
     public void register(Iterable<Command> commands) {
@@ -54,7 +58,7 @@ public class TerminalImpl implements Terminal {
     /*
      * (non-Javadoc)
      * 
-     * @see org.pidster.tomcat.util.cli.Terminal#process(java.lang.String[])
+     * @see org.pidster.tomcat.util.cli.ConsoleUI#process(java.lang.String[])
      */
     @Override
     public void process(String[] arguments) {
@@ -72,15 +76,15 @@ public class TerminalImpl implements Terminal {
 
             // if there's no command and we're not interactive
             if (!line.hasCommand() && (!interactive)) {
-                environmentImpl.sysout("Usage: \n");
+                environmentImpl.sysout(manager.getString("tomcat.cli.usage"));
                 break;
             }
 
             // if we have a command and we didn't match it
             if (line.hasCommand()
                     && !registry.isRegistered(line.getCommandName())) {
-                environmentImpl.sysout("Command '%s' not found\n",
-                        line.getCommandName());
+                environmentImpl.sysout(manager.getString(
+                        "tomcat.cli.commandNotFound", line.getCommandName()));
             }
 
             // if we found a command

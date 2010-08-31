@@ -20,7 +20,7 @@ package org.pidster.tomcat.util.cli.models;
 import java.util.Date;
 
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
 public class Webapp {

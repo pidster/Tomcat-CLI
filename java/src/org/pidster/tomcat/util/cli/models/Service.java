@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
 public class Service {

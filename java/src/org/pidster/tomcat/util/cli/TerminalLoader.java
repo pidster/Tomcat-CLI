@@ -21,7 +21,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * @author SWilliams
+ * @author pidster
  * 
  */
 public class TerminalLoader extends URLClassLoader {

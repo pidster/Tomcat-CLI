@@ -45,15 +45,23 @@ public class EnvironmentImpl implements Environment {
         this.prompt = DEFAULT_PROMPT;
     }
 
-    /* (non-Javadoc)
-     * @see org.pidster.tomcat.util.cli.Environment#sysout(java.lang.String, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.Environment#sysout(java.lang.String,
+     * java.lang.Object)
      */
     @Override
     public void sysout(String fmt, Object... args) {
+        if (!fmt.endsWith("\n")) {
+            fmt += "\n";
+        }
         console.format(fmt, args);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.Environment#sysout(java.lang.Throwable)
      */
     @Override
@@ -61,7 +69,9 @@ public class EnvironmentImpl implements Environment {
         throwable.printStackTrace(System.out);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.Environment#getPrompt()
      */
     @Override
@@ -69,7 +79,9 @@ public class EnvironmentImpl implements Environment {
         return prompt;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.pidster.tomcat.util.cli.Environment#setPrompt(java.lang.String)
      */
     @Override
