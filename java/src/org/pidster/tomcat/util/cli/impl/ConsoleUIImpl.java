@@ -122,7 +122,7 @@ public class ConsoleUIImpl implements ConsoleUI {
                     command.execute();
                 }
                 catch (Throwable t) {
-                    environmentImpl.sysout(t);
+                    environmentImpl.sysout(t.getMessage());
                 }
                 finally {
                     command.cleanup();

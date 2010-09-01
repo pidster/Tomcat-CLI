@@ -18,7 +18,6 @@
 package org.pidster.tomcat.util.cli.impl;
 
 import java.io.Console;
-import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.pidster.tomcat.util.cli.Environment;
@@ -110,7 +109,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public String[] readPrompt(String prompt) {
 
-        long index = count.getAndIncrement();
+        // long index = count.getAndIncrement();
 
         String line = console.readLine(prompt);
         line = line.replaceAll("[\\s\\ ]+", " ");

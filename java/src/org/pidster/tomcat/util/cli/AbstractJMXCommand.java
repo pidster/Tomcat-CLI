@@ -19,7 +19,9 @@ package org.pidster.tomcat.util.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -40,6 +42,7 @@ import javax.management.remote.JMXServiceURL;
 import org.pidster.tomcat.util.cli.util.DateTime;
 
 import com.sun.tools.attach.VirtualMachine;
+import com.sun.tools.attach.VirtualMachineDescriptor;
 
 import sun.management.ConnectorAddressLink;
 
@@ -53,9 +56,12 @@ import sun.management.ConnectorAddressLink;
         @Option(name = "port", single = 'p', setter = true, description = "The JMX port to connect to"),
         @Option(name = "username", single = 'u', setter = true, description = "The JMX username to use"),
         @Option(name = "password", single = 'x', setter = true, description = "The JMX password credential to use"),
+        @Option(name = "guess", single = 'g', setter = false, description = "Guess which process to attach to"),
         @Option(name = "inject", single = 'j', setter = true, description = "Inject the management agent into a running PID")
 })
 public abstract class AbstractJMXCommand extends AbstractCommand {
+
+    protected static final String CATALINA_BOOTSTRAP = "org.apache.catalina.startup.Bootstrap";
 
     protected static final String DEFAULT_JMX_PROTOCOL = "service:jmx:rmi:///jndi/rmi://";
 
@@ -157,21 +163,40 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             log(s.toString());
         }
         catch (IOException ioe) {
-            throw new CommandException("Connection FAILED: " + ioe.getMessage());
+            throwException(ioe);
         }
         catch (MalformedObjectNameException mone) {
-            throw new CommandException("Connection FAILED: "
-                    + mone.getMessage());
+            throwException(mone);
         }
         catch (NullPointerException npe) {
-            throw new CommandException("Connection FAILED: " + npe.getMessage());
+            throwException(npe);
         }
         catch (InstanceNotFoundException infe) {
-            throw new CommandException(infe.getMessage(), infe.getCause());
+            throwException(infe);
         }
         catch (ReflectionException re) {
-            throw new CommandException(re.getMessage(), re.getCause());
+            throwException(re);
         }
+    }
+
+    /**
+     * 
+     * @param message
+     * @param exception
+     * @throws CommandException
+     */
+    private void throwException(Exception exception) throws CommandException {
+        throw new CommandException(exception);
+    }
+
+    /**
+     * 
+     * @param message
+     * @param exception
+     * @throws CommandException
+     */
+    private void quietException(Exception exception) {
+        log("ERROR: " + exception.getMessage());
     }
 
     /**
@@ -207,6 +232,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             return getConnection().getAttribute(obj, attribute);
         }
         catch (Exception e) {
+            quietException(e);
             return null;
         }
     }
@@ -263,10 +289,12 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
     private String serviceURL() throws IOException {
         String serviceURL;
 
+        // use the manually provided service url
         if (getConfig().isOptionSet("url")) {
             serviceURL = getConfig().getOptionValue("url");
         }
 
+        // use the local connector in the given process
         else if (getConfig().isOptionSet("pid")) {
             int pid = Integer.parseInt(getConfig().getOptionValue("pid"));
             serviceURL = ConnectorAddressLink.importFrom(pid);
@@ -275,6 +303,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                         "JMX local connector not found in PID: " + pid);
         }
 
+        // inject a process with the management agent
         else if (getConfig().isOptionSet("inject")) {
             String pid = getConfig().getOptionValue("inject");
 
@@ -292,6 +321,31 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                         + File.separator + "management-agent.jar";
 
                 machine.loadAgent(agent);
+                serviceURL = machine.getAgentProperties().getProperty(
+                        LOCAL_CONNECTOR_ADDRESS);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e.getCause());
+            }
+        }
+
+        // guess which process to use
+        else if (getConfig().isOptionSet("guess")) {
+            List<VirtualMachineDescriptor> descriptors = VirtualMachine.list();
+            List<String> tomcats = new ArrayList<String>();
+            for (VirtualMachineDescriptor vmd : descriptors) {
+                if (vmd.displayName().startsWith(CATALINA_BOOTSTRAP)) {
+                    tomcats.add(vmd.id());
+                }
+            }
+
+            if (tomcats.size() != 1) {
+                throw new RuntimeException("Expected 1 virtual machine, found "
+                        + tomcats.size() + " PIDs: " + tomcats);
+            }
+
+            try {
+                VirtualMachine machine = VirtualMachine.attach(tomcats.get(0));
                 serviceURL = machine.getAgentProperties().getProperty(
                         LOCAL_CONNECTOR_ADDRESS);
             }
@@ -326,4 +380,5 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
         return serviceURL;
     }
+
 }
