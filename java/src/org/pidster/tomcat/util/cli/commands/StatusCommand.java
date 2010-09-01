@@ -47,9 +47,9 @@ import org.pidster.tomcat.util.cli.Usage;
         @Option(name = "engine", single = 'e', setter = true, value = "*", description = "Selects a specific Engine"),
         @Option(name = "hostname", single = 'n', setter = true, value = "*", description = "Selects a specific Host"),
         @Option(name = "webapp", single = 'a', setter = true, description = "Selects a specific application context"),
-        @Option(name = "threads", single = 't', description = "Show thread info"),
-        @Option(name = "connectors", single = 'c', description = "Show connector info"),
         @Option(name = "webapps", single = 'w', description = "Show webapps info"),
+        @Option(name = "connectors", single = 'c', description = "Show connector info"),
+        @Option(name = "threads", single = 't', description = "Show thread info"),
         @Option(name = "stats", single = 's', description = "Show stats")
 })
 public class StatusCommand extends AbstractJMXCommand {
@@ -155,7 +155,7 @@ public class StatusCommand extends AbstractJMXCommand {
         StringBuilder s = new StringBuilder();
         SortedSet<ObjectName> names = queryNames("*:type=Service,*");
 
-        if (getConfig().isOptionSet("verbose") || (names.size() == 0)) {
+        if (names.size() == 0) {
             s.append("\n");
             s.append(names.size());
             s.append(" services found.");

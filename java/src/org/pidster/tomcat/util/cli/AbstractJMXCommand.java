@@ -52,7 +52,7 @@ import sun.management.ConnectorAddressLink;
         @Option(name = "jmx", single = 'u', setter = true, description = "The JMX URL to connect to"),
         @Option(name = "port", single = 'p', setter = true, description = "The JMX port to connect to"),
         @Option(name = "username", single = 'u', setter = true, description = "The JMX username to use"),
-        @Option(name = "password", single = 'c', setter = true, description = "The JMX password credential to use"),
+        @Option(name = "password", single = 'x', setter = true, description = "The JMX password credential to use"),
         @Option(name = "inject", single = 'j', setter = true, description = "Inject the management agent into a running PID")
 })
 public abstract class AbstractJMXCommand extends AbstractCommand {
