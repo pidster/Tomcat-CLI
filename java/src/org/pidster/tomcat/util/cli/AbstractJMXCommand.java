@@ -20,6 +20,7 @@ package org.pidster.tomcat.util.cli;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +152,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
             s.append("]\n");
 
-            if (isVerbose()) {
+            if (isDebug()) {
                 s.append("- ");
                 s.append(runtimeProps.get("VmName"));
                 s.append(" (");
@@ -284,8 +285,8 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                 password = getConfig().getOptionValue("password");
             }
             else {
-                password = getConfig().getEnvironment().readPrompt(
-                        "Please enter the JMX password: ")[0];
+                password = Arrays.toString(getConfig().getEnvironment()
+                        .readPrompt("Please enter the JMX password: "));
             }
 
             String[] pair = new String[] {
@@ -293,6 +294,11 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             };
             environment.put(JMXConnector.CREDENTIALS, pair);
         }
+
+        if (getConfig().isOptionSet("secure")) {
+            // TODO enable SSL connections here?
+        }
+
         return environment;
     }
 
@@ -389,7 +395,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             serviceURL = s.toString();
         }
 
-        if (isVerbose())
+        if (isDebug())
             log("Connecting via URL: " + serviceURL);
 
         return serviceURL;

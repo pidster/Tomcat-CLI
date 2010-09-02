@@ -33,22 +33,20 @@ import org.pidster.tomcat.util.cli.Options;
  */
 @Options({
         @Option(name = "engine", single = 'e', setter = true, required = false, description = "Selects a specific engine"),
-        @Option(name = "hostname", single = 'n', setter = true, required = false, description = "Selects a specific hostname"),
-        @Option(name = "webapp", single = 'a', setter = true, required = true, description = "Selects a specific application context")
+        @Option(name = "hostname", single = 'n', setter = true, required = true, description = "Selects a specific hostname")
 })
-public abstract class AbstractWebappCommand extends StatusCommand {
+public abstract class AbstractHostCommand extends StatusCommand {
 
     private final Map<String, String> commandMap;
 
     /**
      * 
      */
-    protected AbstractWebappCommand() {
-        super();
+    protected AbstractHostCommand() {
         this.commandMap = new HashMap<String, String>();
-        this.commandMap.put("start-app", "start");
-        this.commandMap.put("stop-app", "stop");
-        this.commandMap.put("reload-app", "reload");
+        this.commandMap.put("start", "start");
+        this.commandMap.put("stop", "stop");
+        this.commandMap.put("findleaks", "findReloadedContextMemoryLeaks");
     }
 
     /*
@@ -69,9 +67,6 @@ public abstract class AbstractWebappCommand extends StatusCommand {
             }
 
             String method = commandMap.get(command);
-
-            // required, so should already be checked
-            String docBase = getConfig().getOptionValue("webapp");
 
             StringBuilder s = new StringBuilder();
 
@@ -96,16 +91,7 @@ public abstract class AbstractWebappCommand extends StatusCommand {
                         + hosts.size());
             }
 
-            ObjectName[] children = (ObjectName[]) attribute(hosts.first(),
-                    "children");
-
-            // this is poor, but the QueryExp didn't work as expected
-            for (ObjectName webapp : children) {
-                String appDocBase = (String) attribute(webapp, "docBase");
-                if (docBase.equals(appDocBase)) {
-                    invoke(webapp, method, new Object[0], new String[0]);
-                }
-            }
+            invoke(hosts.first(), method, new Object[0], new String[0]);
 
             super.execute();
         }

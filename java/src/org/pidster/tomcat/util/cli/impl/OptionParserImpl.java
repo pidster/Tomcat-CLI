@@ -58,6 +58,7 @@ public class OptionParserImpl implements OptionParser {
         Map<Option, String> activeOptions = new HashMap<Option, String>();
         List<Option> viableOptions = commandOptions.get(command);
 
+        // FIXME This loop is non-optimal
         for (Option option : viableOptions) {
 
             LOOP: for (String argument : options) {
@@ -83,6 +84,9 @@ public class OptionParserImpl implements OptionParser {
                     }
 
                     activeOptions.put(option, value);
+
+                    // shorten loop next time
+                    options.remove(argument);
 
                     break LOOP;
                 }

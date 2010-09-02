@@ -23,6 +23,7 @@ package org.pidster.tomcat.util.cli;
  */
 @Options({
         @Option(name = "verbose", single = 'v', description = "Enable verbose output"),
+        @Option(name = "debug", single = 'd', description = "Enable debugging output"),
         @Option(name = "interactive", single = 'r', description = "Enable interactive prompt")
 })
 public abstract class AbstractCommand implements Command {
@@ -99,6 +100,13 @@ public abstract class AbstractCommand implements Command {
      */
     protected final boolean isVerbose() {
         return getConfig().isOptionSet("verbose");
+    }
+
+    /**
+     * @return outcome
+     */
+    protected final boolean isDebug() {
+        return getConfig().isOptionSet("debug");
     }
 
 }

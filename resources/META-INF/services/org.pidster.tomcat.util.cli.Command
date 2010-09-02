@@ -16,9 +16,9 @@
 #
 
 org.pidster.tomcat.util.cli.commands.StatusCommand
-org.pidster.tomcat.util.cli.commands.ReloadCommand
-org.pidster.tomcat.util.cli.commands.StartCommand
-org.pidster.tomcat.util.cli.commands.StopCommand
+org.pidster.tomcat.util.cli.commands.ReloadWebappCommand
+org.pidster.tomcat.util.cli.commands.StartWebappCommand
+org.pidster.tomcat.util.cli.commands.StopWebappCommand
 org.pidster.tomcat.util.cli.commands.TestCommand
 org.pidster.tomcat.util.cli.commands.TestJMXCommand
 org.pidster.tomcat.util.cli.commands.DumpEnvCommand

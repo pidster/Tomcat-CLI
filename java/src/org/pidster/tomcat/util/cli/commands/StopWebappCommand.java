@@ -24,14 +24,15 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(syntax = "<options>", description = "Reload an application")
-@Descriptor(name = "reload")
-public class ReloadCommand extends AbstractWebappCommand {
+@Usage(syntax = "<options>", description = "Stop an application")
+@Descriptor(name = "stop-app")
+public class StopWebappCommand extends AbstractWebappCommand {
 
     /**
      * 
      */
-    public ReloadCommand() {
-        super("reload");
+    public StopWebappCommand() {
+        super();
     }
+
 }

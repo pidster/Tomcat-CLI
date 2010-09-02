@@ -43,7 +43,7 @@ public class ConsoleUIImpl implements ConsoleUI {
 
     private final OptionParser optionParser;
 
-    private final EnvironmentImpl environmentImpl;
+    private final EnvironmentImpl environment;
 
     /**
      * 
@@ -52,7 +52,7 @@ public class ConsoleUIImpl implements ConsoleUI {
 
         this.registry = new CommandRegistryImpl();
         this.commandParser = new CommandParserImpl();
-        this.environmentImpl = new EnvironmentImpl();
+        this.environment = new EnvironmentImpl();
         this.optionParser = new OptionParserImpl(registry.getOptions());
     }
 
@@ -93,14 +93,14 @@ public class ConsoleUIImpl implements ConsoleUI {
 
             // if there's no command and we're not interactive
             if (!line.hasCommand() && (!interactive)) {
-                environmentImpl.sysout(manager.getString("tomcat.cli.usage"));
+                environment.sysout(manager.getString("tomcat.cli.usage"));
                 break;
             }
 
             // if we have a command and we didn't match it
             if (line.hasCommand()
                     && !registry.isRegistered(line.getCommandName())) {
-                environmentImpl.sysout(manager.getString(
+                environment.sysout(manager.getString(
                         "tomcat.cli.commandNotFound", line.getCommandName()));
             }
 
@@ -111,18 +111,18 @@ public class ConsoleUIImpl implements ConsoleUI {
 
                 try {
 
-                    Map<Option, String> activeOptions = optionParser
-                            .activeOptions(line.getOptions(), command);
+                    Map<Option, String> options = optionParser.activeOptions(
+                            line.getOptions(), command);
 
-                    CommandConfig config = new CommandConfigImpl(
-                            environmentImpl, line.getArguments(), activeOptions);
+                    CommandConfig config = new CommandConfigImpl(environment,
+                            line.getCommandName(), line.getArguments(), options);
 
                     command.configure(config);
 
                     command.execute();
                 }
                 catch (Throwable t) {
-                    environmentImpl.sysout(t.getMessage());
+                    environment.sysout(t.getMessage());
                 }
                 finally {
                     command.cleanup();
@@ -131,9 +131,7 @@ public class ConsoleUIImpl implements ConsoleUI {
 
             // Update the command line, if we're still running
             if (interactive)
-                line = commandParser.parseArguments(environmentImpl
-                        .readPrompt());
+                line = commandParser.parseArguments(environment.readPrompt());
         }
     }
-
 }

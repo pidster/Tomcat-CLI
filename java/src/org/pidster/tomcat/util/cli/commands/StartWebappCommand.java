@@ -22,16 +22,16 @@ import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
- * 
  */
-@Usage(syntax = "<options>", description = "Stop an application")
-@Descriptor(name = "stop")
-public class StopCommand extends AbstractWebappCommand {
+@Usage(syntax = "<options>", description = "Start an application")
+@Descriptor(name = "start-app")
+public class StartWebappCommand extends AbstractWebappCommand {
 
     /**
      * 
      */
-    public StopCommand() {
-        super("stop");
+    public StartWebappCommand() {
+        super();
     }
+
 }

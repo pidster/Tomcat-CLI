@@ -15,53 +15,24 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.commands;
 
-import java.util.List;
-import java.util.Set;
+import org.pidster.tomcat.util.cli.Descriptor;
+import org.pidster.tomcat.util.cli.Usage;
 
 /**
  * @author pidster
  * 
  */
-public interface CommandConfig {
+@Usage(syntax = "<options>", description = "Reload an application")
+@Descriptor(name = "reload-app")
+public class ReloadWebappCommand extends AbstractWebappCommand {
 
     /**
-     * @return the name
+     * 
      */
-    public abstract String getCommandName();
-
-    /**
-     * @return the environment
-     */
-    public abstract Environment getEnvironment();
-
-    /**
-     * @return the arguments
-     */
-    public abstract List<String> getArguments();
-
-    /**
-     * @param name
-     * @return
-     */
-    public abstract Option getOption(String name);
-
-    /**
-     * @param name
-     * @return outcome
-     */
-    public abstract boolean isOptionSet(String name);
-
-    /**
-     * @param name
-     * @return value
-     */
-    public abstract String getOptionValue(String name);
-
-    /**
-     * @return options
-     */
-    public abstract Set<Option> getOptions();
+    public ReloadWebappCommand() {
+        super();
+    }
 
 }

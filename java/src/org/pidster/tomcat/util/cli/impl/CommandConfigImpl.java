@@ -31,18 +31,21 @@ import org.pidster.tomcat.util.cli.Option;
  */
 public class CommandConfigImpl implements CommandConfig {
 
-    private final Environment environmentImpl;
+    private final Environment environment;
+    private final String name;
     private final List<String> arguments;
     private final Map<Option, String> options;
 
     /**
-     * @param environmentImpl
+     * @param environment
+     * @param environment
      * @param arguments
      * @param options
      */
-    public CommandConfigImpl(Environment environmentImpl,
+    public CommandConfigImpl(Environment environment, String name,
             List<String> arguments, Map<Option, String> options) {
-        this.environmentImpl = environmentImpl;
+        this.environment = environment;
+        this.name = name;
         this.arguments = arguments;
         this.options = options;
     }
@@ -54,7 +57,17 @@ public class CommandConfigImpl implements CommandConfig {
      */
     @Override
     public final Environment getEnvironment() {
-        return environmentImpl;
+        return environment;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.pidster.tomcat.util.cli.CommandConfig#getName()
+     */
+    @Override
+    public final String getCommandName() {
+        return name;
     }
 
     /*
