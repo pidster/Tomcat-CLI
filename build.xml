@@ -69,6 +69,7 @@
     </target>
 	
 	<target name="package" depends="enjar, enjar-src">
+		<delete file="${build.dir.dist}/${application.name}.sh" />
 		<copy file="${resources.dir.bin}/${application.name}-template.sh" toFile="${build.dir.dist}/${application.name}.sh" />
 		<replace file="${build.dir.dist}/${application.name}.sh" token="@appname" value="${application.name}-v${application.version.major}.${application.version.minor}"/>		
 		<chmod perm="755" file="${build.dir.dist}/${application.name}.sh" />
