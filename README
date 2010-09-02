@@ -25,4 +25,6 @@ Inject the Java 6 Management Agent into the specified process:
 Connect to a process by guessing which is Tomcat:
   ./tomcat-cli.sh status --guess
 
- 
+Extended information can be displayed by adding the following switches to the status command:
+
+ --webapps --connectors --threads --verbose 
