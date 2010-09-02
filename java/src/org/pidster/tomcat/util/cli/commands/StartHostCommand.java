@@ -25,7 +25,7 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(syntax = "<options>", description = "Start an application")
 @Descriptor(name = "start-host")
-public class StartHostCommand extends AbstractWebappCommand {
+public class StartHostCommand extends AbstractHostCommand {
 
     /**
      * 

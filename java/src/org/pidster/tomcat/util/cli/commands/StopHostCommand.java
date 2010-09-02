@@ -24,8 +24,8 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  */
 @Usage(syntax = "<options>", description = "Start an application")
-@Descriptor(name = "start-host")
-public class StopHostCommand extends AbstractWebappCommand {
+@Descriptor(name = "stop-host")
+public class StopHostCommand extends AbstractHostCommand {
 
     /**
      * 

@@ -25,7 +25,7 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(syntax = "<options>", description = "Find memory leaks from reloaded webapps")
 @Descriptor(name = "findleaks")
-public class FindLeaksCommand extends AbstractWebappCommand {
+public class FindLeaksCommand extends AbstractHostCommand {
 
     /**
      * 

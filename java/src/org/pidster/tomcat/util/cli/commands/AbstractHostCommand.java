@@ -91,7 +91,12 @@ public abstract class AbstractHostCommand extends StatusCommand {
                         + hosts.size());
             }
 
-            invoke(hosts.first(), method, new Object[0], new String[0]);
+            Object obj = invoke(hosts.first(), method, new Object[0],
+                    new String[0]);
+
+            if (obj != null) {
+                log("obj: " + obj);
+            }
 
             super.execute();
         }
