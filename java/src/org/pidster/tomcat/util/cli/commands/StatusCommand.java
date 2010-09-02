@@ -227,6 +227,13 @@ public class StatusCommand extends AbstractJMXCommand {
             throws RuntimeException {
         StringBuilder s = new StringBuilder();
 
+        SortedSet<ObjectName> executors = queryNames(engineName
+                + ":type=Executor,*");
+
+        if (executors.size() > 0) {
+            s.append(executors(executors));
+        }
+
         SortedSet<ObjectName> connectors = queryNames(engineName
                 + ":type=Connector,*");
 
@@ -242,15 +249,12 @@ public class StatusCommand extends AbstractJMXCommand {
             s.append(String.format("\n   Connector:%-8s [",
                     getAttribute(connector, "protocol")));
 
-            if (address != null) {
-                s.append("address=");
-                s.append(address);
-                s.append(" ");
+            if (address == null) {
+                address = "0.0.0.0";
             }
 
-            s.append(String.format(
-                    "port=%-4s, scheme=%-4s, secure=%-4s, redirect=%-4s]",
-                    port, getAttribute(connector, "scheme"),
+            s.append(String.format("%s::%s:%s, secure=%s, redirect=%s]",
+                    getAttribute(connector, "scheme"), address, port,
                     getAttribute(connector, "secure"),
                     getAttribute(connector, "redirectPort")));
 
@@ -258,6 +262,44 @@ public class StatusCommand extends AbstractJMXCommand {
                 SortedSet<ObjectName> threadPools = queryNames(engineName
                         + ":type=ThreadPool,name=" + name);
                 s.append(threads(threadPools));
+            }
+        }
+
+        return s.toString();
+    }
+
+    /**
+     * @param executors
+     * @return content
+     */
+    private String executors(SortedSet<ObjectName> executors) {
+        StringBuilder s = new StringBuilder();
+
+        if (executors.size() > 0) {
+
+            for (ObjectName executor : executors) {
+
+                String name = (String) getAttribute(executor, "name");
+                int activeCount = (Integer) getAttribute(executor,
+                        "activeCount");
+                int maxThreads = (Integer) getAttribute(executor, "maxThreads");
+                int minSpareThreads = (Integer) getAttribute(executor,
+                        "minSpareThreads");
+
+                int queueSize = (Integer) getAttribute(executor, "queueSize");
+                int poolSize = (Integer) getAttribute(executor, "poolSize");
+                int corePoolSize = (Integer) getAttribute(executor,
+                        "corePoolSize");
+                int largestPoolSize = (Integer) getAttribute(executor,
+                        "largestPoolSize");
+
+                s.append("\n   Executor: ");
+                s.append(name);
+                s.append(String
+                        .format(" [active:%d, max:%d, spare:%d; queue:%d, pool:%d, core:%d, largest:%d]",
+                                activeCount, maxThreads, minSpareThreads,
+                                queueSize, poolSize, corePoolSize,
+                                largestPoolSize));
             }
         }
 
@@ -275,14 +317,13 @@ public class StatusCommand extends AbstractJMXCommand {
         if (threadPools.size() >= 1) {
             ObjectName threadPool = threadPools.first();
 
-            s.append(String
-                    .format("\n   - threads=%1s/%1s, busy=%1s, spare=%1s, keepalive=%1s, backlog=%1s",
-                            getAttribute(threadPool, "currentThreadCount"),
-                            getAttribute(threadPool, "maxThreads"),
-                            getAttribute(threadPool, "currentThreadsBusy"),
-                            getAttribute(threadPool, "minSpareThreads"),
-                            getAttribute(threadPool, "maxKeepAliveRequests"),
-                            getAttribute(threadPool, "backlog")));
+            s.append(String.format("\n   - threads=%s/%s, busy=%s, backlog=%s",
+                    getAttribute(threadPool, "currentThreadCount"),
+                    getAttribute(threadPool, "maxThreads"),
+                    getAttribute(threadPool, "currentThreadsBusy"),
+                    // getAttribute(threadPool, "minSpareThreads"),
+                    // getAttribute(threadPool, "maxKeepAliveRequests"),
+                    getAttribute(threadPool, "backlog")));
 
         }
 
@@ -352,7 +393,12 @@ public class StatusCommand extends AbstractJMXCommand {
                 }
             }
             else {
-                s.append("\n    ");
+                if (getConfig().isOptionSet("verbose")) {
+                    s.append("\n    ");
+                }
+                else {
+                    s.append(" - ");
+                }
                 s.append(webapps.length);
                 s.append(" applications");
             }

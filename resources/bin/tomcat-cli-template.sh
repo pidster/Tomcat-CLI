@@ -6,8 +6,27 @@
 SPATH="$_"
 DPATH=`/usr/bin/dirname "$SPATH"`
 
-echo "$DPATH"
+JAVA_BIN=""
 
-#/usr/bin/java -cp "$DPATH/tomcat-cli.jar" org.pidster.tomcat.util.cli.TerminalImpl $@
+if [ -e $JAVA_HOME/bin/java ]; then
+    JAVA_BIN="$JAVA_HOME/bin/java"    
+elif [ -e $JRE_HOME/bin/java ]; then
+    JAVA_BIN="$JRE_HOME/bin/java"
+else
+    JAVA_BIN=`/usr/bin/whereis java`
+fi
 
-/usr/bin/java -jar "$DPATH/@appname.jar" $@
+if [ ! -e $JAVA_BIN ]; then
+    echo "Couldn't find java, set JAVA_HOME or JRE_HOME"
+    exit 1
+fi
+
+if [ ! -e "$DPATH/@appname.jar" ]; then
+    echo "Couldn't find jar file, '$DPATH/@appname.jar'"
+    exit 1
+fi
+
+$JAVA_BIN -jar "$DPATH/@appname.jar" $@
+
+
+

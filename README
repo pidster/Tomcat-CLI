@@ -2,19 +2,27 @@ This is a Command Line Interface for Tomcat 7.0, which requires Java 6.
 This library might also work for other versions of Tomcat running on 
 Java 6.
 
+Decompress the archive:
+
+  tar -zxvf tomcat-cli-$VERSION.tar.gz
+  cd tomcat-cli-$VERSION
+  
+The archive contains a single script and two jar files, one each of
+the source code and the compiled classes.
+
 Connect to the local JMX connector on the specified process:
-  java -jar tomcat-cli.jar status --pid:<PID>
+  ./tomcat-cli.sh status --pid:<PID>
 
 Connect to the local JMX connector using the specified url:
-  java -jar tomcat-cli.jar status --url:<jmxurl>
-
-Inject the Java 6 Management Agent into the specified process:
-  java -jar tomcat-cli.jar status --inject:<PID>
+  ./tomcat-cli.sh status --url:<jmxurl>
 
 Connect to the localhost JMX connector on the specified port:
-  java -jar tomcat-cli.jar status --port:<portnum>
+  ./tomcat-cli.sh status --port:<portnum>
 
+Inject the Java 6 Management Agent into the specified process:
+  ./tomcat-cli.sh status --inject:<PID>
+  
 Connect to a process by guessing which is Tomcat:
-  java -jar tomcat-cli.jar status --guess
+  ./tomcat-cli.sh status --guess
 
  
