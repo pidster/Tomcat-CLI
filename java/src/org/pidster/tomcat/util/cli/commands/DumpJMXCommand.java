@@ -65,9 +65,9 @@ public class DumpJMXCommand extends AbstractJMXCommand {
 
         s.append("- DUMP STARTS --------------------------------------------------------------- \n");
 
-        MBeanServerConnection connection = super.getConnection();
-
         try {
+            MBeanServerConnection connection = super.getConnection();
+
             ObjectName name = ObjectName.WILDCARD;
             QueryExp query = null;
 

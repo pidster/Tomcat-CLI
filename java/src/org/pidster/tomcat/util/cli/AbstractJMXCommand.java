@@ -40,6 +40,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.pidster.tomcat.util.cli.util.DateTime;
+import org.pidster.tomcat.util.cli.util.IO;
 
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -73,7 +74,9 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     protected static final String LOCAL_CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 
-    private volatile static MBeanServerConnection connection;
+    // private volatile static MBeanServerConnection connection;
+
+    private volatile JMXConnector connector;
 
     private Map<String, Object> runtimeProps;
 
@@ -88,17 +91,16 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         try {
 
             // Not exactly thread safe, but it'll do for now
-            if (connection == null) {
+            if (connector == null) {
                 String serviceURL = serviceURL();
 
                 Map<String, Object> properties = connectorProperties();
 
                 JMXServiceURL jmxURL = new JMXServiceURL(serviceURL);
-                JMXConnector connector = JMXConnectorFactory.newJMXConnector(
-                        jmxURL, properties);
+                connector = JMXConnectorFactory.newJMXConnector(jmxURL,
+                        properties);
 
                 connector.connect();
-                connection = connector.getMBeanServerConnection();
             }
 
             runtimeProps = new HashMap<String, Object>();
@@ -112,7 +114,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                     "VmVersion"
             };
 
-            AttributeList list = connection.getAttributes(query, arr);
+            AttributeList list = getConnection().getAttributes(query, arr);
             for (Attribute attribute : list.asList()) {
                 runtimeProps.put(attribute.getName(), attribute.getValue());
             }
@@ -125,9 +127,9 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             };
 
             TreeSet<ObjectName> servers = new TreeSet<ObjectName>(
-                    connection.queryNames(query, null));
+                    getConnection().queryNames(query, null));
 
-            list = connection.getAttributes(servers.first(), arr);
+            list = getConnection().getAttributes(servers.first(), arr);
             for (Attribute attribute : list.asList()) {
                 runtimeProps.put(attribute.getName(), attribute.getValue());
             }
@@ -179,31 +181,23 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         }
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
-     * @param message
-     * @param exception
-     * @throws CommandException
+     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
      */
-    private void throwException(Exception exception) throws CommandException {
-        throw new CommandException(exception);
-    }
-
-    /**
-     * 
-     * @param message
-     * @param exception
-     * @throws CommandException
-     */
-    private void quietException(Exception exception) {
-        log("ERROR: " + exception.getMessage());
+    @Override
+    public void cleanup() {
+        IO.close(connector);
+        this.connector = null;
+        super.cleanup();
     }
 
     /**
      * @return connection
      */
-    protected MBeanServerConnection getConnection() {
-        return connection;
+    protected MBeanServerConnection getConnection() throws IOException {
+        return connector.getMBeanServerConnection();
     }
 
     /**
@@ -254,7 +248,27 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             Object[] params, String[] signature)
             throws InstanceNotFoundException, MBeanException,
             ReflectionException, IOException {
-        return connection.invoke(name, operationName, params, signature);
+        return getConnection().invoke(name, operationName, params, signature);
+    }
+
+    /**
+     * 
+     * @param message
+     * @param exception
+     * @throws CommandException
+     */
+    private void throwException(Exception exception) throws CommandException {
+        throw new CommandException(exception);
+    }
+
+    /**
+     * 
+     * @param message
+     * @param exception
+     * @throws CommandException
+     */
+    private void quietException(Exception exception) {
+        log("ERROR: " + exception.getMessage());
     }
 
     /**
