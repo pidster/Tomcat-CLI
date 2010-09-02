@@ -17,6 +17,7 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
+import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -34,4 +35,23 @@ public class FindLeaksCommand extends AbstractHostCommand {
         super();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.pidster.tomcat.util.cli.commands.AbstractHostCommand#handleMethodResult
+     * (java.lang.Object)
+     */
+    @Override
+    protected void handleMethodResult(Object obj) throws CommandException {
+        if (obj != null) {
+            String[] webapps = (String[]) obj;
+            log("Found " + webapps.length + " leaking apps...\n");
+            if (webapps.length > 0) {
+                for (String name : webapps) {
+                    log("Leaking app: " + name + "\n");
+                }
+            }
+        }
+    }
 }

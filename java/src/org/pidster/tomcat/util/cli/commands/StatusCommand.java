@@ -436,6 +436,10 @@ public class StatusCommand extends AbstractJMXCommand {
                 appState = ((Enum<?>) stateObj).name().toLowerCase();
             }
 
+            if ("stopped".equalsIgnoreCase(appState)) {
+                appState = appState + "!";
+            }
+
             String path = "";
             String started = "";
             String docBase = (String) getAttribute(webapp, "docBase");
@@ -454,6 +458,7 @@ public class StatusCommand extends AbstractJMXCommand {
             String tldScanTime = "";
 
             if ("STARTED".equalsIgnoreCase(appState)) {
+                appState = "ok";
                 path = (String) getAttribute(webapp, "path");
                 Long startTime = (Long) getAttribute(webapp, "startTime");
                 started = sdf.format(new Date(startTime));

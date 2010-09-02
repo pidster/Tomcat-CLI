@@ -44,8 +44,8 @@ public abstract class AbstractHostCommand extends StatusCommand {
      */
     protected AbstractHostCommand() {
         this.commandMap = new HashMap<String, String>();
-        this.commandMap.put("start", "start");
-        this.commandMap.put("stop", "stop");
+        this.commandMap.put("start-host", "start");
+        this.commandMap.put("stop-host", "stop");
         this.commandMap.put("findleaks", "findReloadedContextMemoryLeaks");
     }
 
@@ -94,15 +94,19 @@ public abstract class AbstractHostCommand extends StatusCommand {
             Object obj = invoke(hosts.first(), method, new Object[0],
                     new String[0]);
 
-            if (obj != null) {
-                log("obj: " + obj);
-            }
-
-            super.execute();
+            handleMethodResult(obj);
         }
         catch (Exception e) {
             throw new CommandException(e.getMessage(), e.getCause());
         }
-
     }
+
+    /**
+     * @param obj
+     * @throws CommandException
+     */
+    protected void handleMethodResult(Object obj) throws CommandException {
+        super.execute();
+    }
+
 }
