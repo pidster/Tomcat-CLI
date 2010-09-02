@@ -3,26 +3,101 @@
     <description>
             A Command Line Interface for Tomcat, using JMX
     </description>
+	
+	<loadproperties srcFile="build.properties" />
 
-    <target name="default" depends="enjar" description="description">
-        
+    <target name="default" depends="enjar" description="default build">
+
     </target>
+	
+	<target name="compile">
+		<delete dir="${build.dir.bin}" />
+		<mkdir dir="${build.dir.bin}"/>
 
-    <target name="enjar">
-    	<jar destfile="dist/tomcat-cli.jar">
-    	  <manifest>
-            <attribute name="Built-By" value="${user.name}"/>
-      	    <attribute name="Main-Class" value="org.pidster.tomcat.util.cli.Console"/>
-    	    <attribute name="Specification-Version" value="${version}"/>
-    	    <attribute name="Specification-Vendor" value="Apache Software Foundation"/>
-    	    <attribute name="Implementation-Title" value="Apache Tomcat CLI"/>
-    	    <attribute name="Implementation-Version" value="${version} ${TODAY}"/> 
-    	    <attribute name="Implementation-Vendor" value="Apache Software Foundation"/>
-          </manifest>
-          <fileset dir="java/bin">
-		    <include name="**"/>
-          </fileset>
+		<javac 
+			srcdir="${build.dir.src}" 
+			destdir="${build.dir.bin}"
+			debug="${compiler.debug}"
+			source="${compiler.src.version}"
+			target="${compiler.bin.version}">
+			
+		</javac>
+	
+	</target>
+
+    <target name="enjar" depends="compile">
+		<mkdir dir="${build.dir.dist}"/>
+    	<jar destfile="${build.dir.dist}/${application.name}-v${application.version.major}.${application.version.minor}.jar">    		
+    		<manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+            	<attribute name="Main-Class" value="org.pidster.tomcat.util.cli.Console"/>
+          	    <attribute name="Specification-Version" value="${version}"/>
+          	    <attribute name="Specification-Vendor" value="Pidster.org"/>
+          	    <attribute name="Implementation-Title" value="Apache Tomcat CLI"/>
+          	    <attribute name="Implementation-Version" value="${version} ${TODAY}"/> 
+          	    <attribute name="Implementation-Vendor" value="Pidster.org"/>
+            </manifest>
+    		<metainf dir="${resources.dir.meta}">
+    			<include name="**" /> 
+    		</metainf>
+            <fileset dir="${build.dir.bin}">
+	  		    <include name="**"/>
+            </fileset>
+            <fileset dir="${build.dir.src}">
+	  		    <exclude name="**.java"/>
+            </fileset>
     	</jar>
     </target>
+
+    <target name="enjar-src">
+		<mkdir dir="${build.dir.dist}"/>
+    	<jar destfile="${build.dir.dist}/${application.name}-v${application.version.major}.${application.version.minor}-src.jar">
+    		<manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+            	<attribute name="Main-Class" value="org.pidster.tomcat.util.cli.Console"/>
+          	    <attribute name="ISpecification-Title" value="${application.title}"/>
+          	    <attribute name="Specification-Version" value="${application.version.major}"/>
+          	    <attribute name="Specification-Vendor" value="Pidster.org"/>
+          	    <attribute name="Implementation-Title" value="${application.title}"/>
+          	    <attribute name="Implementation-Version" value="${application.version.major}.${application.version.minor} ${TODAY}"/> 
+          	    <attribute name="Implementation-Vendor" value="Pidster.org"/>
+            </manifest>
+            <fileset dir="${build.dir.src}">
+	  	  		<include name="**.java"/>
+            </fileset>
+    	</jar>
+    </target>
+	
+	<target name="package" depends="enjar, enjar-src">
+		<copy file="${resources.dir.bin}/${application.name}-template.sh" toFile="${build.dir.dist}/${application.name}.sh" />
+		<replace file="${build.dir.dist}/${application.name}.sh" token="@appname" value="${application.name}-v${application.version.major}.${application.version.minor}"/>		
+	</target>
+	
+	<target name="docs">
+		<mkdir dir="${build.dir.docs}"/>	
+	</target>
+	
+	<target name="release" depends="package, docs" description="Build a release">
+		<mkdir dir="${build.dir.rel}"/>	
+		
+		<property name="release.tar" value="${application.name}-v${application.version.major}.${application.version.minor}.tar" />
+		
+		<tar destfile="${build.dir.rel}/${release.tar}">
+			<tarfileset dir="${build.dir.dist}" filemode="755">
+				<include name="${application.name}.sh"/>
+			</tarfileset>
+			<tarfileset dir="${build.dir.dist}">
+				<exclude name="${application.name}.sh"/>
+				<exclude name=".*"/>
+				<include name="${application.name}*.jar"/>
+			</tarfileset>
+		</tar>
+
+		<gzip src="${build.dir.rel}/${application.name}-v${application.version.major}.${application.version.minor}.tar" 
+			destfile="${build.dir.rel}/${application.name}-v${application.version.major}.${application.version.minor}.tar.gz" />
+		
+		<delete file="${build.dir.rel}/${release.tar}" />
+
+	</target>
 
 </project>
