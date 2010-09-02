@@ -27,6 +27,3 @@ if [ ! -e "$DPATH/@appname.jar" ]; then
 fi
 
 $JAVA_BIN -jar "$DPATH/@appname.jar" $@
-
-
-

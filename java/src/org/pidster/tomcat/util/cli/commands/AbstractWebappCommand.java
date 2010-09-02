@@ -66,7 +66,7 @@ public abstract class AbstractWebappCommand extends StatusCommand {
 
             String hostname = "*";
             if (getConfig().isOptionSet("hostname"))
-                engine = getConfig().getOptionValue("hostname");
+                hostname = getConfig().getOptionValue("hostname");
 
             s.append(engine);
             s.append(":type=Host,host=");
@@ -76,6 +76,7 @@ public abstract class AbstractWebappCommand extends StatusCommand {
             SortedSet<ObjectName> hosts = query(host, null);
 
             if (hosts.size() != 1) {
+                log("hosts query:" + s.toString());
                 throw new CommandException("Expected one Host, found: "
                         + hosts.size());
             }
