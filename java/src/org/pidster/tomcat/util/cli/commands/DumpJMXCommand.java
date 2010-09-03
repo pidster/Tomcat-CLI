@@ -47,7 +47,8 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "dumpjmx")
 @Options({
         @Option(name = "domain", single = 'd', description = "Limit domain"),
-        @Option(name = "type", single = 't', description = "Limit type")
+        @Option(name = "type", single = 't', description = "Limit type"),
+        @Option(name = "query", single = 'q', description = "Raw query ")
 })
 public class DumpJMXCommand extends AbstractJMXCommand {
 
@@ -68,29 +69,35 @@ public class DumpJMXCommand extends AbstractJMXCommand {
         try {
             MBeanServerConnection connection = super.getConnection();
 
-            ObjectName name = ObjectName.WILDCARD;
             QueryExp query = null;
 
-            StringBuilder q = new StringBuilder();
-
-            if (getConfig().isOptionSet("domain")) {
-                q.append(getConfig().getOptionValue("domain"));
+            ObjectName name = ObjectName.WILDCARD;
+            if (getConfig().isOptionSet("query")) {
+                name = ObjectName.getInstance(getConfig().getOptionValue(
+                        "query"));
             }
             else {
-                q.append("*");
-            }
-            q.append(":");
-            if (getConfig().isOptionSet("type")) {
-                q.append("type=");
-                q.append(getConfig().getOptionValue("type"));
-            }
-            else {
-                q.append("*");
-            }
 
-            // log(q.toString());
+                StringBuilder q = new StringBuilder();
 
-            name = ObjectName.getInstance(q.toString());
+                if (getConfig().isOptionSet("domain")) {
+                    q.append(getConfig().getOptionValue("domain"));
+                }
+                else {
+                    q.append("*");
+                }
+                q.append(":");
+                if (getConfig().isOptionSet("type")) {
+                    q.append("type=");
+                    q.append(getConfig().getOptionValue("type"));
+                }
+                else {
+                    q.append("*");
+                }
+
+                // log(q.toString());
+                name = ObjectName.getInstance(q.toString());
+            }
 
             TreeSet<ObjectName> names = new TreeSet<ObjectName>(
                     new Comparator<ObjectName>() {

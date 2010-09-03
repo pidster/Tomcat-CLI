@@ -56,8 +56,8 @@ import sun.management.ConnectorAddressLink;
         @Option(name = "pid", single = 'i', setter = true, description = "The PID to attach to"),
         @Option(name = "jmx", single = 'u', setter = true, description = "The JMX URL to connect to"),
         @Option(name = "port", single = 'p', setter = true, description = "The JMX port to connect to"),
-        @Option(name = "username", single = 'u', setter = true, description = "The JMX username to use"),
-        @Option(name = "password", single = 'x', setter = true, description = "The JMX password credential to use"),
+        @Option(name = "username", single = 'U', setter = true, description = "The JMX username to use"),
+        @Option(name = "password", single = 'P', setter = true, description = "The JMX password credential to use"),
         @Option(name = "guess", single = 'g', setter = false, description = "Guess which process to attach to"),
         @Option(name = "inject", single = 'j', setter = true, description = "Inject the management agent into a running PID")
 })
@@ -181,6 +181,33 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
+    protected SortedSet<ObjectName> query(String name, QueryExp qe)
+            throws IOException {
+
+        try {
+            return query(ObjectName.getInstance(name), qe);
+        }
+        catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param on
+     * @param qe
+     * @return
+     * @throws IOException
+     */
+    protected SortedSet<ObjectName> query(String name) throws IOException {
+        return query(name, null);
+    }
+
+    /**
+     * @param on
+     * @param qe
+     * @return
+     * @throws IOException
+     */
     protected SortedSet<ObjectName> query(ObjectName on, QueryExp qe)
             throws IOException {
 
@@ -195,10 +222,13 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @param attribute
      * @return obj
      */
-    protected Object attribute(ObjectName obj, String attribute) {
+    @SuppressWarnings("unchecked")
+    protected <T> T attribute(ObjectName name, String attribute)
+            throws RuntimeException {
 
         try {
-            return getConnection().getAttribute(obj, attribute);
+            // Ooh a bit of cheeky generic casting!
+            return (T) getConnection().getAttribute(name, attribute);
         }
         catch (Exception e) {
             quietException(e);

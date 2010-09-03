@@ -21,14 +21,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
@@ -44,10 +38,11 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "<options>", description = "Determine server status")
 @Descriptor(name = "status")
 @Options({
-        @Option(name = "engine", single = 'e', setter = true, value = "*", description = "Selects a specific Engine"),
-        @Option(name = "hostname", single = 'n', setter = true, value = "*", description = "Selects a specific Host"),
-        @Option(name = "webapp", single = 'a', setter = true, description = "Selects a specific application context"),
+        @Option(name = "engine", single = 'E', setter = true, value = "*", description = "Selects a specific Engine"),
+        @Option(name = "hostname", single = 'H', setter = true, value = "*", description = "Selects a specific Host"),
+        @Option(name = "webapp", single = 'W', setter = true, description = "Selects a specific application context"),
         @Option(name = "webapps", single = 'w', description = "Show webapps info"),
+        @Option(name = "datasources", single = 'D', description = "Show DataSources"),
         @Option(name = "connectors", single = 'c', description = "Show connector info"),
         @Option(name = "threads", single = 't', description = "Show thread info"),
         @Option(name = "stats", single = 's', description = "Show stats")
@@ -69,7 +64,7 @@ public class StatusCommand extends AbstractJMXCommand {
     public void execute() throws CommandException {
 
         try {
-            ObjectName server = queryNames("*:type=Server").first();
+            ObjectName server = query("*:type=Server").first();
 
             StringBuilder s = new StringBuilder();
 
@@ -78,13 +73,14 @@ public class StatusCommand extends AbstractJMXCommand {
 
             if (isVerbose()) {
                 s.append("[");
-                s.append(getAttribute(server, "shutdown"));
+                s.append(attribute(server, "shutdown"));
                 s.append(">");
-                s.append(getAttribute(server, "port"));
+                s.append(attribute(server, "port"));
                 s.append("]");
             }
 
-            s.append("");
+            s.append(datasources(server));
+
             s.append(services());
 
             log(s.toString());
@@ -95,65 +91,60 @@ public class StatusCommand extends AbstractJMXCommand {
     }
 
     /**
-     * @param name
-     * @param attribute
-     * @return
+     * @param server
+     * @param s
+     * @throws IOException
      * @throws RuntimeException
      */
-    private Object getAttribute(ObjectName name, String attribute)
-            throws RuntimeException {
+    private String datasources(ObjectName server) throws IOException,
+            RuntimeException {
 
-        try {
-            return getConnection().getAttribute(name, attribute);
-        }
-        catch (AttributeNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (InstanceNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (MBeanException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (ReflectionException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-    }
+        StringBuilder s = new StringBuilder();
 
-    /**
-     * @param query
-     * @return
-     */
-    private SortedSet<ObjectName> queryNames(String query) {
+        SortedSet<ObjectName> globalResources = query(server.getDomain()
+                + ":type=Resource,resourcetype=Global,*");
 
-        try {
-            ObjectName name = ObjectName.getInstance(query);
-            return new TreeSet<ObjectName>(getConnection().queryNames(name,
-                    null));
-        }
-        catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (NullPointerException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e.getCause());
+        if (getConfig().isOptionSet("datasources")
+                && globalResources.size() > 0) {
+            s.append("\nGlobal Resources:");
+            for (ObjectName global : globalResources) {
+
+                String name = attribute(global, "name");
+                String type = attribute(global, "type");
+
+                String dsq = server.getDomain() + ":type=DataSource,name=\""
+                        + name + "\",class=" + type;
+
+                SortedSet<ObjectName> dataSources = query(dsq, null);
+                for (ObjectName ds : dataSources) {
+                    s.append(String
+                            .format("\n %-25s[init:%s, now:%s, mxA:%s, idl:%s, mnI:%s, mxI:%s]",
+                                    name, attribute(ds, "initialSize"), 0,
+                                    attribute(ds, "numActive"),
+                                    attribute(ds, "maxActive"),
+                                    attribute(ds, "numIdle"),
+                                    attribute(ds, "minIdle"),
+                                    attribute(ds, "maxIdle")));
+                    if (isVerbose()) {
+                        s.append("\n - ");
+                        s.append(attribute(ds, "url"));
+                    }
+                }
+            }
         }
 
+        return s.toString();
     }
 
     /**
      * @return services
+     * @throws IOException
      * @throws JMXException
      */
-    private String services() throws RuntimeException {
+    private String services() throws RuntimeException, IOException {
 
         StringBuilder s = new StringBuilder();
-        SortedSet<ObjectName> names = queryNames("*:type=Service,*");
+        SortedSet<ObjectName> names = query("*:type=Service,*", null);
 
         if (names.size() == 0) {
             s.append("\n");
@@ -162,8 +153,7 @@ public class StatusCommand extends AbstractJMXCommand {
         }
 
         for (ObjectName service : names) {
-            s.append(String.format("\nService:%1s",
-                    getAttribute(service, "name")));
+            s.append(String.format("\nService:%1s", attribute(service, "name")));
 
             s.append(engines(service));
         }
@@ -174,33 +164,35 @@ public class StatusCommand extends AbstractJMXCommand {
     /**
      * @param service
      * @return str
+     * @throws IOException
      * @throws JMXException
      */
-    private String engines(ObjectName service) throws RuntimeException {
+    private String engines(ObjectName service) throws RuntimeException,
+            IOException {
 
         StringBuilder s = new StringBuilder();
 
-        SortedSet<ObjectName> engines = queryNames(service.getDomain()
+        SortedSet<ObjectName> engines = query(service.getDomain()
                 + ":type=Engine");
 
         for (ObjectName engine : engines) {
 
-            String engineName = (String) getAttribute(engine, "name");
+            String engineName = (String) attribute(engine, "name");
 
             s.append(String.format("\n Engine:%1s", engineName));
 
             s.append(" [");
             s.append("defaultHost=");
-            s.append(getAttribute(engine, "defaultHost"));
+            s.append(attribute(engine, "defaultHost"));
 
-            Object jvmRoute = getAttribute(engine, "jvmRoute");
+            Object jvmRoute = attribute(engine, "jvmRoute");
             if (jvmRoute != null) {
                 s.append(", jvmRoute=");
                 s.append(jvmRoute);
             }
             if (super.getConfig().isOptionSet("verbose")) {
                 s.append(", baseDir=");
-                s.append(getAttribute(engine, "baseDir"));
+                s.append(attribute(engine, "baseDir"));
 
             }
             s.append("]");
@@ -221,45 +213,45 @@ public class StatusCommand extends AbstractJMXCommand {
      * @param engineName
      * @param engine
      * @return engine
+     * @throws IOException
      * @throws JMXException
      */
     private String connectors(String engineName, ObjectName engine)
-            throws RuntimeException {
+            throws RuntimeException, IOException {
         StringBuilder s = new StringBuilder();
 
-        SortedSet<ObjectName> executors = queryNames(engineName
-                + ":type=Executor,*");
+        SortedSet<ObjectName> executors = query(engineName + ":type=Executor,*");
 
         if (executors.size() > 0) {
             s.append(executors(executors));
         }
 
-        SortedSet<ObjectName> connectors = queryNames(engineName
+        SortedSet<ObjectName> connectors = query(engineName
                 + ":type=Connector,*");
 
         for (ObjectName connector : connectors) {
-            String address = (String) getAttribute(connector, "address");
-            Integer port = (Integer) getAttribute(connector, "port");
+            String address = (String) attribute(connector, "address");
+            Integer port = (Integer) attribute(connector, "port");
 
-            SortedSet<ObjectName> protocolHandlers = queryNames(engineName
+            SortedSet<ObjectName> protocolHandlers = query(engineName
                     + ":type=ProtocolHandler,port=" + port);
             ObjectName protocolHandler = protocolHandlers.first();
-            String name = (String) getAttribute(protocolHandler, "name");
+            String name = (String) attribute(protocolHandler, "name");
 
             s.append(String.format("\n  Connector:%-8s [",
-                    getAttribute(connector, "protocol")));
+                    attribute(connector, "protocol")));
 
             if (address == null) {
                 address = "0.0.0.0";
             }
 
             s.append(String.format("%s::%s:%s, secure=%s, redirect=%s]",
-                    getAttribute(connector, "scheme"), address, port,
-                    getAttribute(connector, "secure"),
-                    getAttribute(connector, "redirectPort")));
+                    attribute(connector, "scheme"), address, port,
+                    attribute(connector, "secure"),
+                    attribute(connector, "redirectPort")));
 
             if (super.getConfig().isOptionSet("threads")) {
-                SortedSet<ObjectName> threadPools = queryNames(engineName
+                SortedSet<ObjectName> threadPools = query(engineName
                         + ":type=ThreadPool,name=" + name);
                 s.append(threads(threadPools));
             }
@@ -279,27 +271,25 @@ public class StatusCommand extends AbstractJMXCommand {
 
             for (ObjectName executor : executors) {
 
-                String name = (String) getAttribute(executor, "name");
-                int activeCount = (Integer) getAttribute(executor,
-                        "activeCount");
-                int maxThreads = (Integer) getAttribute(executor, "maxThreads");
-                int minSpareThreads = (Integer) getAttribute(executor,
+                String name = (String) attribute(executor, "name");
+                int activeCount = (Integer) attribute(executor, "activeCount");
+                int maxThreads = (Integer) attribute(executor, "maxThreads");
+                int minSpareThreads = (Integer) attribute(executor,
                         "minSpareThreads");
 
-                int queueSize = (Integer) getAttribute(executor, "queueSize");
-                int poolSize = (Integer) getAttribute(executor, "poolSize");
-                int corePoolSize = (Integer) getAttribute(executor,
-                        "corePoolSize");
-                int largestPoolSize = (Integer) getAttribute(executor,
+                int queueSize = (Integer) attribute(executor, "queueSize");
+                int poolSize = (Integer) attribute(executor, "poolSize");
+                int corePoolSize = (Integer) attribute(executor, "corePoolSize");
+                int largestPoolSize = (Integer) attribute(executor,
                         "largestPoolSize");
 
                 s.append("\n  Executor: ");
                 s.append(name);
                 s.append(String
-                        .format(" [active:%d, max:%d, spare:%d; queue:%d, pool:%d, core:%d, largest:%d]",
-                                activeCount, maxThreads, minSpareThreads,
-                                queueSize, poolSize, corePoolSize,
-                                largestPoolSize));
+                        .format(" [active:%d, pool:%d, init:%d, largest:%d, max:%d, spare:%d; queue:%d]",
+                                activeCount, poolSize, corePoolSize,
+                                largestPoolSize, maxThreads, minSpareThreads,
+                                queueSize));
             }
         }
 
@@ -318,12 +308,12 @@ public class StatusCommand extends AbstractJMXCommand {
             ObjectName threadPool = threadPools.first();
 
             s.append(String.format("\n   - threads=%s/%s, busy=%s, backlog=%s",
-                    getAttribute(threadPool, "currentThreadCount"),
-                    getAttribute(threadPool, "maxThreads"),
-                    getAttribute(threadPool, "currentThreadsBusy"),
+                    attribute(threadPool, "currentThreadCount"),
+                    attribute(threadPool, "maxThreads"),
+                    attribute(threadPool, "currentThreadsBusy"),
                     // getAttribute(threadPool, "minSpareThreads"),
                     // getAttribute(threadPool, "maxKeepAliveRequests"),
-                    getAttribute(threadPool, "backlog")));
+                    attribute(threadPool, "backlog")));
 
         }
 
@@ -348,18 +338,18 @@ public class StatusCommand extends AbstractJMXCommand {
      * @param engineName
      * @param engine
      * @return hosts
+     * @throws IOException
      * @throws JMXException
      */
     private String hosts(String engineName, ObjectName engine)
-            throws RuntimeException {
+            throws RuntimeException, IOException {
         StringBuilder s = new StringBuilder();
 
-        SortedSet<ObjectName> hosts = queryNames(engineName
-                + ":type=Host,host=*");
+        SortedSet<ObjectName> hosts = query(engineName + ":type=Host,host=*");
 
         for (ObjectName host : hosts) {
 
-            String hostname = (String) getAttribute(host, "name");
+            String hostname = (String) attribute(host, "name");
 
             if (getConfig().isOptionSet("hostname")) {
                 if (!getConfig().getOptionValue("hostname").equals(hostname))
@@ -369,8 +359,8 @@ public class StatusCommand extends AbstractJMXCommand {
             s.append("\n  Host:");
             s.append(hostname);
 
-            String[] aliases = (String[]) getAttribute(host, "aliases");
-            ObjectName[] webapps = (ObjectName[]) getAttribute(host, "children");
+            String[] aliases = (String[]) attribute(host, "aliases");
+            ObjectName[] webapps = (ObjectName[]) attribute(host, "children");
 
             if (super.getConfig().isOptionSet("verbose")) {
                 s.append("\n   Aliases[");
@@ -412,9 +402,10 @@ public class StatusCommand extends AbstractJMXCommand {
     /**
      * @param webapps
      * @return
+     * @throws IOException
      */
     private String webapps(String engineName, String hostname,
-            ObjectName[] webapps) {
+            ObjectName[] webapps) throws IOException {
 
         StringBuilder s = new StringBuilder();
 
@@ -426,7 +417,7 @@ public class StatusCommand extends AbstractJMXCommand {
         for (ObjectName webapp : webapps) {
 
             // Hacks to get around v6.0 to v7.0 transition
-            Object stateObj = getAttribute(webapp, "state");
+            Object stateObj = attribute(webapp, "state");
 
             String appState = "unknown";
             if (stateObj instanceof Integer) {
@@ -442,7 +433,7 @@ public class StatusCommand extends AbstractJMXCommand {
 
             String path = "";
             String started = "";
-            String docBase = (String) getAttribute(webapp, "docBase");
+            String docBase = (String) attribute(webapp, "docBase");
 
             if (getConfig().isOptionSet("webapp")) {
                 if (!getConfig().getOptionValue("webapp").equals(docBase))
@@ -459,8 +450,8 @@ public class StatusCommand extends AbstractJMXCommand {
 
             if ("STARTED".equalsIgnoreCase(appState)) {
                 appState = "ok";
-                path = (String) getAttribute(webapp, "path");
-                Long startTime = (Long) getAttribute(webapp, "startTime");
+                path = (String) attribute(webapp, "path");
+                Long startTime = (Long) attribute(webapp, "startTime");
                 started = sdf.format(new Date(startTime));
 
                 if (path.isEmpty())
@@ -469,15 +460,15 @@ public class StatusCommand extends AbstractJMXCommand {
                 String query = engineName + ":type=Manager,path=" + path
                         + ",host=" + hostname;
 
-                SortedSet<ObjectName> managers = queryNames(query);
+                SortedSet<ObjectName> managers = query(query);
                 ObjectName manager = managers.first();
 
-                activeSessions = String.valueOf(getAttribute(manager,
+                activeSessions = String.valueOf(attribute(manager,
                         "activeSessions"));
-                startupTime = String
-                        .valueOf(getAttribute(webapp, "startupTime")) + "ms";
-                tldScanTime = String
-                        .valueOf(getAttribute(webapp, "tldScanTime")) + "ms";
+                startupTime = String.valueOf(attribute(webapp, "startupTime"))
+                        + "ms";
+                tldScanTime = String.valueOf(attribute(webapp, "tldScanTime"))
+                        + "ms";
             }
 
             s.append(String.format("%-16s %-17s %-8s %-8s %-7s %-6s %20s",

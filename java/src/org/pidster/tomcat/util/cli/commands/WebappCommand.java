@@ -36,9 +36,7 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "start|stop|reload <options>", description = "Change the status of an application")
 @Descriptor(name = "webapp")
 @Options({
-        @Option(name = "engine", single = 'e', setter = true, required = false, description = "Selects a specific engine"),
-        @Option(name = "hostname", single = 'n', setter = true, required = false, description = "Selects a specific hostname"),
-        @Option(name = "webapp", single = 'a', setter = true, required = true, description = "Selects a specific application context")
+    @Option(name = "webapp", single = 'W', setter = true, required = true, description = "Selects a specific application context")
 })
 public class WebappCommand extends StatusCommand {
 
