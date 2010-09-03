@@ -18,7 +18,6 @@
 package org.pidster.tomcat.util.cli.impl;
 
 import java.io.Console;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.pidster.tomcat.util.cli.Environment;
 
@@ -32,8 +31,6 @@ public class EnvironmentImpl implements Environment {
 
     private final Console console;
 
-    private final AtomicLong count;
-
     private String prompt;
 
     /**
@@ -42,7 +39,6 @@ public class EnvironmentImpl implements Environment {
     public EnvironmentImpl() {
         super();
         this.console = System.console();
-        this.count = new AtomicLong(0);
         this.prompt = DEFAULT_PROMPT;
     }
 

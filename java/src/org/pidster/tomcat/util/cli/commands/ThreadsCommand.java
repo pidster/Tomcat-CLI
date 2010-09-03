@@ -18,9 +18,7 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import java.io.IOException;
-import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
-import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.Arrays;
@@ -175,10 +173,10 @@ public class ThreadsCommand extends AbstractJMXCommand {
         logThreadInfo(info);
 
         // TODO display monitors
-        MonitorInfo[] monitors = info.getLockedMonitors();
+        // MonitorInfo[] monitors = info.getLockedMonitors();
 
         // TODO display sync locks
-        LockInfo[] synchronizers = info.getLockedSynchronizers();
+        // LockInfo[] synchronizers = info.getLockedSynchronizers();
 
         if (info.getLockOwnerId() > -1) {
             log(String.format(" LOCK: %s %s %s", info.getLockName(),

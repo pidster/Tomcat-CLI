@@ -17,10 +17,6 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
@@ -50,16 +46,6 @@ public class MonitorCommand extends AbstractJMXCommand {
         }
         else {
             log("Monitor: ???");
-        }
-
-        try {
-            ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(
-                    getConnection(), ManagementFactory.THREAD_MXBEAN_NAME,
-                    ThreadMXBean.class);
-
-        }
-        catch (IOException e) {
-            throw new CommandException(e.getMessage(), e.getCause());
         }
 
     }
