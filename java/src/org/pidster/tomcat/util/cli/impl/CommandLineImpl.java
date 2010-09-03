@@ -18,8 +18,7 @@
 package org.pidster.tomcat.util.cli.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.pidster.tomcat.util.cli.CommandLine;
@@ -43,8 +42,8 @@ public class CommandLineImpl implements Serializable, CommandLine {
      */
     public CommandLineImpl() {
         this.prompt = "> ";
-        this.arguments = new ArrayList<String>();
-        this.options = new ArrayList<String>();
+        this.arguments = new LinkedList<String>();
+        this.options = new LinkedList<String>();
     }
 
     /*
@@ -126,10 +125,13 @@ public class CommandLineImpl implements Serializable, CommandLine {
      */
     @Override
     public final List<String> getArguments() {
-        if (arguments.size() > 1) {
-            return arguments.subList(1, arguments.size() - 1);
-        }
-        return Collections.emptyList();
+
+        return arguments;
+
+        /*
+         * if (arguments.size() > 0) { return arguments.subList(1,
+         * arguments.size() - 1); } return Collections.emptyList();
+         */
     }
 
 }
