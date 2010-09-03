@@ -32,23 +32,23 @@ Extended information can be displayed by adding the following switches to the st
 
  --webapps --connectors --threads --verbose 
 
+
+
 #########################################################################################################
 # SAMPLE OUTPUT FROM STATUS
 
- tomcat-cli.sh status --pid:26857 --hostname:www -c -w
+ tomcat-cli.sh status -i:26857 -H:www -w
 
- Connected to Apache Tomcat/6.0.29 [26857@localhost, uptime:11h 58m 45s 553ms]
+ Connected to Apache Tomcat/6.0.26 [26857@localhost, uptime:1d 8h 58m 19s 603ms]
  Server: Catalina
-  Service:Catalina
-   Engine:Catalina [defaultHost=www, jvmRoute=tomcat1]
-    Executor: tomcatThreadPool [active:20, max:100, spare:4; queue:0, pool:20, core:4, largest:36]
-    Connector:org.apache.coyote.ajp.AjpProtocol [http::0.0.0.0:8009, secure=false, redirect=443]
-    Host:www
-     Application      path              state    sessions startup tldscan             started
-     ----------------------------------------------------------------------------------------
-     help             /help             ok       6        17ms    67ms    2010-09-02 12:45:06
-     ROOT             /                 ok       191      479ms   134ms   2010-09-02 12:45:05
-     registration     /registration     ok       1        44ms    107ms   2010-09-02 12:45:04
-     account          /account          ok       1        21ms    49ms    2010-09-02 12:45:07
-     account-old                        stopped!                                             
-     blog             /blog             ok       2        66ms    50ms    2010-09-02 12:45:06
+ Service:Catalina
+  Engine:Catalina [defaultHost=www, jvmRoute=tomcat1]
+   Host:www
+    application ---- path ------------ state sessions - startup ------------ started
+    help             /help             ok    7          84ms     2010-09-02 12:45:06
+    ROOT             /                 ok    224        613ms    2010-09-02 12:45:05
+    shop             /shop             ok    12         232ms    2010-09-02 12:45:06
+    registration     /registration     ok    4          151ms    2010-09-02 12:45:04
+    account-old                        stopped!                                        
+    account          /account          ok    2          70ms     2010-09-02 12:45:07
+
