@@ -19,6 +19,8 @@ package org.pidster.tomcat.util.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,8 +29,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
@@ -79,7 +79,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     private volatile JMXConnector connector;
 
-    private Map<String, Object> runtimeProps;
+    // private Map<String, Object> runtimeProps;
 
     /*
      * (non-Javadoc)
@@ -104,66 +104,46 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                 connector.connect();
             }
 
-            runtimeProps = new HashMap<String, Object>();
+            // runtimeProps = new HashMap<String, Object>();
+
+            // // ------------------------------------------------------------
+            // // acquire runtime attributes
+            // ObjectName query =
+            // ObjectName.getInstance("java.lang:type=Runtime");
+            //
+            // String[] arr = new String[] {
+            // "Name", "Uptime", "StartTime", "VmName", "VmVendor",
+            // "VmVersion"
+            // };
+            //
+            // AttributeList list = getConnection().getAttributes(query, arr);
+            // for (Attribute attribute : list.asList()) {
+            // runtimeProps.put(attribute.getName(), attribute.getValue());
+            // }
 
             // ------------------------------------------------------------
-            // acquire runtime attributes
-            ObjectName query = ObjectName.getInstance("java.lang:type=Runtime");
-
-            String[] arr = new String[] {
-                    "Name", "Uptime", "StartTime", "VmName", "VmVendor",
-                    "VmVersion"
-            };
-
-            AttributeList list = getConnection().getAttributes(query, arr);
-            for (Attribute attribute : list.asList()) {
-                runtimeProps.put(attribute.getName(), attribute.getValue());
-            }
-
-            // ------------------------------------------------------------
-            // acquire server attributes
-            query = ObjectName.getInstance("*:type=Server");
-            arr = new String[] {
-                "serverInfo"
-            };
+            // There should only ever be one Server, acquire server attributes
+            ObjectName query = ObjectName.getInstance("*:type=Server");
 
             TreeSet<ObjectName> servers = new TreeSet<ObjectName>(
                     getConnection().queryNames(query, null));
 
-            list = getConnection().getAttributes(servers.first(), arr);
-            for (Attribute attribute : list.asList()) {
-                runtimeProps.put(attribute.getName(), attribute.getValue());
-            }
+            String serverInfo = (String) attribute(servers.first(),
+                    "serverInfo");
 
             // ------------------------------------------------------------
-            // display connection information
-            StringBuilder s = new StringBuilder();
+            // Use the MXBean, it's nicer
+            RuntimeMXBean runtime = ManagementFactory.newPlatformMXBeanProxy(
+                    getConnection(), ManagementFactory.RUNTIME_MXBEAN_NAME,
+                    RuntimeMXBean.class);
 
-            s.append("Connected to ");
-            s.append(runtimeProps.get("serverInfo"));
-            s.append(" [");
-            s.append(runtimeProps.get("Name"));
+            log(String.format("Connected to %s [%s, uptime:%s]\n", serverInfo,
+                    runtime.getName(),
+                    DateTime.formatUptime(runtime.getUptime())));
 
-            Object uptime = runtimeProps.get("Uptime");
-            if (uptime != null) {
-                s.append(", uptime:");
-                s.append(DateTime.formatUptime((Long) uptime));
-            }
-
-            s.append("]\n");
-
-            if (isDebug()) {
-                s.append("- ");
-                s.append(runtimeProps.get("VmName"));
-                s.append(" (");
-                s.append(runtimeProps.get("VmVendor"));
-                s.append(" ");
-                s.append(runtimeProps.get("VmVersion"));
-                s.append(")");
-                s.append("\n");
-            }
-
-            log(s.toString());
+            if (isDebug())
+                log(String.format(" - %s %s %s", runtime.getVmName(),
+                        runtime.getVmVendor(), runtime.getVmVersion()));
         }
         catch (IOException ioe) {
             throwException(ioe);
@@ -173,12 +153,6 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         }
         catch (NullPointerException npe) {
             throwException(npe);
-        }
-        catch (InstanceNotFoundException infe) {
-            throwException(infe);
-        }
-        catch (ReflectionException re) {
-            throwException(re);
         }
     }
 
@@ -259,6 +233,9 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @throws CommandException
      */
     private void throwException(Exception exception) throws CommandException {
+        if (isDebug())
+            exception.printStackTrace();
+
         throw new CommandException(exception);
     }
 
@@ -269,6 +246,9 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @throws CommandException
      */
     private void quietException(Exception exception) {
+        if (isDebug())
+            exception.printStackTrace();
+
         log("ERROR: " + exception.getMessage());
     }
 

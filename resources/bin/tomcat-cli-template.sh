@@ -7,11 +7,14 @@ SPATH="$_"
 DPATH=`/usr/bin/dirname "$SPATH"`
 
 JAVA_BIN=""
+JAVA_TOOLS=""
 
 if [ -e $JAVA_HOME/bin/java ]; then
     JAVA_BIN="$JAVA_HOME/bin/java"    
+    JAVA_TOOLS="$JAVA_HOME/lib/tools.jar"    
 elif [ -e $JRE_HOME/bin/java ]; then
     JAVA_BIN="$JRE_HOME/bin/java"
+    JAVA_TOOLS="$JRE_HOME/lib/tools.jar"    
 else
     JAVA_BIN=`/usr/bin/whereis java`
 fi
@@ -26,4 +29,4 @@ if [ ! -e "$DPATH/@appname.jar" ]; then
     exit 1
 fi
 
-$JAVA_BIN -jar "$DPATH/@appname.jar" $@
+$JAVA_BIN -cp "$JAVA_TOOLS:$DPATH/@appname.jar" org.pidster.tomcat.util.cli.Console $@

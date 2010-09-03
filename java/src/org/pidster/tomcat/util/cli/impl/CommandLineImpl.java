@@ -18,6 +18,7 @@
 package org.pidster.tomcat.util.cli.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -126,12 +127,11 @@ public class CommandLineImpl implements Serializable, CommandLine {
     @Override
     public final List<String> getArguments() {
 
-        return arguments;
+        if (arguments.size() > 1) {
+            return arguments.subList(1, arguments.size());
+        }
 
-        /*
-         * if (arguments.size() > 0) { return arguments.subList(1,
-         * arguments.size() - 1); } return Collections.emptyList();
-         */
+        return Collections.emptyList();
+
     }
-
 }

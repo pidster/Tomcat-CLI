@@ -122,6 +122,9 @@ public class ConsoleUIImpl implements ConsoleUI {
                     command.execute();
                 }
                 catch (Throwable t) {
+
+                    t.printStackTrace();
+
                     environment.sysout(t.getMessage());
                 }
                 finally {

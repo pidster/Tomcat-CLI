@@ -63,7 +63,14 @@ public class Console {
      * @throws MalformedURLException
      */
     private static void modifyClassLoader() throws MalformedURLException {
-        URL[] urls = new URL[0];
+        List<URL> jars = new ArrayList<URL>();
+
+        File tools = new File(System.getProperty("java.home") + File.separator
+                + "lib" + File.separator + "tools.jar");
+
+        if (tools.exists()) {
+            jars.add(tools.toURI().toURL());
+        }
 
         String catalinaHome = System.getenv("CATALINA_HOME");
 
@@ -85,14 +92,14 @@ public class Console {
                 }
             });
 
-            List<URL> jars = new ArrayList<URL>();
             for (File f : files) {
                 jars.add(f.toURI().toURL());
             }
 
-            urls = new URL[jars.size()];
-            urls = jars.toArray(urls);
         }
+
+        URL[] urls = new URL[jars.size()];
+        urls = jars.toArray(urls);
 
         Thread t = Thread.currentThread();
         ClassLoader cl = t.getContextClassLoader();

@@ -60,7 +60,7 @@ public class HelpCommand extends AbstractCommand {
 
         List<String> arguments = getConfig().getArguments();
 
-        if (arguments.size() != 2) {
+        if (arguments.size() != 1) {
             s.append("Synopis:\n");
             s.append("\t./tomcat-cli.sh <command> <options>\n");
             s.append("\tjava -jar tomcat-cli.jar <command> <options>\n");
@@ -82,7 +82,7 @@ public class HelpCommand extends AbstractCommand {
             return;
         }
 
-        String commandName = arguments.get(1);
+        String commandName = arguments.get(0);
 
         for (Command command : this.commands) {
 
