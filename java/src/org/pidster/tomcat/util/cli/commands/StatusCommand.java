@@ -162,7 +162,7 @@ public class StatusCommand extends AbstractJMXCommand {
         }
 
         for (ObjectName service : names) {
-            s.append(String.format("\n Service:%1s",
+            s.append(String.format("\nService:%1s",
                     getAttribute(service, "name")));
 
             s.append(engines(service));
@@ -187,7 +187,7 @@ public class StatusCommand extends AbstractJMXCommand {
 
             String engineName = (String) getAttribute(engine, "name");
 
-            s.append(String.format("\n  Engine:%1s", engineName));
+            s.append(String.format("\n Engine:%1s", engineName));
 
             s.append(" [");
             s.append("defaultHost=");
@@ -246,7 +246,7 @@ public class StatusCommand extends AbstractJMXCommand {
             ObjectName protocolHandler = protocolHandlers.first();
             String name = (String) getAttribute(protocolHandler, "name");
 
-            s.append(String.format("\n   Connector:%-8s [",
+            s.append(String.format("\n  Connector:%-8s [",
                     getAttribute(connector, "protocol")));
 
             if (address == null) {
@@ -293,7 +293,7 @@ public class StatusCommand extends AbstractJMXCommand {
                 int largestPoolSize = (Integer) getAttribute(executor,
                         "largestPoolSize");
 
-                s.append("\n   Executor: ");
+                s.append("\n  Executor: ");
                 s.append(name);
                 s.append(String
                         .format(" [active:%d, max:%d, spare:%d; queue:%d, pool:%d, core:%d, largest:%d]",
@@ -366,14 +366,14 @@ public class StatusCommand extends AbstractJMXCommand {
                     continue;
             }
 
-            s.append("\n   Host:");
+            s.append("\n  Host:");
             s.append(hostname);
 
             String[] aliases = (String[]) getAttribute(host, "aliases");
             ObjectName[] webapps = (ObjectName[]) getAttribute(host, "children");
 
             if (super.getConfig().isOptionSet("verbose")) {
-                s.append("\n    Aliases[");
+                s.append("\n   Aliases[");
                 boolean first = true;
                 for (String alias : aliases) {
                     if (!first)
@@ -394,7 +394,7 @@ public class StatusCommand extends AbstractJMXCommand {
             }
             else {
                 if (getConfig().isOptionSet("verbose")) {
-                    s.append("\n    ");
+                    s.append("\n   ");
                 }
                 else {
                     s.append(" - ");
@@ -420,8 +420,8 @@ public class StatusCommand extends AbstractJMXCommand {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        s.append("\n    Application      path              state    sessions startup tldscan             started");
-        s.append("\n    ----------------------------------------------------------------------------------------");
+        s.append("\n   Application      path              state    sessions startup tldscan             started");
+        s.append("\n   ----------------------------------------------------------------------------------------");
 
         for (ObjectName webapp : webapps) {
 
@@ -449,7 +449,7 @@ public class StatusCommand extends AbstractJMXCommand {
                     continue;
             }
 
-            s.append("\n    ");
+            s.append("\n   ");
 
             // ------------------------------------------------------
 
