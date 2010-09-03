@@ -17,21 +17,14 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.TreeSet;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.QueryExp;
-import javax.management.ReflectionException;
 
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Descriptor;
@@ -43,14 +36,14 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(description = "Used for debugging. Dumps JMX environment and CLI state information.")
-@Descriptor(name = "dumpjmx")
+@Usage(description = "Used for debugging. Query JMX environment and CLI state information.")
+@Descriptor(name = "query")
 @Options({
         @Option(name = "domain", single = 'd', description = "Limit domain"),
         @Option(name = "type", single = 't', description = "Limit type"),
         @Option(name = "query", single = 'q', description = "Raw query ")
 })
-public class DumpJMXCommand extends AbstractJMXCommand {
+public class QueryJMXCommand extends AbstractJMXCommand {
 
     /*
      * (non-Javadoc)
@@ -63,8 +56,6 @@ public class DumpJMXCommand extends AbstractJMXCommand {
     public void execute() {
 
         StringBuilder s = new StringBuilder();
-
-        s.append("- DUMP STARTS --------------------------------------------------------------- \n");
 
         try {
             MBeanServerConnection connection = super.getConnection();
@@ -95,7 +86,6 @@ public class DumpJMXCommand extends AbstractJMXCommand {
                     q.append("*");
                 }
 
-                // log(q.toString());
                 name = ObjectName.getInstance(q.toString());
             }
 
@@ -110,19 +100,8 @@ public class DumpJMXCommand extends AbstractJMXCommand {
 
             names.addAll(connection.queryNames(name, query));
 
-            for (String domain : connection.getDomains()) {
-                s.append("Domain: ");
-                s.append(domain);
-                s.append("\n");
-            }
-
-            s.append("- DUMP DATA ----------------------------------------------------------------- \n");
-
             for (ObjectName obj : names) {
-                s.append("\t");
-                // s.append(obj.getDomain());
-                // s.append(":");
-                // s.append("[");
+                s.append(" ");
                 s.append(obj.getCanonicalName());
                 s.append("]\n");
 
@@ -130,18 +109,12 @@ public class DumpJMXCommand extends AbstractJMXCommand {
                     try {
                         MBeanInfo info = connection.getMBeanInfo(obj);
                         for (MBeanAttributeInfo mbai : info.getAttributes()) {
-                            s.append("\t - ");
+                            s.append("   - ");
                             s.append(mbai.getName());
                             s.append("=");
                             try {
                                 s.append(connection.getAttribute(obj,
                                         mbai.getName()));
-                            }
-                            catch (AttributeNotFoundException e) {
-                                s.append("ERROR: " + e.getMessage());
-                            }
-                            catch (MBeanException e) {
-                                s.append("ERROR: " + e.getMessage());
                             }
                             catch (Exception e) {
                                 s.append("ERROR: " + e.getMessage());
@@ -150,32 +123,15 @@ public class DumpJMXCommand extends AbstractJMXCommand {
                         }
                         s.append("\n");
                     }
-                    catch (InstanceNotFoundException e) {
-                        // e.printStackTrace();
-                    }
-                    catch (IntrospectionException e) {
-                        // e.printStackTrace();
-                    }
-                    catch (ReflectionException e) {
+                    catch (Exception e) {
                         // e.printStackTrace();
                     }
                 }
             }
         }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        catch (Exception e) {
+            log("ERROR" + e.getMessage());
         }
-        catch (MalformedObjectNameException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (NullPointerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        s.append("- DUMP ENDS ----------------------------------------------------------------- \n");
 
         log(s.toString());
     }

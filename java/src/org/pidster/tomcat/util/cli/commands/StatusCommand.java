@@ -253,7 +253,7 @@ public class StatusCommand extends AbstractJMXCommand {
             if (super.getConfig().isOptionSet("threads")) {
                 SortedSet<ObjectName> threadPools = query(engineName
                         + ":type=ThreadPool,name=" + name);
-                s.append(threads(threadPools));
+                s.append(threads(engineName, threadPools));
             }
         }
 
@@ -299,39 +299,42 @@ public class StatusCommand extends AbstractJMXCommand {
     /**
      * @param threadPools
      * @return thread info
+     * @throws IOException
      */
-    private String threads(SortedSet<ObjectName> threadPools) {
+    private String threads(String engine, SortedSet<ObjectName> threadPools)
+            throws IOException {
 
         StringBuilder s = new StringBuilder();
 
         if (threadPools.size() >= 1) {
-            ObjectName threadPool = threadPools.first();
 
-            s.append(String.format("\n   - threads=%s/%s, busy=%s, backlog=%s",
-                    attribute(threadPool, "currentThreadCount"),
-                    attribute(threadPool, "maxThreads"),
-                    attribute(threadPool, "currentThreadsBusy"),
-                    // getAttribute(threadPool, "minSpareThreads"),
-                    // getAttribute(threadPool, "maxKeepAliveRequests"),
-                    attribute(threadPool, "backlog")));
+            for (ObjectName pool : threadPools) {
+                String name = attribute(pool, "name");
+                s.append("\n  Pool[");
+                s.append(name);
+                s.append("]");
 
+                String processorQuery = engine
+                        + ":type=RequestProcessor,worker=" + name + ",name=*";
+
+                SortedSet<ObjectName> processors = query(processorQuery);
+
+                s.append("\n   sent ------- recd ----- reqs ---- errors -- maxtime - proctime - maxURI -----------");
+                for (ObjectName rp : processors) {
+                    s.append(String.format(
+                            "\n   %-12s %-10s %-9s %-9s %-9s %-9s  %s",
+                            attribute(rp, "bytesSent"),
+                            attribute(rp, "bytesReceived"),
+                            attribute(rp, "requestCount"),
+                            attribute(rp, "errorCount"),
+                            attribute(rp, "maxTime"),
+                            attribute(rp, "processingTime"),
+                            attribute(rp, "maxRequestUri")));
+                }
+            }
         }
 
-        /*
-         * String query = engine + ":type=RequestProcessor,worker=" + connector
-         * + ",name=HttpRequest1";
-         * 
-         * requestProcessingTime: 242 bytesSent: 194516 protocol: HTTP/1.1
-         * processingTime: 453 currentQueryString: qry=*:type=*,* errorCount: 0
-         * maxTime: 214 requestBytesReceived: 0 stage: 3
-         * lastRequestProcessingTime: 2 virtualHost: localhost serverPort: 8080
-         * bytesReceived: 0 currentUri: /manager/jmxproxy workerThreadName:
-         * diagnostic-exec-1 method: GET requestCount: 12 requestBytesSent:
-         * 40960 contentLength: -1 remoteAddr: 127.0.0.1
-         */
-
         return s.toString();
-
     }
 
     /**
@@ -411,8 +414,12 @@ public class StatusCommand extends AbstractJMXCommand {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        s.append("\n   Application      path              state    sessions startup tldscan             started");
-        s.append("\n   ----------------------------------------------------------------------------------------");
+        if (isVerbose()) {
+            s.append("\n   application ---- path ------------ state sessions - total ---- proctime init -- tldscan ----------- started");
+        }
+        else {
+            s.append("\n   application ---- path ------------ state sessions - startup ------------ started");
+        }
 
         for (ObjectName webapp : webapps) {
 
@@ -445,6 +452,9 @@ public class StatusCommand extends AbstractJMXCommand {
             // ------------------------------------------------------
 
             String activeSessions = "";
+            String totalSessions = "";
+            String processingTime = "";
+            String initTime = "";
             String startupTime = "";
             String tldScanTime = "";
 
@@ -465,15 +475,30 @@ public class StatusCommand extends AbstractJMXCommand {
 
                 activeSessions = String.valueOf(attribute(manager,
                         "activeSessions"));
-                startupTime = String.valueOf(attribute(webapp, "startupTime"))
-                        + "ms";
-                tldScanTime = String.valueOf(attribute(webapp, "tldScanTime"))
-                        + "ms";
+                totalSessions = String.valueOf(attribute(manager,
+                        "sessionCounter"));
+
+                processingTime = String.valueOf(attribute(manager,
+                        "processingTime"));
+
+                startupTime = attribute(webapp, "startupTime") + "ms";
+                tldScanTime = attribute(webapp, "tldScanTime") + "ms";
+                initTime = ((Long) attribute(webapp, "startupTime") + (Long) attribute(
+                        webapp, "tldScanTime")) + "ms";
+
             }
 
-            s.append(String.format("%-16s %-17s %-8s %-8s %-7s %-6s %20s",
-                    docBase, path, appState, activeSessions, startupTime,
-                    tldScanTime, started));
+            if (isVerbose()) {
+                s.append(String.format(
+                        "%-16s %-17s %-5s %-10s %-10s %-8s %-7s %-6s %20s",
+                        docBase, path, appState, activeSessions, totalSessions,
+                        processingTime, startupTime, tldScanTime, started));
+            }
+            else {
+                s.append(String.format("%-16s %-17s %-5s %-10s %-7s %20s",
+                        docBase, path, appState, activeSessions, initTime,
+                        started));
+            }
 
         }
 
