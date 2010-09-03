@@ -10,6 +10,9 @@ Decompress the archive:
 The archive contains a single script and two jar files, one each of
 the source code and the compiled classes.
 
+  ./tomcat-cli.sh help
+  ./tomcat-cli.sh help <command>
+
 Connect to the local JMX connector on the specified process:
   ./tomcat-cli.sh status --pid:<PID>
 
@@ -28,3 +31,24 @@ Connect to a process by guessing which is Tomcat:
 Extended information can be displayed by adding the following switches to the status command:
 
  --webapps --connectors --threads --verbose 
+
+#########################################################################################################
+# SAMPLE OUTPUT FROM STATUS
+
+ tomcat-cli.sh status --pid:26857 --hostname:www -c -w
+
+ Connected to Apache Tomcat/6.0.29 [26857@localhost, uptime:11h 58m 45s 553ms]
+ Server: Catalina
+  Service:Catalina
+   Engine:Catalina [defaultHost=www, jvmRoute=tomcat1]
+    Executor: tomcatThreadPool [active:20, max:100, spare:4; queue:0, pool:20, core:4, largest:36]
+    Connector:org.apache.coyote.ajp.AjpProtocol [http::0.0.0.0:8009, secure=false, redirect=443]
+    Host:www
+     Application      path              state    sessions startup tldscan             started
+     ----------------------------------------------------------------------------------------
+     help             /help             ok       6        17ms    67ms    2010-09-02 12:45:06
+     ROOT             /                 ok       191      479ms   134ms   2010-09-02 12:45:05
+     registration     /registration     ok       1        44ms    107ms   2010-09-02 12:45:04
+     account          /account          ok       1        21ms    49ms    2010-09-02 12:45:07
+     account-old                        stopped!                                             
+     blog             /blog             ok       2        66ms    50ms    2010-09-02 12:45:06
