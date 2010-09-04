@@ -18,6 +18,7 @@
 package org.pidster.tomcat.util.cli.util;
 
 import java.io.Closeable;
+import java.io.File;
 
 /**
  * @author pidster
@@ -26,10 +27,37 @@ import java.io.Closeable;
 public class IO {
 
     /**
-     * 
+     * Private constructor, just so we're clear it's not usable
      */
     private IO() {
         //
+    }
+
+    /**
+     * @param parts
+     * @return path
+     */
+    public static final String path(String... parts) {
+        return path(false, parts);
+    }
+
+    /**
+     * @param parts
+     * @return path
+     */
+    public static final String path(boolean absolute, String... parts) {
+
+        StringBuilder s = new StringBuilder();
+
+        boolean first = true;
+        for (String part : parts) {
+            if (!first || absolute)
+                s.append(File.separator);
+            s.append(part);
+            first = false;
+        }
+
+        return s.toString();
     }
 
     /**
@@ -42,7 +70,8 @@ public class IO {
 
         try {
             closable.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // If this happens, we might as well know about it
             e.printStackTrace();
         }

@@ -21,11 +21,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
 import org.pidster.tomcat.util.cli.impl.ConsoleUIImpl;
+import org.pidster.tomcat.util.cli.util.IO;
 
 /**
  * @author pidster
@@ -37,24 +39,23 @@ public class Console {
      * @param arguments
      */
     public static void main(String[] arguments) {
-
         try {
             if (arguments == null)
                 arguments = new String[0];
 
             modifyClassLoader();
 
+            // can this be discovered, somehow?
             ConsoleUI consoleUI = new ConsoleUIImpl();
 
             // load services
             ServiceLoader<Command> loader = ServiceLoader.load(Command.class);
-
             consoleUI.register(loader);
 
             consoleUI.process(arguments);
-
         }
         catch (Throwable e) {
+            // If it fails here, a stacktrace is the best option
             e.printStackTrace();
         }
     }
@@ -65,8 +66,8 @@ public class Console {
     private static void modifyClassLoader() throws MalformedURLException {
         List<URL> jars = new ArrayList<URL>();
 
-        File tools = new File(System.getProperty("java.home") + File.separator
-                + "lib" + File.separator + "tools.jar");
+        File tools = new File(IO.path(System.getProperty("java.home"), "lib",
+                "tools.jar"));
 
         if (tools.exists()) {
             jars.add(tools.toURI().toURL());
@@ -79,7 +80,7 @@ public class Console {
         }
 
         if ((catalinaHome != null) && (!catalinaHome.isEmpty())) {
-            String libDir = catalinaHome + File.separator + "lib";
+            String libDir = IO.path(catalinaHome, "lib");
 
             File libs = new File(libDir);
             File[] files = libs.listFiles(new FilenameFilter() {
@@ -95,7 +96,6 @@ public class Console {
             for (File f : files) {
                 jars.add(f.toURI().toURL());
             }
-
         }
 
         URL[] urls = new URL[jars.size()];
@@ -103,8 +103,7 @@ public class Console {
 
         Thread t = Thread.currentThread();
         ClassLoader cl = t.getContextClassLoader();
-        TerminalLoader tl = new TerminalLoader(urls, cl);
+        URLClassLoader tl = new URLClassLoader(urls, cl);
         t.setContextClassLoader(tl);
     }
-
 }

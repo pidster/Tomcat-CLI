@@ -98,23 +98,6 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                 connector.connect();
             }
 
-            // runtimeProps = new HashMap<String, Object>();
-
-            // // ------------------------------------------------------------
-            // // acquire runtime attributes
-            // ObjectName query =
-            // ObjectName.getInstance("java.lang:type=Runtime");
-            //
-            // String[] arr = new String[] {
-            // "Name", "Uptime", "StartTime", "VmName", "VmVendor",
-            // "VmVersion"
-            // };
-            //
-            // AttributeList list = getConnection().getAttributes(query, arr);
-            // for (Attribute attribute : list.asList()) {
-            // runtimeProps.put(attribute.getName(), attribute.getValue());
-            // }
-
             // ------------------------------------------------------------
             // There should only ever be one Server, acquire server attributes
             ObjectName query = ObjectName.getInstance("*:type=Server");
