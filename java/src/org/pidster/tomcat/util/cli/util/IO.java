@@ -23,6 +23,8 @@ import java.io.File;
 /**
  * @author pidster
  * 
+ * @version $Date$
+ * 
  */
 public class IO {
 
