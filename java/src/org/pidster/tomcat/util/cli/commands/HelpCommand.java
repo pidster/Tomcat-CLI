@@ -42,16 +42,13 @@ public class HelpCommand extends AbstractCommand {
 
     /**
      * @param commands
-     * 
      */
     public HelpCommand(Collection<Command> commands) {
         this.commands = commands;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.Command#execute()
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {

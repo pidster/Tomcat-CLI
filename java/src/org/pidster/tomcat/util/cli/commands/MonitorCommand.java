@@ -30,12 +30,8 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "monitor")
 public class MonitorCommand extends AbstractJMXCommand {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
-     * .util.cli .Environment)
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {

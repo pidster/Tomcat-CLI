@@ -53,12 +53,8 @@ public class StatusCommand extends AbstractJMXCommand {
             "stopped", "started"
     };
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.apache.tomcat.
-     * util.cli .Environment)
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {

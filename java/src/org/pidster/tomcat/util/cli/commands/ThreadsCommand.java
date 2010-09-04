@@ -38,12 +38,8 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "threads")
 public class ThreadsCommand extends AbstractJMXCommand {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
-     * .util.cli .Environment)
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {

@@ -53,12 +53,8 @@ public class HostCommand extends StatusCommand {
         this.commandMap.put("findleaks", "findReloadedContextMemoryLeaks");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.apache.tomcat.
-     * util.cli .Environment)
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {

@@ -30,15 +30,12 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "memory")
 public class MemoryCommand extends AbstractJMXCommand {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.AbstractCommand#execute(org.pidster.tomcat
-     * .util.cli .Environment)
+    /**
+     * ${@inheritDoc}
      */
     @Override
     public void execute() throws CommandException {
+
         log("Memory: ???");
     }
 
