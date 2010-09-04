@@ -36,6 +36,19 @@ import org.pidster.tomcat.util.cli.util.IO;
 public class Console {
 
     /**
+     * @author pidster
+     */
+    private static final class JarFilenameFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            if (name.endsWith(".jar")) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /**
      * @param arguments
      */
     public static void main(String[] arguments) {
@@ -45,7 +58,7 @@ public class Console {
 
             modifyClassLoader();
 
-            // can this be discovered, somehow?
+            // TODO can this be discovered, somehow?
             ConsoleUI consoleUI = new ConsoleUIImpl();
 
             // load services
@@ -83,15 +96,7 @@ public class Console {
             String libDir = IO.path(catalinaHome, "lib");
 
             File libs = new File(libDir);
-            File[] files = libs.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.endsWith(".jar")) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
+            File[] files = libs.listFiles(new JarFilenameFilter());
 
             for (File f : files) {
                 jars.add(f.toURI().toURL());
