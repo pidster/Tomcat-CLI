@@ -26,8 +26,8 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(description = "Monitor properties of a server in real time")
-@Descriptor(name = "monitor")
+@Usage(description = "Display memory, heap information")
+@Descriptor(name = "memory")
 public class MemoryCommand extends AbstractJMXCommand {
 
     /*
@@ -39,25 +39,7 @@ public class MemoryCommand extends AbstractJMXCommand {
      */
     @Override
     public void execute() throws CommandException {
-
-        if (getConfig().getArguments().size() > 0) {
-            String action = getConfig().getArguments().get(0);
-            log("Monitor: " + action);
-        }
-        else {
-            log("Monitor: ???");
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
-     */
-    @Override
-    public void cleanup() {
-        super.cleanup();
+        log("Memory: ???");
     }
 
 }
