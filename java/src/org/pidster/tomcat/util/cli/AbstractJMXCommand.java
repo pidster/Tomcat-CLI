@@ -75,16 +75,10 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     protected static final String LOCAL_CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 
-    // private volatile static MBeanServerConnection connection;
-
     private volatile JMXConnector connector;
 
-    // private Map<String, Object> runtimeProps;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.AbstractCommand#configure()
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected void configure() throws CommandException {
@@ -156,10 +150,8 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void cleanup() {
