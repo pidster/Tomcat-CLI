@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.pidster.tomcat.util.cli.Command;
-import org.pidster.tomcat.util.cli.CommandRegistry;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Options;
@@ -34,7 +33,7 @@ import org.pidster.tomcat.util.cli.Options;
  * @author pidster
  * 
  */
-public class CommandRegistryImpl implements CommandRegistry {
+public class CommandRegistry {
 
     private final Map<String, Command> commands;
 
@@ -43,7 +42,7 @@ public class CommandRegistryImpl implements CommandRegistry {
     /**
      * 
      */
-    public CommandRegistryImpl() {
+    public CommandRegistry() {
         this.commands = new HashMap<String, Command>();
         this.commandOptions = new HashMap<Command, List<Option>>();
     }
@@ -92,14 +91,10 @@ public class CommandRegistryImpl implements CommandRegistry {
         commandOptions.put(command, options);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandRegistry#isRegistered(java.lang.String
-     * )
+    /**
+     * @param name
+     * @return
      */
-    @Override
     public boolean isRegistered(String name) {
         if (name == null) {
             return false;
@@ -107,44 +102,32 @@ public class CommandRegistryImpl implements CommandRegistry {
         return commands.containsKey(name);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandRegistry#getViableOptions(org.pidster
-     * .tomcat.util.cli.Command)
+    /**
+     * @param command
+     * @return
      */
-    @Override
     public List<Option> getOptions(Command command) {
         return commandOptions.get(command);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandRegistry#commands()
+    /**
+     * @return
      */
-    @Override
     public Collection<Command> getCommands() {
         return this.commands.values();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandRegistry#get(java.lang.String)
+    /**
+     * @param commandName
+     * @return
      */
-    @Override
     public Command get(String commandName) {
         return this.commands.get(commandName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandRegistry#getOptions()
+    /**
+     * @return
      */
-    @Override
     public Map<Command, List<Option>> getOptions() {
         return this.commandOptions;
     }

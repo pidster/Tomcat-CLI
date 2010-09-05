@@ -39,7 +39,7 @@ public class ConsoleUIImpl implements ConsoleUI {
 
     private final CommandParser commandParser;
 
-    private final CommandRegistryImpl registry;
+    private final CommandRegistry registry;
 
     private final OptionParser optionParser;
 
@@ -49,8 +49,7 @@ public class ConsoleUIImpl implements ConsoleUI {
      * 
      */
     public ConsoleUIImpl() {
-
-        this.registry = new CommandRegistryImpl();
+        this.registry = new CommandRegistry();
         this.commandParser = new CommandParserImpl();
         this.environment = new EnvironmentImpl();
         this.optionParser = new OptionParserImpl(registry.getOptions());
