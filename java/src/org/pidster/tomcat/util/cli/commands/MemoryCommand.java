@@ -19,8 +19,12 @@ package org.pidster.tomcat.util.cli.commands;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryManagerMXBean;
+import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.MemoryMXBean;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
 import java.text.DecimalFormat;
 
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;
@@ -44,6 +48,15 @@ public class MemoryCommand extends AbstractJMXCommand {
 
         try {
 
+            // java.lang:type=OperatingSystem]
+            // - MaxFileDescriptorCount=1024
+            // - CommittedVirtualMemorySize=747110400
+            // - FreePhysicalMemorySize=66084864
+            // - FreeSwapSpaceSize=939483136
+            // - ProcessCpuTime=345990000000
+            // - TotalPhysicalMemorySize=1831653376
+            // - TotalSwapSpaceSize=939515904
+
             MemoryMXBean memory = ManagementFactory.newPlatformMXBeanProxy(
                     getConnection(), ManagementFactory.MEMORY_MXBEAN_NAME,
                     MemoryMXBean.class);
@@ -53,6 +66,39 @@ public class MemoryCommand extends AbstractJMXCommand {
 
             displayMemoryUsage("Heap", memory.getHeapMemoryUsage());
             displayMemoryUsage("Non-Heap", memory.getNonHeapMemoryUsage());
+
+            // TODO
+            // Query java.lang:type=MemoryPool,name=*
+            // to get attribute(pool, "Name")
+
+            String name = "CodeCacheManager";
+
+            MemoryManagerMXBean manager = ManagementFactory
+                    .newPlatformMXBeanProxy(getConnection(),
+                            ManagementFactory.MEMORY_MANAGER_MXBEAN_DOMAIN_TYPE
+                                    + ",name=" + name,
+                            MemoryManagerMXBean.class);
+
+            log("Memory Pools:");
+            log(" type ---------- init ---- used % ---- committed % ---------- max % ---- threshold --- count");
+
+            String template = " %-10s %9s %9s %-6s %9s %-6s %9s %-6s";
+
+            for (String poolName : manager.getMemoryPoolNames()) {
+
+                MemoryPoolMXBean pool = ManagementFactory
+                        .newPlatformMXBeanProxy(
+                                getConnection(),
+                                ManagementFactory.MEMORY_POOL_MXBEAN_DOMAIN_TYPE
+                                        + ",name=" + poolName,
+                                MemoryPoolMXBean.class);
+
+                log(template, pool.getName(), pool.getUsage().getInit(), pool
+                        .getUsage().getUsed(), 0, pool.getUsage()
+                        .getCommitted(), 0, pool.getUsage().getMax(), 0,
+                        pool.getUsageThreshold(), pool.getUsageThresholdCount());
+
+            }
 
         }
         catch (IOException e) {
