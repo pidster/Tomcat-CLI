@@ -300,10 +300,6 @@ public abstract class AbstractStatusCommand extends AbstractJMXCommand {
 
             for (ObjectName pool : threadPools) {
                 String name = attribute(pool, "name");
-                s.append("\n  Pool[");
-                s.append(name);
-                s.append("]");
-
                 String processorQuery = engine
                         + ":type=RequestProcessor,worker=" + name + ",name=*";
 
@@ -312,7 +308,11 @@ public abstract class AbstractStatusCommand extends AbstractJMXCommand {
                 List<ObjectName> processors = query(processorQuery, null,
                         sorter);
 
-                // TOOD make maxtime/proctime only under verbose
+                s.append("\n  Pool[");
+                s.append(name);
+                s.append(", threads:");
+                s.append(processors.size());
+                s.append("]");
 
                 if (isVerbose()) {
                     s.append("\n   name ----------- sent ------- recd ----- reqs ---- errors -- maxtime - proctime - maxURI -----------");
