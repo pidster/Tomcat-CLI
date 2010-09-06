@@ -367,12 +367,7 @@ public abstract class AbstractStatusCommand extends AbstractJMXCommand {
         Comparator<ObjectName> sorter = new Comparator<ObjectName>() {
             @Override
             public int compare(ObjectName o1, ObjectName o2) {
-                if ("name".equalsIgnoreCase(sort)) {
-                    String a1 = attribute(o1, "rpName").toString();
-                    String a2 = attribute(o2, "rpName").toString();
-                    return a1.compareTo(a2);
-                }
-                else if ("sent".equalsIgnoreCase(sort)) {
+                if ("sent".equalsIgnoreCase(sort)) {
                     Long a1 = attribute(o1, "bytesSent");
                     Long a2 = attribute(o2, "bytesSent");
                     return a1.compareTo(a2);
@@ -408,7 +403,9 @@ public abstract class AbstractStatusCommand extends AbstractJMXCommand {
                     return a1.compareTo(a2);
                 }
                 else {
-                    return o1.compareTo(o2);
+                    String a1 = attribute(o1, "rpName").toString();
+                    String a2 = attribute(o2, "rpName").toString();
+                    return a1.compareTo(a2);
                 }
             }
         };
