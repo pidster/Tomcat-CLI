@@ -85,7 +85,7 @@ public abstract class AbstractCommand implements Command {
      */
     @Override
     public final void log(String message) {
-        getConfig().getEnvironment().sysout(message, new Object[] {});
+        getConfig().getEnvironment().sysout(message);
     }
 
     /**

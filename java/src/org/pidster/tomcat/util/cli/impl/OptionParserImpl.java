@@ -61,6 +61,8 @@ public class OptionParserImpl implements OptionParser {
         // FIXME This loop is non-optimal
         for (Option option : viableOptions) {
 
+            String value = option.value();
+
             LOOP: for (String argument : options) {
 
                 String ext = "--".concat(option.name());
@@ -68,23 +70,13 @@ public class OptionParserImpl implements OptionParser {
 
                 if (argument.startsWith(ext) || argument.startsWith(sng)) {
 
-                    String value = option.value();
-
-                    if (argument.indexOf(':') > -1) {
+                    if (option.setter() && (argument.indexOf(':') > -1)) {
                         value = argument.substring(argument.indexOf(':') + 1);
                     }
-                    else {
-                        value = option.value();
+
+                    else if (!option.setter()) {
+                        value = "true";
                     }
-
-                    if (option.setter() && value.isEmpty()) {
-                        throw new IllegalArgumentException(manager.getString(
-                                "tomcat.cli.requiredOptionNotSet",
-                                option.name()));
-                    }
-
-                    activeOptions.put(option, value);
-
                     // shorten loop next time
                     options.remove(argument);
 
@@ -92,8 +84,13 @@ public class OptionParserImpl implements OptionParser {
                 }
             }
 
+            if (!"".equals(value)) {
+                activeOptions.put(option, value);
+            }
+
             // check to see if this option is required
             if (option.required() && !activeOptions.containsKey(option)) {
+
                 throw new IllegalArgumentException("Option '" + option.name()
                         + "' is required");
             }

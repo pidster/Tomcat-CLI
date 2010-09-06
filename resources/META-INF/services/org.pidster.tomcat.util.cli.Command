@@ -19,8 +19,9 @@ org.pidster.tomcat.util.cli.commands.StatusCommand
 org.pidster.tomcat.util.cli.commands.WebappCommand
 org.pidster.tomcat.util.cli.commands.HostCommand
 org.pidster.tomcat.util.cli.commands.MonitorCommand
-org.pidster.tomcat.util.cli.commands.MemoryCommand
 org.pidster.tomcat.util.cli.commands.ThreadsCommand
+org.pidster.tomcat.util.cli.commands.MemoryCommand
+org.pidster.tomcat.util.cli.commands.DiagnosticCommand
 org.pidster.tomcat.util.cli.commands.QueryJMXCommand
 org.pidster.tomcat.util.cli.commands.DumpEnvCommand
 org.pidster.tomcat.util.cli.commands.DumpStateCommand

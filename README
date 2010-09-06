@@ -10,8 +10,17 @@ Decompress the archive:
 The archive contains a single script and two jar files, one each of
 the source code and the compiled classes.
 
+# --------------------------------------------------------------------------------------------
+# HELP COMMAND
+
+The 'help' command provides information about available commands and the relevant command 
+options:
+
   ./tomcat-cli.sh help
   ./tomcat-cli.sh help <command>
+
+# --------------------------------------------------------------------------------------------
+# STATUS COMMAND
 
 Connect to the local JMX connector on the specified process:
   ./tomcat-cli.sh status --pid:<PID>
@@ -33,8 +42,6 @@ Extended information can be displayed by adding the following switches to the st
  --webapps --connectors --threads --verbose 
 
 
-
-#########################################################################################################
 # SAMPLE OUTPUT FROM STATUS
 
  tomcat-cli.sh status -i:26857 -H:www -w

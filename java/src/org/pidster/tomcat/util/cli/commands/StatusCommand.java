@@ -42,9 +42,9 @@ import org.pidster.tomcat.util.cli.Usage;
         @Option(name = "hostname", single = 'H', setter = true, value = "*", description = "Selects a specific Host"),
         @Option(name = "webapp", single = 'W', setter = true, description = "Selects a specific application context"),
         @Option(name = "webapps", single = 'w', description = "Show webapps info"),
-        @Option(name = "datasources", single = 'D', description = "Show DataSources"),
+        @Option(name = "datasources", single = 'D', description = "Show DataSource info"),
         @Option(name = "connectors", single = 'c', description = "Show connector info"),
-        @Option(name = "threads", single = 't', description = "Show thread info"),
+        @Option(name = "threads", single = 't', setter = true, value = "sent", description = "Show thread info, sorted by value"),
         @Option(name = "stats", single = 's', description = "Show stats")
 })
 public class StatusCommand extends AbstractJMXCommand {
@@ -315,6 +315,7 @@ public class StatusCommand extends AbstractJMXCommand {
 
                 SortedSet<ObjectName> processors = query(processorQuery);
 
+                // TOOD make maxtime/proctime only under verbose
                 s.append("\n   sent ------- recd ----- reqs ---- errors -- maxtime - proctime - maxURI -----------");
                 for (ObjectName rp : processors) {
                     s.append(String.format(
@@ -327,6 +328,7 @@ public class StatusCommand extends AbstractJMXCommand {
                             attribute(rp, "processingTime"),
                             attribute(rp, "maxRequestUri")));
                 }
+                s.append("\n");
             }
         }
 
@@ -344,16 +346,12 @@ public class StatusCommand extends AbstractJMXCommand {
             throws RuntimeException, IOException {
         StringBuilder s = new StringBuilder();
 
-        SortedSet<ObjectName> hosts = query(engineName + ":type=Host,host=*");
+        SortedSet<ObjectName> hosts = query(engineName + ":type=Host,host="
+                + getConfig().getOptionValue("hostname"));
 
         for (ObjectName host : hosts) {
 
             String hostname = (String) attribute(host, "name");
-
-            if (getConfig().isOptionSet("hostname")) {
-                if (!getConfig().getOptionValue("hostname").equals(hostname))
-                    continue;
-            }
 
             s.append("\n  Host:");
             s.append(hostname);

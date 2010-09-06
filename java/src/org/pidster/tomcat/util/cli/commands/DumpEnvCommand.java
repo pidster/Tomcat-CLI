@@ -46,6 +46,8 @@ public class DumpEnvCommand extends AbstractCommand {
 
         StringBuilder s = new StringBuilder();
 
+        // TODO connect to target VM and dump local properties instead
+
         s.append("- DUMP STARTS --------------------------------------------------------------- \n");
 
         Properties properties = System.getProperties();

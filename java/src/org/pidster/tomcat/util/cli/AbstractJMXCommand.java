@@ -20,6 +20,7 @@ package org.pidster.tomcat.util.cli;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,12 +115,24 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
                     getConnection(), ManagementFactory.RUNTIME_MXBEAN_NAME,
                     RuntimeMXBean.class);
 
-            log(String.format("Connected to %s [%s, uptime:%s]\n", serverInfo,
-                    runtime.getName(),
+            log(String.format("Connected: %s [uptime:%s]\n", serverInfo,
                     DateTime.formatUptime(runtime.getUptime())));
 
+            // ------------------------------------------------------------
+            // ----
+            OperatingSystemMXBean os = ManagementFactory
+                    .newPlatformMXBeanProxy(getConnection(),
+                            ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME,
+                            OperatingSystemMXBean.class);
+
+            if (isVerbose())
+                log("   System: %s load: %s [%s %s (%s) x%s]",
+                        runtime.getName(), os.getSystemLoadAverage(),
+                        os.getName(), os.getVersion(), os.getArch(),
+                        os.getAvailableProcessors());
+
             if (isDebug())
-                log(String.format(" - %s %s %s", runtime.getVmName(),
+                log(String.format(" JVM info: %s %s %s", runtime.getVmName(),
                         runtime.getVmVendor(), runtime.getVmVersion()));
         }
         catch (IOException ioe) {
