@@ -17,12 +17,15 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 import javax.management.ObjectName;
 
+import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;
@@ -36,10 +39,10 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "start|stop|findleaks <options>", description = "Execute host functions")
 @Descriptor(name = "host")
 @Options({
-        @Option(name = "engine", single = 'e', setter = true, required = false, description = "Selects a specific engine"),
-        @Option(name = "hostname", single = 'n', setter = true, required = true, description = "Selects a specific hostname")
+        @Option(name = "engine", single = 'E', setter = true, required = false, description = "Selects a specific engine"),
+        @Option(name = "hostname", single = 'H', setter = true, required = true, description = "Selects a specific hostname")
 })
-public class HostCommand extends StatusCommand {
+public class HostCommand extends AbstractJMXCommand {
 
     private final Map<String, String> commandMap;
 
@@ -87,7 +90,7 @@ public class HostCommand extends StatusCommand {
             s.append(hostname);
 
             ObjectName host = ObjectName.getInstance(s.toString());
-            SortedSet<ObjectName> hosts = query(host, null);
+            List<ObjectName> hosts = query(host, null, null);
 
             if (hosts.size() != 1) {
                 log("hosts query:" + s.toString());
@@ -95,7 +98,7 @@ public class HostCommand extends StatusCommand {
                         + hosts.size());
             }
 
-            Object obj = invoke(hosts.first(), method, new Object[0],
+            Object obj = invoke(hosts.get(0), method, new Object[0],
                     new String[0]);
 
             handleMethodResult(obj);
@@ -110,7 +113,32 @@ public class HostCommand extends StatusCommand {
      * @throws CommandException
      */
     protected void handleMethodResult(Object obj) throws CommandException {
-        super.execute();
+
+        if (obj == null)
+            return;
+
+        if (!obj.getClass().isArray())
+            return;
+
+        if (Array.getLength(obj) == 0) {
+            log("No leaking apps found.");
+            return;
+        }
+
+        List<String> leaks = new ArrayList<String>();
+        for (int i = 0; i < Array.getLength(obj); i++) {
+            Object o = Array.get(obj, i);
+            if (!String.class.isInstance(o))
+                continue;
+
+            leaks.add(String.class.cast(o));
+        }
+
+        log("Found %s leaking apps...", Array.getLength(obj));
+
+        for (String leak : leaks) {
+            log("Leaking app name: %s", leak);
+        }
     }
 
 }

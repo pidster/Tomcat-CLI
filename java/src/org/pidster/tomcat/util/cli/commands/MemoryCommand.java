@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryManagerMXBean;
-import java.lang.management.OperatingSystemMXBean;
 import java.text.DecimalFormat;
 
 import org.pidster.tomcat.util.cli.AbstractJMXCommand;

@@ -24,10 +24,11 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.management.InstanceNotFoundException;
@@ -169,11 +170,21 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
-    protected SortedSet<ObjectName> query(String name, QueryExp qe)
-            throws IOException {
+    protected List<ObjectName> query(String name) throws IOException {
+        return query(name, null);
+    }
+
+    /**
+     * @param on
+     * @param qe
+     * @return
+     * @throws IOException
+     */
+    protected List<ObjectName> query(String name, QueryExp qe,
+            Comparator<ObjectName> comparator) throws IOException {
 
         try {
-            return query(ObjectName.getInstance(name), qe);
+            return query(ObjectName.getInstance(name), qe, comparator);
         }
         catch (MalformedObjectNameException e) {
             throw new RuntimeException(e);
@@ -186,8 +197,15 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
-    protected SortedSet<ObjectName> query(String name) throws IOException {
-        return query(name, null);
+    protected List<ObjectName> query(String name, QueryExp qe)
+            throws IOException {
+
+        try {
+            return query(ObjectName.getInstance(name), qe, null);
+        }
+        catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -196,11 +214,22 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
-    protected SortedSet<ObjectName> query(ObjectName on, QueryExp qe)
-            throws IOException {
+    protected List<ObjectName> query(ObjectName on, QueryExp qe,
+            Comparator<ObjectName> comparator) throws IOException {
 
-        SortedSet<ObjectName> names = new TreeSet<ObjectName>(getConnection()
+        if (comparator == null) {
+            comparator = new Comparator<ObjectName>() {
+                @Override
+                public int compare(ObjectName o1, ObjectName o2) {
+                    return o1.compareTo(o2);
+                }
+            };
+        }
+
+        List<ObjectName> names = new ArrayList<ObjectName>(getConnection()
                 .queryNames(on, qe));
+
+        Collections.sort(names, comparator);
 
         return names;
     }

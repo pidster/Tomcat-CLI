@@ -17,12 +17,14 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.Map;
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
-import org.pidster.tomcat.util.cli.AbstractCommand;
+import org.pidster.tomcat.util.cli.AbstractJMXCommand;
+import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
 
@@ -32,7 +34,7 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(description = "Dump environment")
 @Descriptor(name = "env")
-public class DumpEnvCommand extends AbstractCommand {
+public class DumpEnvCommand extends AbstractJMXCommand {
 
     /*
      * (non-Javadoc)
@@ -42,45 +44,33 @@ public class DumpEnvCommand extends AbstractCommand {
      * .util.cli .Environment)
      */
     @Override
-    public void execute() {
+    public void execute() throws CommandException {
 
-        StringBuilder s = new StringBuilder();
+        try {
+            StringBuilder s = new StringBuilder();
 
-        // TODO connect to target VM and dump local properties instead
+            RuntimeMXBean runtime = ManagementFactory.newPlatformMXBeanProxy(
+                    getConnection(), ManagementFactory.RUNTIME_MXBEAN_NAME,
+                    RuntimeMXBean.class);
 
-        s.append("- DUMP STARTS --------------------------------------------------------------- \n");
+            Map<String, String> properties = runtime.getSystemProperties();
+            s.append("\nDumping System environment variables...\n");
 
-        Properties properties = System.getProperties();
-        s.append("\nDumping System environment variables...\n");
+            TreeMap<String, String> names = new TreeMap<String, String>(
+                    properties);
 
-        SortedSet<String> names = new TreeSet<String>(
-                properties.stringPropertyNames());
+            for (String name : names.keySet()) {
+                s.append(" ");
+                s.append(name);
+                s.append("=");
+                s.append(properties.get(name));
+                s.append("\n");
+            }
 
-        for (String name : names) {
-            s.append("\t");
-            s.append(name);
-            s.append("=");
-            s.append(properties.getProperty(name));
-            s.append("\n");
+            log(s.toString());
         }
-
-        s.append("----------------------------------------------------------------------------- \n");
-
-        Map<String, String> environment = System.getenv();
-
-        SortedSet<String> envNames = new TreeSet<String>(environment.keySet());
-
-        for (String name : envNames) {
-            s.append("\t");
-            s.append(name);
-            s.append("=");
-            s.append(environment.get(name));
-            s.append("\n");
+        catch (IOException e) {
+            throw new CommandException(e.getMessage(), e.getCause());
         }
-
-        s.append("- DUMP ENDS ----------------------------------------------------------------- \n");
-
-        System.out.println(s.toString());
     }
-
 }
