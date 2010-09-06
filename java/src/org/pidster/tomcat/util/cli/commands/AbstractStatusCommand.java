@@ -230,10 +230,15 @@ public abstract class AbstractStatusCommand extends AbstractJMXCommand {
                 address = "0.0.0.0";
             }
 
-            s.append(String.format("%s::%s:%s, secure=%s, redirect=%s]",
-                    attribute(connector, "scheme"), address, port,
-                    attribute(connector, "secure"),
-                    attribute(connector, "redirectPort")));
+            s.append(String.format("%s::%s:%s", attribute(connector, "scheme"),
+                    address, port));
+
+            if (isVerbose())
+                s.append(String.format(", secure=%s, redirect=%s",
+                        attribute(connector, "secure"),
+                        attribute(connector, "redirectPort")));
+
+            s.append("]");
 
             if (super.getConfig().isOptionSet("threads")) {
                 List<ObjectName> threadPools = query(engineName
