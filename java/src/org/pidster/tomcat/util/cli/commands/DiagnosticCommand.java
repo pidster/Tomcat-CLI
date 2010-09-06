@@ -78,9 +78,15 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     /**
      * 
      */
-    private void report() {
-        // TODO Auto-generated method stub
+    private void collect() {
+        // TODO collect system load average
+        // TODO collect GC stats, monitor rate of minor / major GCs
+        // TODO collect thread error counts
+        // TODO collect executor pool stats, monitor peaking
+        // TODO collect datasource pool stats, monitor peaking
 
+        // TODO collect webapp classloader count
+        // TODO find memory leaks from webapp reloads
     }
 
     /**
@@ -94,26 +100,9 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     /**
      * 
      */
-    private void collect() {
-        // TODO collect system load average
-        // TODO collect GC stats, monitor rate of minor / major GCs
-        // TODO collect thread error counts
-        // TODO collect executor pool stats, monitor peaking
-        // TODO collect datasource pool stats, monitor peaking
+    private void report() {
+        // TODO Auto-generated method stub
 
-        // TODO collect webapp classloader count
-        // TODO find memory leaks from webapp reloads
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
-     */
-    @Override
-    public void cleanup() {
-        super.cleanup();
     }
 
 }
