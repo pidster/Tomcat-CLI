@@ -27,7 +27,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.text.DecimalFormat;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;

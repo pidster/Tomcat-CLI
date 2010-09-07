@@ -17,7 +17,6 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
@@ -26,34 +25,18 @@ import org.pidster.tomcat.util.cli.Usage;
  * @author pidster
  * 
  */
-@Usage(description = "Monitor properties of a server in real time")
+@Usage(syntax = "<properties>", description = "Monitor properties of a server in real time")
 @Descriptor(name = "monitor")
 public class MonitorCommand extends AbstractJMXCommand {
 
-    /**
-     * ${@inheritDoc}
-     */
-    @Override
-    public void execute() throws CommandException {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void execute() throws CommandException {
 
-        if (getConfig().getArguments().size() > 0) {
-            String action = getConfig().getArguments().get(0);
-            log("Monitor: " + action);
-        }
-        else {
-            log("Monitor: ???");
-        }
+		log("Monitor...");
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.AbstractCommand#cleanup()
-     */
-    @Override
-    public void cleanup() {
-        super.cleanup();
-    }
+	}
 
 }

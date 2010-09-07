@@ -25,7 +25,6 @@ import java.util.Map;
 
 import javax.management.ObjectName;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;

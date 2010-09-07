@@ -23,7 +23,6 @@ import java.lang.management.RuntimeMXBean;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
@@ -34,7 +33,7 @@ import org.pidster.tomcat.util.cli.Usage;
  */
 @Usage(description = "Dump environment")
 @Descriptor(name = "env")
-public class DumpEnvCommand extends AbstractJMXCommand {
+public class EnvCommand extends AbstractJMXCommand {
 
     /*
      * (non-Javadoc)

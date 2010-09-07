@@ -32,7 +32,7 @@ import org.pidster.tomcat.util.cli.util.StringManager;
  */
 public class OptionParserImpl implements OptionParser {
 
-    private static final StringManager manager = StringManager
+    private static final StringManager sm = StringManager
             .getManager(Constants.PACKAGE_NAME);
 
     private final Map<Command, List<Option>> commandOptions;

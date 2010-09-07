@@ -30,108 +30,96 @@ import org.pidster.tomcat.util.cli.CommandLine;
  */
 public class CommandLineImpl implements Serializable, CommandLine {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private final List<String> arguments;
+	private final List<String> arguments;
 
-    private final List<String> options;
+	private final List<String> options;
 
-    private String prompt;
+	private String prompt;
 
-    /**
+	/**
      * 
      */
-    public CommandLineImpl() {
-        this.prompt = "> ";
-        this.arguments = new LinkedList<String>();
-        this.options = new LinkedList<String>();
-    }
+	public CommandLineImpl() {
+		this.prompt = "> ";
+		this.arguments = new LinkedList<String>();
+		this.options = new LinkedList<String>();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#getPrompt()
-     */
-    @Override
-    public String getPrompt() {
-        return prompt;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final String getPrompt() {
+		return prompt;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#setPrompt(java.lang.String)
-     */
-    @Override
-    public void setPrompt(String prompt) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final void setPrompt(String prompt) {
 
-        if (prompt == null || prompt.isEmpty()) {
-            prompt = "> ";
-        }
+		if (prompt == null || prompt.isEmpty()) {
+			prompt = "> ";
+		}
 
-        this.prompt = prompt;
-    }
+		this.prompt = prompt;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#getOptions()
-     */
-    @Override
-    public List<String> getOptions() {
-        return this.options;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final List<String> getOptions() {
+		return this.options;
+	}
 
-    /**
-     * @param option
-     */
-    public void addOption(String option) {
-        this.options.add(option);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final String getCommandName() {
+		if (arguments.size() == 0) {
+			return null;
+		}
+		return arguments.get(0);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#getCommandName()
-     */
-    @Override
-    public final String getCommandName() {
-        if (arguments.size() == 0) {
-            return null;
-        }
-        return arguments.get(0);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean hasCommand() {
+		return (arguments.size() >= 1);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#hasCommand()
-     */
-    @Override
-    public boolean hasCommand() {
-        return (arguments.size() >= 1);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final List<String> getArguments() {
 
-    /**
-     * @param argument
-     */
-    public void addArgument(String argument) {
-        this.arguments.add(argument);
-    }
+		if (arguments.size() > 1) {
+			return arguments.subList(1, arguments.size());
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandLine#getArguments()
-     */
-    @Override
-    public final List<String> getArguments() {
+		return Collections.emptyList();
 
-        if (arguments.size() > 1) {
-            return arguments.subList(1, arguments.size());
-        }
+	}
 
-        return Collections.emptyList();
+	/**
+	 * 
+	 */
+	void addOption(String option) {
+		this.options.add(option);
+	}
 
-    }
+	/**
+	 * @param argument
+	 */
+	void addArgument(String argument) {
+		this.arguments.add(argument);
+	}
 }

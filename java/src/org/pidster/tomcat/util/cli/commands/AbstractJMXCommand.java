@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.commands;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +42,9 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
+import org.pidster.tomcat.util.cli.CommandException;
+import org.pidster.tomcat.util.cli.Option;
+import org.pidster.tomcat.util.cli.Options;
 import org.pidster.tomcat.util.cli.util.DateTime;
 import org.pidster.tomcat.util.cli.util.IO;
 
@@ -77,7 +80,9 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
 
     protected static final String LOCAL_CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 
-    private volatile JMXConnector connector;
+    private volatile JMXConnector connector = null;
+
+    private volatile boolean persistentConnection = false;
 
     /**
      * {@inheritDoc}
@@ -86,6 +91,10 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
     protected void configure() throws CommandException {
 
         try {
+
+            if (getConfig().isOptionSet("interactive")) {
+                this.persistentConnection = true;
+            }
 
             // Not exactly thread safe, but it'll do for now
             if (connector == null) {
@@ -152,8 +161,10 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      */
     @Override
     public void cleanup() {
-        IO.close(connector);
-        this.connector = null;
+        if (!this.persistentConnection) {
+            IO.close(connector);
+            this.connector = null;
+        }
         super.cleanup();
     }
 
@@ -426,6 +437,20 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
             log("Connecting via URL: " + serviceURL);
 
         return serviceURL;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable {
+
+        IO.close(connector);
+        this.connector = null;
+
+        super.finalize();
     }
 
 }
