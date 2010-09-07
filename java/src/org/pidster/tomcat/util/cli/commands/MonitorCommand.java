@@ -29,14 +29,14 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "monitor")
 public class MonitorCommand extends AbstractJMXCommand {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void execute() throws CommandException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute() throws CommandException {
 
-		log("Monitor...");
+        log("Monitor...");
 
-	}
+    }
 
 }

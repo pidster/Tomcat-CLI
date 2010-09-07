@@ -35,101 +35,101 @@ import org.pidster.tomcat.util.cli.Options;
  */
 public final class CommandRegistry {
 
-	private final Map<String, Command> commands;
+    private final Map<String, Command> commands;
 
-	private final Map<Command, List<Option>> commandOptions;
+    private final Map<Command, List<Option>> commandOptions;
 
-	/**
+    /**
      * 
      */
-	public CommandRegistry() {
-		this.commands = new HashMap<String, Command>();
-		this.commandOptions = new HashMap<Command, List<Option>>();
-	}
+    public CommandRegistry() {
+        this.commands = new HashMap<String, Command>();
+        this.commandOptions = new HashMap<Command, List<Option>>();
+    }
 
-	/**
-	 * @param command
-	 */
-	public void register(Command command) {
+    /**
+     * @param command
+     */
+    public void register(Command command) {
 
-		Class<?> c = command.getClass();
-		if (!c.isAnnotationPresent(Descriptor.class))
-			return;
+        Class<?> c = command.getClass();
+        if (!c.isAnnotationPresent(Descriptor.class))
+            return;
 
-		Descriptor d = c.getAnnotation(Descriptor.class);
+        Descriptor d = c.getAnnotation(Descriptor.class);
 
-		if (commands.containsKey(d.name()))
-			return;
+        if (commands.containsKey(d.name()))
+            return;
 
-		register(d.name(), command);
-	}
+        register(d.name(), command);
+    }
 
-	/**
-	 * @param name
-	 * @param command
-	 */
-	void register(String name, Command command) {
+    /**
+     * @param name
+     * @param command
+     */
+    void register(String name, Command command) {
 
-		Class<?> c = command.getClass();
-		if (!c.isAnnotationPresent(Descriptor.class))
-			return;
+        Class<?> c = command.getClass();
+        if (!c.isAnnotationPresent(Descriptor.class))
+            return;
 
-		commands.put(name, command);
+        commands.put(name, command);
 
-		List<Option> options = new ArrayList<Option>();
+        List<Option> options = new ArrayList<Option>();
 
-		while (!Object.class.equals(c)) {
+        while (!Object.class.equals(c)) {
 
-			if (c.isAnnotationPresent(Options.class)) {
-				Options o = c.getAnnotation(Options.class);
-				options.addAll(Arrays.asList(o.value()));
-			}
+            if (c.isAnnotationPresent(Options.class)) {
+                Options o = c.getAnnotation(Options.class);
+                options.addAll(Arrays.asList(o.value()));
+            }
 
-			c = c.getSuperclass();
-		}
+            c = c.getSuperclass();
+        }
 
-		commandOptions.put(command, options);
-	}
+        commandOptions.put(command, options);
+    }
 
-	/**
-	 * @param name
-	 * @return
-	 */
-	public boolean isRegistered(String name) {
-		if (name == null) {
-			return false;
-		}
-		return commands.containsKey(name);
-	}
+    /**
+     * @param name
+     * @return
+     */
+    public boolean isRegistered(String name) {
+        if (name == null) {
+            return false;
+        }
+        return commands.containsKey(name);
+    }
 
-	/**
-	 * @param command
-	 * @return
-	 */
-	public List<Option> getOptions(Command command) {
-		return commandOptions.get(command);
-	}
+    /**
+     * @param command
+     * @return
+     */
+    public List<Option> getOptions(Command command) {
+        return commandOptions.get(command);
+    }
 
-	/**
-	 * @return
-	 */
-	public Collection<Command> getCommands() {
-		return this.commands.values();
-	}
+    /**
+     * @return
+     */
+    public Collection<Command> getCommands() {
+        return this.commands.values();
+    }
 
-	/**
-	 * @param commandName
-	 * @return
-	 */
-	public Command get(String commandName) {
-		return this.commands.get(commandName);
-	}
+    /**
+     * @param commandName
+     * @return
+     */
+    public Command get(String commandName) {
+        return this.commands.get(commandName);
+    }
 
-	/**
-	 * @return
-	 */
-	public Map<Command, List<Option>> getOptions() {
-		return this.commandOptions;
-	}
+    /**
+     * @return
+     */
+    public Map<Command, List<Option>> getOptions() {
+        return this.commandOptions;
+    }
 
 }
