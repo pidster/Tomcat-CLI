@@ -100,8 +100,6 @@ public class DiagnosticCommand extends AbstractJMXCommand {
 
         process();
 
-        log("Report: ");
-
         report();
     }
 
