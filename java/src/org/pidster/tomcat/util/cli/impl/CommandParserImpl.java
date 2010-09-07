@@ -36,6 +36,8 @@ public class CommandParserImpl implements CommandParser {
 
 	private final LinkedList<CommandLine> history;
 
+	private boolean debug;
+
 	/**
 	 * @param registry
 	 */
@@ -62,6 +64,10 @@ public class CommandParserImpl implements CommandParser {
 
 		if (arguments.contains("--interactive")) {
 			this.interactive = true;
+		}
+
+		if (arguments.contains("--debug")) {
+			this.debug = true;
 		}
 
 		CommandLineImpl line = new CommandLineImpl();
@@ -114,6 +120,14 @@ public class CommandParserImpl implements CommandParser {
 	@Override
 	public final boolean isInteractive() {
 		return this.interactive;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isDebug() {
+		return this.debug;
 	}
 
 }

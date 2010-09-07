@@ -19,29 +19,34 @@ package org.pidster.tomcat.util.cli;
 
 /**
  * @author pidster
- *
+ * 
  */
 public interface CommandParser {
 
-    /**
-     * @param argArray
-     * @return
-     */
-    public abstract CommandLine parseArguments(String... argArray);
+	/**
+	 * @param argArray
+	 * @return
+	 */
+	public abstract CommandLine parseArguments(String... argArray);
 
-    /**
-     * @return outcome
-     */
-    public abstract boolean isExit();
+	/**
+	 * @return outcome
+	 */
+	public abstract boolean isExit();
 
-    /**
-     * @return
-     */
-    public abstract boolean first();
+	/**
+	 * @return
+	 */
+	public abstract boolean first();
 
-    /**
-     * @return
-     */
-    public abstract boolean isInteractive();
+	/**
+	 * @return
+	 */
+	public abstract boolean isInteractive();
+
+	/**
+	 * @return
+	 */
+	public abstract boolean isDebug();
 
 }

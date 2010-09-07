@@ -75,6 +75,7 @@ public class ConsoleUIImpl implements ConsoleUI {
 	public final void process(String[] arguments) {
 
 		CommandLine line = commandParser.parseArguments(arguments);
+		boolean debug = commandParser.isDebug();
 		boolean interactive = commandParser.isInteractive();
 
 		// Is there a more elegant solution?
@@ -114,7 +115,8 @@ public class ConsoleUIImpl implements ConsoleUI {
 				}
 				catch (Throwable t) {
 
-					t.printStackTrace();
+					if (debug)
+						t.printStackTrace();
 
 					environment.sysout(t.getMessage());
 				}
@@ -124,8 +126,15 @@ public class ConsoleUIImpl implements ConsoleUI {
 			}
 
 			// Update the command line, if we're still running
-			if (interactive)
-				line = commandParser.parseArguments(environment.readPrompt());
+			if (interactive) {
+				String[] src = environment.readPrompt();
+				String[] dst = new String[src.length + arguments.length];
+
+				System.arraycopy(src, 0, dst, 0, src.length);
+				System.arraycopy(arguments, 0, dst, src.length, arguments.length);
+
+				line = commandParser.parseArguments(dst);
+			}
 		}
 	}
 }
