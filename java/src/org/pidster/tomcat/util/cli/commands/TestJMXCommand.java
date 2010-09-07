@@ -17,7 +17,6 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandConfig;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;

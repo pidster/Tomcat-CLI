@@ -26,7 +26,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.QueryExp;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Options;

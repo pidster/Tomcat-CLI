@@ -19,7 +19,6 @@ package org.pidster.tomcat.util.cli.commands;
 
 import java.util.TreeSet;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Usage;

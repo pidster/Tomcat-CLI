@@ -18,8 +18,8 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.management.ObjectName;
 
@@ -88,7 +88,7 @@ public class WebappCommand extends StatusCommand {
             s.append(hostname);
 
             ObjectName host = ObjectName.getInstance(s.toString());
-            SortedSet<ObjectName> hosts = query(host, null);
+            List<ObjectName> hosts = query(host, null, null);
 
             if (hosts.size() != 1) {
                 log("hosts query:" + s.toString());
@@ -96,7 +96,7 @@ public class WebappCommand extends StatusCommand {
                         + hosts.size());
             }
 
-            ObjectName[] children = (ObjectName[]) attribute(hosts.first(),
+            ObjectName[] children = (ObjectName[]) attribute(hosts.get(0),
                     "children");
 
             // this is poor, but the QueryExp didn't work as expected

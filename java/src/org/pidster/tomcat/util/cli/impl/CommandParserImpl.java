@@ -30,99 +30,104 @@ import org.pidster.tomcat.util.cli.CommandParser;
  */
 public class CommandParserImpl implements CommandParser {
 
-    private long count;
+	private long count;
 
-    private boolean interactive;
+	private boolean interactive;
 
-    private final LinkedList<CommandLine> history;
+	private final LinkedList<CommandLine> history;
 
-    /**
-     * @param registry
-     */
-    public CommandParserImpl() {
-        this.count = 0;
-        this.interactive = false;
-        this.history = new LinkedList<CommandLine>();
-    }
+	private boolean debug;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandParser#parseArguments(java.lang
-     * .String)
-     */
-    @Override
-    public CommandLine parseArguments(String... argArray) {
+	/**
+	 * @param registry
+	 */
+	public CommandParserImpl() {
+		this.count = 0;
+		this.interactive = false;
+		this.history = new LinkedList<CommandLine>();
+	}
 
-        if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
-            argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final CommandLine parseArguments(String... argArray) {
 
-        // this.history.put(count, arguments);
+		if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
+			argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
+		}
 
-        List<String> arguments = new LinkedList<String>();
-        arguments.addAll(Arrays.asList(argArray));
+		// this.history.put(count, arguments);
 
-        if (arguments.contains("--interactive")) {
-            this.interactive = true;
-        }
+		List<String> arguments = new LinkedList<String>();
+		arguments.addAll(Arrays.asList(argArray));
 
-        CommandLineImpl line = new CommandLineImpl();
+		if (arguments.contains("--interactive")) {
+			this.interactive = true;
+		}
 
-        for (String arg : arguments) {
-            if (arg.startsWith("-")) {
-                line.addOption(arg);
-            }
-            else {
-                line.addArgument(arg);
-            }
-        }
+		if (arguments.contains("--debug")) {
+			this.debug = true;
+		}
 
-        history.add(line);
+		CommandLineImpl line = new CommandLineImpl();
 
-        return line;
-    }
+		for (String arg : arguments) {
+			if (arg.startsWith("-")) {
+				line.addOption(arg);
+			}
+			else {
+				line.addArgument(arg);
+			}
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandParser#isExit()
-     */
-    @Override
-    public boolean isExit() {
+		history.add(line);
 
-        if (history.size() < 1)
-            return false;
+		return line;
+	}
 
-        String commandName = history.getLast().getCommandName();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isExit() {
 
-        if ("exit".equalsIgnoreCase(commandName))
-            return true;
-        if ("quit".equalsIgnoreCase(commandName))
-            return true;
+		if (history.size() < 1)
+			return false;
 
-        return false;
-    }
+		String commandName = history.getLast().getCommandName();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandParser#first()
-     */
-    @Override
-    public boolean first() {
-        count++;
-        return (count <= 1);
-    }
+		if ("exit".equalsIgnoreCase(commandName))
+			return true;
+		if ("quit".equalsIgnoreCase(commandName))
+			return true;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandParser#isInteractive()
-     */
-    @Override
-    public boolean isInteractive() {
-        return this.interactive;
-    }
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean first() {
+		count++;
+		return (count <= 1);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isInteractive() {
+		return this.interactive;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isDebug() {
+		return this.debug;
+	}
 
 }

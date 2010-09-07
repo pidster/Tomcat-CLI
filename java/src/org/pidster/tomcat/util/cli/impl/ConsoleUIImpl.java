@@ -34,106 +34,107 @@ import org.pidster.tomcat.util.cli.util.StringManager;
  */
 public class ConsoleUIImpl implements ConsoleUI {
 
-    private static final StringManager manager = StringManager
-            .getManager(Constants.PACKAGE_NAME);
+	private static final StringManager sm = StringManager.getManager(Constants.PACKAGE_NAME);
 
-    private final CommandParser commandParser;
+	private final CommandParser commandParser;
 
-    private final CommandRegistry registry;
+	private final CommandRegistry registry;
 
-    private final OptionParser optionParser;
+	private final OptionParser optionParser;
 
-    private final EnvironmentImpl environment;
+	private final EnvironmentImpl environment;
 
-    /**
+	/**
      * 
      */
-    public ConsoleUIImpl() {
-        this.registry = new CommandRegistry();
-        this.commandParser = new CommandParserImpl();
-        this.environment = new EnvironmentImpl();
-        this.optionParser = new OptionParserImpl(registry.getOptions());
-    }
+	public ConsoleUIImpl() {
+		this.registry = new CommandRegistry();
+		this.commandParser = new CommandParserImpl();
+		this.environment = new EnvironmentImpl();
+		this.optionParser = new OptionParserImpl(registry.getOptions());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.ConsoleUI#register(java.lang.Iterable)
-     */
-    @Override
-    public void register(Iterable<Command> commands) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final void register(Iterable<Command> commands) {
 
-        for (Command command : commands) {
-            this.registry.register(command);
-        }
+		for (Command command : commands) {
+			this.registry.register(command);
+		}
 
-        // Deliberately override any other help commands
-        this.registry.register("help", new HelpCommand(registry.getCommands()));
-    }
+		// Deliberately override any other help commands
+		this.registry.register("help", new HelpCommand(registry.getCommands()));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.ConsoleUI#process(java.lang.String[])
-     */
-    @Override
-    public void process(String[] arguments) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final void process(String[] arguments) {
 
-        CommandLine line = commandParser.parseArguments(arguments);
-        boolean interactive = commandParser.isInteractive();
+		CommandLine line = commandParser.parseArguments(arguments);
+		boolean debug = commandParser.isDebug();
+		boolean interactive = commandParser.isInteractive();
 
-        // Is there a more elegant solution?
-        // If it's the first time, or we're interactive
-        while (commandParser.first() || interactive) {
+		// Is there a more elegant solution?
+		// If it's the first time, or we're interactive
+		while (commandParser.first() || interactive) {
 
-            // check this first, just in case
-            if (commandParser.isExit())
-                break;
+			// check this first, just in case
+			if (commandParser.isExit())
+				break;
 
-            // if there's no command and we're not interactive
-            if (!line.hasCommand() && (!interactive)) {
-                environment.sysout(manager.getString("tomcat.cli.usage"));
-                break;
-            }
+			// if there's no command and we're not interactive
+			if (!line.hasCommand() && (!interactive)) {
+				environment.sysout(sm.getString("tomcat.cli.usage"));
+				break;
+			}
 
-            // if we have a command and we didn't match it
-            if (line.hasCommand()
-                    && !registry.isRegistered(line.getCommandName())) {
-                environment.sysout(manager.getString(
-                        "tomcat.cli.commandNotFound", line.getCommandName()));
-            }
+			// if we have a command and we didn't match it
+			if (line.hasCommand() && !registry.isRegistered(line.getCommandName())) {
+				environment.sysout(sm.getString("tomcat.cli.commandNotFound", line.getCommandName()));
+			}
 
-            // if we found a command
-            else if (registry.isRegistered(line.getCommandName())) {
+			// if we found a command
+			else if (registry.isRegistered(line.getCommandName())) {
 
-                Command command = registry.get(line.getCommandName());
+				Command command = registry.get(line.getCommandName());
 
-                try {
+				try {
 
-                    Map<Option, String> options = optionParser.activeOptions(
-                            line.getOptions(), command);
+					Map<Option, String> options = optionParser.activeOptions(line.getOptions(), command);
 
-                    CommandConfig config = new CommandConfigImpl(environment,
-                            line.getCommandName(), line.getArguments(), options);
+					CommandConfig config = new CommandConfigImpl(environment, line.getCommandName(),
+							line.getArguments(), options);
 
-                    command.configure(config);
+					command.configure(config);
 
-                    command.execute();
-                }
-                catch (Throwable t) {
+					command.execute();
+				}
+				catch (Throwable t) {
 
-                    t.printStackTrace();
+					if (debug)
+						t.printStackTrace();
 
-                    environment.sysout(t.getMessage());
-                }
-                finally {
-                    command.cleanup();
-                }
-            }
+					environment.sysout(t.getMessage());
+				}
+				finally {
+					command.cleanup();
+				}
+			}
 
-            // Update the command line, if we're still running
-            if (interactive)
-                line = commandParser.parseArguments(environment.readPrompt());
-        }
-    }
+			// Update the command line, if we're still running
+			if (interactive) {
+				String[] src = environment.readPrompt();
+				String[] dst = new String[src.length + arguments.length];
+
+				System.arraycopy(src, 0, dst, 0, src.length);
+				System.arraycopy(arguments, 0, dst, src.length, arguments.length);
+
+				line = commandParser.parseArguments(dst);
+			}
+		}
+	}
 }

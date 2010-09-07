@@ -19,13 +19,14 @@ package org.pidster.tomcat.util.cli.commands;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryManagerMXBean;
-import java.lang.management.OperatingSystemMXBean;
 import java.text.DecimalFormat;
+import java.util.List;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
+import javax.management.ObjectName;
+
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;
@@ -38,67 +39,100 @@ import org.pidster.tomcat.util.cli.Usage;
 @Descriptor(name = "memory")
 public class MemoryCommand extends AbstractJMXCommand {
 
-    /**
-     * ${@inheritDoc}
-     */
-    @Override
-    public void execute() throws CommandException {
+	/**
+	 * ${@inheritDoc}
+	 */
+	@Override
+	public void execute() throws CommandException {
 
-        try {
+		try {
 
-            MemoryMXBean memory = ManagementFactory.newPlatformMXBeanProxy(
-                    getConnection(), ManagementFactory.MEMORY_MXBEAN_NAME,
-                    MemoryMXBean.class);
+			// TODO add OS memory stats
+			// java.lang:type=OperatingSystem]
+			// - MaxFileDescriptorCount=1024
+			// - CommittedVirtualMemorySize=747110400
+			// - FreePhysicalMemorySize=66084864
+			// - FreeSwapSpaceSize=939483136
+			// - ProcessCpuTime=345990000000
+			// - TotalPhysicalMemorySize=1831653376
+			// - TotalSwapSpaceSize=939515904
 
-            log("JVM Memory:");
-            log(" type ---------- init ---- used % ---- committed % ---------- max % ----");
+			MemoryMXBean memory = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+					ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
 
-            displayMemoryUsage("Heap", memory.getHeapMemoryUsage());
-            displayMemoryUsage("Non-Heap", memory.getNonHeapMemoryUsage());
+			log("\nJVM Memory:");
+			log(" type ---------------------------------- init ---- used % ----- committed % ----------- max");
 
-        }
-        catch (IOException e) {
-            throw new CommandException(e.getMessage(), e.getCause());
-        }
-    }
+			displayMemoryUsage("HEAP", "", memory.getHeapMemoryUsage());
+			displayMemoryUsage("NON_HEAP", "", memory.getNonHeapMemoryUsage());
 
-    /**
-     * @param mu
-     */
-    private void displayMemoryUsage(String type, MemoryUsage mu) {
-        String template = " %-10s %9s %9s %-6s %9s %-6s %9s %-6s";
+			// TODO
+			// Query java.lang:type=MemoryPool,name=*
+			// to get attribute(pool, "Name")
 
-        Object[] args = new Object[] {
-                type, format(mu.getInit()), format(mu.getUsed()),
-                perc(mu.getUsed(), mu.getInit()), format(mu.getCommitted()),
-                perc(mu.getCommitted(), mu.getInit()), format(mu.getMax()),
-                perc(mu.getMax(), mu.getInit())
-        };
+			log("\nMemory Pools:");
+			log(" type --- name ------------------------- init ---- used % ----- committed % ----------- max");
 
-        log(template, args);
-    }
+			List<ObjectName> pools = query("java.lang:type=MemoryPool,name=*");
+			for (ObjectName obj : pools) {
+				String name = attribute(obj, "Name");
+				String type = attribute(obj, "Type");
 
-    /**
-     * @param fraction
-     * @param maximum
-     * @return formatted
-     */
-    private String perc(double fraction, double maximum) {
+				MemoryPoolMXBean pool = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+						ManagementFactory.MEMORY_POOL_MXBEAN_DOMAIN_TYPE + ",name=" + name, MemoryPoolMXBean.class);
 
-        DecimalFormat df = new DecimalFormat("###0.0");
+				if (pool.getUsage() != null)
+					displayMemoryUsage(type, name, pool.getUsage());
 
-        return df.format((fraction * 100) / maximum) + "%";
-    }
+				if (getConfig().isOptionSet("debug") && (pool.getCollectionUsage() != null))
+					displayMemoryUsage(type, name + " (coll)", pool.getCollectionUsage());
 
-    /**
-     * @param count
-     * @return formatted
-     */
-    private String format(double count) {
+				if (pool.getPeakUsage() != null)
+					displayMemoryUsage(type, name + " (peak)", pool.getPeakUsage());
+			}
 
-        DecimalFormat df = new DecimalFormat("###0.0");
+			log(""); // finish with a blank line
 
-        return df.format(count / (1024 * 1024)) + "M";
-    }
+		}
+		catch (IOException e) {
+			throw new CommandException(e.getMessage(), e.getCause());
+		}
+	}
+
+	/**
+	 * @param mu
+	 */
+	private void displayMemoryUsage(String type, String name, MemoryUsage mu) {
+		String template = " %-8s %-25s %9s %9s %-7s %9s %-7s %9s";
+
+		Object[] args = new Object[] { type, name, format(mu.getInit()), format(mu.getUsed()),
+				perc(mu.getUsed(), mu.getMax()), format(mu.getCommitted()), perc(mu.getCommitted(), mu.getMax()),
+				format(mu.getMax()) };
+
+		log(template, args);
+	}
+
+	/**
+	 * @param fraction
+	 * @param maximum
+	 * @return formatted
+	 */
+	private String perc(double fraction, double maximum) {
+
+		DecimalFormat df = new DecimalFormat("###0.0");
+
+		return df.format((fraction * 100) / maximum) + "%";
+	}
+
+	/**
+	 * @param count
+	 * @return formatted
+	 */
+	private String format(double count) {
+
+		DecimalFormat df = new DecimalFormat("###0.0");
+
+		return df.format(count / (1024 * 1024)) + "M";
+	}
 
 }

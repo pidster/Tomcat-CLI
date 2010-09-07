@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.pidster.tomcat.util.cli.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
 import org.pidster.tomcat.util.cli.Usage;

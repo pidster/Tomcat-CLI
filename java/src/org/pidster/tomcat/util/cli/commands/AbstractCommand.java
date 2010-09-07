@@ -15,16 +15,22 @@
  *  limitations under the License.
  */
 
-package org.pidster.tomcat.util.cli;
+package org.pidster.tomcat.util.cli.commands;
+
+import org.pidster.tomcat.util.cli.Command;
+import org.pidster.tomcat.util.cli.CommandConfig;
+import org.pidster.tomcat.util.cli.CommandException;
+import org.pidster.tomcat.util.cli.Option;
+import org.pidster.tomcat.util.cli.Options;
 
 /**
  * @author pidster
  * 
  */
 @Options({
-        @Option(name = "verbose", single = 'v', description = "Enable verbose output"),
-        @Option(name = "debug", single = 'd', description = "Enable debugging output"),
-        @Option(name = "interactive", single = 'r', description = "Enable interactive prompt")
+        @Option(name = "verbose", single = 'V', description = "Enable verbose output"),
+        @Option(name = "debug", single = 'D', description = "Enable debugging output"),
+        @Option(name = "interactive", single = 'I', description = "Enable interactive prompt")
 })
 public abstract class AbstractCommand implements Command {
 

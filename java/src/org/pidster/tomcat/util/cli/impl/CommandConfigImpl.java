@@ -31,112 +31,96 @@ import org.pidster.tomcat.util.cli.Option;
  */
 public class CommandConfigImpl implements CommandConfig {
 
-    private final Environment environment;
-    private final String name;
-    private final List<String> arguments;
-    private final Map<Option, String> options;
+	private final Environment environment;
 
-    /**
-     * @param environment
-     * @param environment
-     * @param arguments
-     * @param options
-     */
-    public CommandConfigImpl(Environment environment, String name,
-            List<String> arguments, Map<Option, String> options) {
-        this.environment = environment;
-        this.name = name;
-        this.arguments = arguments;
-        this.options = options;
-    }
+	private final String name;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getEnvironment()
-     */
-    @Override
-    public final Environment getEnvironment() {
-        return environment;
-    }
+	private final List<String> arguments;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getName()
-     */
-    @Override
-    public final String getCommandName() {
-        return name;
-    }
+	private final Map<Option, String> options;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getArguments()
-     */
-    @Override
-    public final List<String> getArguments() {
-        return arguments;
-    }
+	/**
+	 * @param environment
+	 * @param environment
+	 * @param arguments
+	 * @param options
+	 */
+	public CommandConfigImpl(Environment environment, String name, List<String> arguments, Map<Option, String> options) {
+		this.environment = environment;
+		this.name = name;
+		this.arguments = arguments;
+		this.options = options;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandConfig#getOption(java.lang.String)
-     */
-    @Override
-    public final Option getOption(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return option;
-            }
-        }
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final Environment getEnvironment() {
+		return environment;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandConfig#isOptionSet(java.lang.String)
-     */
-    @Override
-    public final boolean isOptionSet(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final String getCommandName() {
+		return name;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.pidster.tomcat.util.cli.CommandConfig#getOptionValue(java.lang.String
-     * )
-     */
-    @Override
-    public final String getOptionValue(String name) {
-        for (Option option : options.keySet()) {
-            if (option.name().equals(name)) {
-                return options.get(option);
-            }
-        }
-        return null;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final List<String> getArguments() {
+		return arguments;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.pidster.tomcat.util.cli.CommandConfig#getOptions()
-     */
-    @Override
-    public Set<Option> getOptions() {
-        return options.keySet();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final Option getOption(String name) {
+		for (Option option : options.keySet()) {
+			if (option.name().equals(name)) {
+				return option;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final boolean isOptionSet(String name) {
+		for (Option option : options.keySet()) {
+			if (option.name().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public final String getOptionValue(String name) {
+		for (Option option : options.keySet()) {
+			if (option.name().equals(name)) {
+				return options.get(option);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<Option> getOptions() {
+		return options.keySet();
+	}
 
 }
