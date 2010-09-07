@@ -29,12 +29,12 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "<options>", description = "Determine server status")
 @Descriptor(name = "status")
 @Options({
-		@Option(name = "webapp", single = 'W', setter = true, description = "Selects a specific application context"),
-		@Option(name = "webapps", single = 'w', description = "Show webapps info"),
-		@Option(name = "datasources", single = 'D', description = "Show DataSource info"),
-		@Option(name = "connectors", single = 'c', description = "Show connector info"),
-		@Option(name = "threads", single = 't', setter = true, description = "Show thread info, sorted by value"),
-		@Option(name = "stats", single = 's', description = "Show stats") })
+        @Option(name = "webapp", single = 'W', setter = true, description = "Selects a specific application context"),
+        @Option(name = "webapps", single = 'w', description = "Show webapps info"),
+        @Option(name = "datasources", single = 'D', description = "Show DataSource info"),
+        @Option(name = "connectors", single = 'c', description = "Show connector info"),
+        @Option(name = "threads", single = 't', setter = true, description = "Show thread info, sorted by value"),
+        @Option(name = "stats", single = 's', description = "Show stats") })
 public class StatusCommand extends AbstractStatusCommand {
 
 }

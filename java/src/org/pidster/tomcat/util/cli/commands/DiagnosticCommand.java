@@ -31,77 +31,77 @@ import org.pidster.tomcat.util.cli.Usage;
 @Usage(syntax = "<options>", description = "Sample various properties of an instance, compare data and report potential problems")
 @Descriptor(name = "diagnostic")
 @Options({
-		@Option(name = "samples", single = 'S', setter = true, value = "10", description = "Sets the number of samples"),
-		@Option(name = "duration", single = 'D', setter = true, value = "1", description = "Sets the sample period") })
+        @Option(name = "samples", single = 'S', setter = true, value = "10", description = "Sets the number of samples"),
+        @Option(name = "duration", single = 'D', setter = true, value = "1", description = "Sets the sample period") })
 public class DiagnosticCommand extends AbstractJMXCommand {
 
-	/**
-	 * ${@inheritDoc}
-	 */
-	@Override
-	public void execute() throws CommandException {
+    /**
+     * ${@inheritDoc}
+     */
+    @Override
+    public void execute() throws CommandException {
 
-		String samples = getConfig().getOptionValue("samples");
-		String duration = getConfig().getOptionValue("duration");
+        String samples = getConfig().getOptionValue("samples");
+        String duration = getConfig().getOptionValue("duration");
 
-		log("Will take %s samples, duration %s minutes", samples, duration);
-		log("Diagnostic starting, please wait...");
+        log("Will take %s samples, duration %s minutes", samples, duration);
+        log("Diagnostic starting, please wait...");
 
-		int maxSamples = Integer.parseInt(samples);
-		int counter = 0;
-		int delay = (Integer.parseInt(duration) * 60 * 1000) / maxSamples;
+        int maxSamples = Integer.parseInt(samples);
+        int counter = 0;
+        int delay = (Integer.parseInt(duration) * 60 * 1000) / maxSamples;
 
-		while (counter < maxSamples) {
+        while (counter < maxSamples) {
 
-			try {
-				log("Collecting sample %d...", counter);
-				collect();
-				Thread.sleep(delay);
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+            try {
+                log("Collecting sample %d...", counter);
+                collect();
+                Thread.sleep(delay);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-			counter++;
-		}
+            counter++;
+        }
 
-		log("%d samples collected, now processing...", counter);
+        log("%d samples collected, now processing...", counter);
 
-		process();
+        process();
 
-		log("Report: ");
+        log("Report: ");
 
-		report();
-	}
+        report();
+    }
 
-	/**
+    /**
      * 
      */
-	private void collect() {
-		// TODO collect system load average
-		// TODO collect GC stats, monitor rate of minor / major GCs
-		// TODO collect thread error counts
-		// TODO collect executor pool stats, monitor peaking
-		// TODO collect datasource pool stats, monitor peaking
+    private void collect() {
+        // TODO collect system load average
+        // TODO collect GC stats, monitor rate of minor / major GCs
+        // TODO collect thread error counts
+        // TODO collect executor pool stats, monitor peaking
+        // TODO collect datasource pool stats, monitor peaking
 
-		// TODO collect webapp classloader count
-		// TODO find memory leaks from webapp reloads
-	}
+        // TODO collect webapp classloader count
+        // TODO find memory leaks from webapp reloads
+    }
 
-	/**
+    /**
      * 
      */
-	private void process() {
-		// TODO Auto-generated method stub
+    private void process() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	/**
+    /**
      * 
      */
-	private void report() {
-		// TODO Auto-generated method stub
+    private void report() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
 }

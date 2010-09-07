@@ -30,104 +30,104 @@ import org.pidster.tomcat.util.cli.CommandParser;
  */
 public class CommandParserImpl implements CommandParser {
 
-	private long count;
+    private long count;
 
-	private boolean interactive;
+    private boolean interactive;
 
-	private final LinkedList<CommandLine> history;
+    private final LinkedList<CommandLine> history;
 
-	private boolean debug;
+    private boolean debug;
 
-	/**
-	 * @param registry
-	 */
-	public CommandParserImpl() {
-		this.count = 0;
-		this.interactive = false;
-		this.history = new LinkedList<CommandLine>();
-	}
+    /**
+     * @param registry
+     */
+    public CommandParserImpl() {
+        this.count = 0;
+        this.interactive = false;
+        this.history = new LinkedList<CommandLine>();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final CommandLine parseArguments(String... argArray) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final CommandLine parseArguments(String... argArray) {
 
-		if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
-			argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
-		}
+        if ((argArray.length == 1) && (argArray[0].indexOf(' ') > -1)) {
+            argArray = argArray[0].replaceAll("[\\s ]+", " ").split(" ");
+        }
 
-		// this.history.put(count, arguments);
+        // this.history.put(count, arguments);
 
-		List<String> arguments = new LinkedList<String>();
-		arguments.addAll(Arrays.asList(argArray));
+        List<String> arguments = new LinkedList<String>();
+        arguments.addAll(Arrays.asList(argArray));
 
-		if (arguments.contains("--interactive")) {
-			this.interactive = true;
-		}
+        if (arguments.contains("--interactive")) {
+            this.interactive = true;
+        }
 
-		if (arguments.contains("--debug")) {
-			this.debug = true;
-		}
+        if (arguments.contains("--debug")) {
+            this.debug = true;
+        }
 
-		CommandLineImpl line = new CommandLineImpl();
+        CommandLineImpl line = new CommandLineImpl();
 
-		for (String arg : arguments) {
-			if (arg.startsWith("-")) {
-				line.addOption(arg);
-			}
-			else {
-				line.addArgument(arg);
-			}
-		}
+        for (String arg : arguments) {
+            if (arg.startsWith("-")) {
+                line.addOption(arg);
+            }
+            else {
+                line.addArgument(arg);
+            }
+        }
 
-		history.add(line);
+        history.add(line);
 
-		return line;
-	}
+        return line;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean isExit() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isExit() {
 
-		if (history.size() < 1)
-			return false;
+        if (history.size() < 1)
+            return false;
 
-		String commandName = history.getLast().getCommandName();
+        String commandName = history.getLast().getCommandName();
 
-		if ("exit".equalsIgnoreCase(commandName))
-			return true;
-		if ("quit".equalsIgnoreCase(commandName))
-			return true;
+        if ("exit".equalsIgnoreCase(commandName))
+            return true;
+        if ("quit".equalsIgnoreCase(commandName))
+            return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean first() {
-		count++;
-		return (count <= 1);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean first() {
+        count++;
+        return (count <= 1);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean isInteractive() {
-		return this.interactive;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isInteractive() {
+        return this.interactive;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final boolean isDebug() {
-		return this.debug;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final boolean isDebug() {
+        return this.debug;
+    }
 
 }
