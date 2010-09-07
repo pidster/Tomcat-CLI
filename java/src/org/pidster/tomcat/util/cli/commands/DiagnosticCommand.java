@@ -17,6 +17,12 @@
 
 package org.pidster.tomcat.util.cli.commands;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.pidster.tomcat.util.cli.commands.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Descriptor;
@@ -34,6 +40,28 @@ import org.pidster.tomcat.util.cli.Usage;
         @Option(name = "samples", single = 'S', setter = true, value = "10", description = "Sets the number of samples"),
         @Option(name = "duration", single = 'D', setter = true, value = "1", description = "Sets the sample period") })
 public class DiagnosticCommand extends AbstractJMXCommand {
+
+    /**
+     * @author pidster
+     */
+    private static class Report {
+
+        public double loadAverage;
+
+        private Report() {
+            super();
+        }
+
+    }
+
+    private final List<Report> reports;
+
+    /**
+     * 
+     */
+    public DiagnosticCommand() {
+        reports = new ArrayList<Report>();
+    }
 
     /**
      * ${@inheritDoc}
@@ -61,6 +89,9 @@ public class DiagnosticCommand extends AbstractJMXCommand {
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
 
             counter++;
         }
@@ -75,24 +106,40 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     }
 
     /**
+     * @throws IOException
      * 
      */
-    private void collect() {
+    private void collect() throws IOException {
+
+        OperatingSystemMXBean os = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
+
+        Report r = new Report();
         // TODO collect system load average
-        // TODO collect GC stats, monitor rate of minor / major GCs
+        r.loadAverage = os.getSystemLoadAverage();
+
+        // // TODO collect GC stats, monitor rate of minor / major GCs
+        // GarbageCollectorMXBean gc =
+        // ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+        // ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",name=" +
+        // name, GarbageCollectorMXBean.class);
+
         // TODO collect thread error counts
+
         // TODO collect executor pool stats, monitor peaking
+
         // TODO collect datasource pool stats, monitor peaking
 
         // TODO collect webapp classloader count
-        // TODO find memory leaks from webapp reloads
+
+        this.reports.add(r);
     }
 
     /**
      * 
      */
     private void process() {
-        // TODO Auto-generated method stub
+        // TODO find memory leaks from webapp reloads
 
     }
 
@@ -100,8 +147,12 @@ public class DiagnosticCommand extends AbstractJMXCommand {
      * 
      */
     private void report() {
-        // TODO Auto-generated method stub
+        log("Report:");
 
+        log(" load av ");
+        for (Report r : reports) {
+            log(" %s", r.loadAverage);
+        }
     }
 
 }

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+org.pidster.tomcat.util.cli.commands.DiagnosticCommand
 org.pidster.tomcat.util.cli.commands.EnvCommand
 org.pidster.tomcat.util.cli.commands.HostCommand
 org.pidster.tomcat.util.cli.commands.MemoryCommand
