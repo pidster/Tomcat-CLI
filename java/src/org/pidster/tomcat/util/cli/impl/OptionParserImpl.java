@@ -32,8 +32,7 @@ import org.pidster.tomcat.util.cli.util.StringManager;
  */
 public class OptionParserImpl implements OptionParser {
 
-    private static final StringManager sm = StringManager
-            .getManager(Constants.PACKAGE_NAME);
+    private static final StringManager sm = StringManager.getManager(Constants.PACKAGE_NAME);
 
     private final Map<Command, List<Option>> commandOptions;
 
@@ -52,8 +51,7 @@ public class OptionParserImpl implements OptionParser {
      * org.pidster.tomcat.util.cli.Command)
      */
     @Override
-    public Map<Option, String> activeOptions(List<String> options,
-            Command command) {
+    public Map<Option, String> activeOptions(List<String> options, Command command) {
 
         Map<Option, String> activeOptions = new HashMap<Option, String>();
         List<Option> viableOptions = commandOptions.get(command);
@@ -89,10 +87,10 @@ public class OptionParserImpl implements OptionParser {
             }
 
             // check to see if this option is required
-            if (option.required() && !activeOptions.containsKey(option)) {
-
-                throw new IllegalArgumentException("Option '" + option.name()
-                        + "' is required");
+            // if (option.required() && !activeOptions.containsKey(option))
+            // {
+            else if (option.required()) {
+                throw new IllegalArgumentException(sm.getString("tomcat.cli.requiredOptionNotFound", option.name()));
             }
         }
         return activeOptions;
