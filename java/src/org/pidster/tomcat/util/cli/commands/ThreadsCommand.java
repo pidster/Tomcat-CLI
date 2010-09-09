@@ -44,9 +44,8 @@ public class ThreadsCommand extends AbstractJMXCommand {
     public void execute() throws CommandException {
 
         try {
-            ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(
-                    getConnection(), ManagementFactory.THREAD_MXBEAN_NAME,
-                    ThreadMXBean.class);
+            ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                    ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
 
             if (threads.isThreadContentionMonitoringSupported()) {
                 if (!threads.isThreadContentionMonitoringEnabled())
@@ -58,10 +57,8 @@ public class ThreadsCommand extends AbstractJMXCommand {
                     threads.setThreadCpuTimeEnabled(true);
             }
 
-            log(String.format("Thread count:%d peak:%d daemon:%d started:%d",
-                    threads.getThreadCount(), threads.getPeakThreadCount(),
-                    threads.getDaemonThreadCount(),
-                    threads.getTotalStartedThreadCount()));
+            log(String.format("Thread count:%d peak:%d daemon:%d started:%d", threads.getThreadCount(),
+                    threads.getPeakThreadCount(), threads.getDaemonThreadCount(), threads.getTotalStartedThreadCount()));
 
             List<String> arguments = getConfig().getArguments();
             if (arguments.size() > 0) {
@@ -76,13 +73,13 @@ public class ThreadsCommand extends AbstractJMXCommand {
                 }
                 else if ("id".equalsIgnoreCase(param) && (arguments.size() > 1)) {
                     String threadId = arguments.get(1);
-                    ThreadInfo info = threads.getThreadInfo(
-                            Integer.parseInt(threadId), Integer.MAX_VALUE);
+                    ThreadInfo info = threads.getThreadInfo(Integer.parseInt(threadId), Integer.MAX_VALUE);
                     displayThreadId(info);
                 }
 
             }
             else {
+
                 displayAllThreads(threads);
             }
 
@@ -97,8 +94,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
      * @param threads
      */
     private void displayAllThreads(ThreadMXBean threads) {
-        ThreadInfo[] allThreads = threads.getThreadInfo(threads
-                .getAllThreadIds());
+        ThreadInfo[] allThreads = threads.getThreadInfo(threads.getAllThreadIds());
 
         sort(allThreads);
 
@@ -106,6 +102,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
         log(" id -- state --------- waited -- wtime ---- blocked - btime ---- thread name -----------------------------------------------");
 
         for (ThreadInfo info : allThreads) {
+            // TODO filter threads by name
             logThreadInfo(info);
         }
     }
@@ -116,8 +113,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
     private void displayDeadLocked(ThreadMXBean threads) {
         long[] deadlockedThreadIds = threads.findDeadlockedThreads();
         if (deadlockedThreadIds != null) {
-            ThreadInfo[] deadlockedThreads = threads
-                    .getThreadInfo(deadlockedThreadIds);
+            ThreadInfo[] deadlockedThreads = threads.getThreadInfo(deadlockedThreadIds);
             sort(deadlockedThreads);
 
             log("Deadlocked threads: " + deadlockedThreads.length);
@@ -137,13 +133,11 @@ public class ThreadsCommand extends AbstractJMXCommand {
      * @param threads
      */
     private void displayMonitorLocked(ThreadMXBean threads) {
-        long[] monitorDeadlockedThreadIds = threads
-                .findMonitorDeadlockedThreads();
+        long[] monitorDeadlockedThreadIds = threads.findMonitorDeadlockedThreads();
 
         if (monitorDeadlockedThreadIds != null) {
 
-            ThreadInfo[] monitorlockedThreads = threads
-                    .getThreadInfo(monitorDeadlockedThreadIds);
+            ThreadInfo[] monitorlockedThreads = threads.getThreadInfo(monitorDeadlockedThreadIds);
             sort(monitorlockedThreads);
 
             log("Monitor deadlocked threads: " + monitorlockedThreads.length);
@@ -174,17 +168,14 @@ public class ThreadsCommand extends AbstractJMXCommand {
         // LockInfo[] synchronizers = info.getLockedSynchronizers();
 
         if (info.getLockOwnerId() > -1) {
-            log(String.format(" LOCK: %s %s %s", info.getLockName(),
-                    info.getLockOwnerId(), info.getLockOwnerName()));
+            log(String.format(" LOCK: %s %s %s", info.getLockName(), info.getLockOwnerId(), info.getLockOwnerName()));
         }
 
         StackTraceElement[] elements = info.getStackTrace();
         log(String.format("\nStackTrace: %s", info.getThreadName()));
         for (StackTraceElement ste : elements) {
-            log(String
-                    .format("\tat %s.%s(%s:%s)", ste.getClassName(),
-                            ste.getMethodName(), ste.getFileName(),
-                            ste.getLineNumber()));
+            log(String.format("\tat %s.%s(%s:%s)", ste.getClassName(), ste.getMethodName(), ste.getFileName(),
+                    ste.getLineNumber()));
         }
     }
 
@@ -193,6 +184,9 @@ public class ThreadsCommand extends AbstractJMXCommand {
      * @return
      */
     private void sort(ThreadInfo[] infos) {
+
+        // TODO alternative sort methods
+
         Arrays.sort(infos, new Comparator<ThreadInfo>() {
             @Override
             public int compare(ThreadInfo one, ThreadInfo two) {
@@ -205,10 +199,8 @@ public class ThreadsCommand extends AbstractJMXCommand {
      * @param info
      */
     private void logThreadInfo(ThreadInfo info) {
-        log(String.format(" %-5d %-15s %-9s %-10s %-9s %-10s %-60s",
-                info.getThreadId(), info.getThreadState(),
-                info.getWaitedCount(), info.getWaitedTime(),
-                info.getBlockedCount(), info.getBlockedTime(),
+        log(String.format(" %-5d %-15s %-9s %-10s %-9s %-10s %-60s", info.getThreadId(), info.getThreadState(),
+                info.getWaitedCount(), info.getWaitedTime(), info.getBlockedCount(), info.getBlockedTime(),
                 info.getThreadName()));
     }
 

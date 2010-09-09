@@ -35,6 +35,12 @@ public class MonitorCommand extends AbstractJMXCommand {
     @Override
     public void execute() throws CommandException {
 
+        // option --load
+        // option --memory
+        // option --threads
+        // option --sessions
+        // option --frequency=3s
+
         log("Monitor...");
 
     }

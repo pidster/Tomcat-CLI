@@ -23,6 +23,8 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.MemoryMXBean;
 import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.management.ObjectName;
@@ -74,6 +76,16 @@ public class MemoryCommand extends AbstractJMXCommand {
             log(" type --- name ------------------------- init ---- used % ----- committed % ----------- max");
 
             List<ObjectName> pools = query("java.lang:type=MemoryPool,name=*");
+
+            Collections.sort(pools, new Comparator<ObjectName>() {
+                @Override
+                public int compare(ObjectName o1, ObjectName o2) {
+                    String type1 = attribute(o1, "Type");
+                    String type2 = attribute(o2, "Type");
+                    return type2.compareTo(type1);
+                }
+            });
+
             for (ObjectName obj : pools) {
                 String name = attribute(obj, "Name");
                 String type = attribute(obj, "Type");
@@ -87,7 +99,7 @@ public class MemoryCommand extends AbstractJMXCommand {
                 if (getConfig().isOptionSet("debug") && (pool.getCollectionUsage() != null))
                     displayMemoryUsage(type, name + " (coll)", pool.getCollectionUsage());
 
-                if (pool.getPeakUsage() != null)
+                if (getConfig().isOptionSet("verbose") && (pool.getPeakUsage() != null))
                     displayMemoryUsage(type, name + " (peak)", pool.getPeakUsage());
             }
 
