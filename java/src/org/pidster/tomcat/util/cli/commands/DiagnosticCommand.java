@@ -82,7 +82,13 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         while (counter < maxSamples) {
 
             try {
-                log("Collecting sample %d...", counter);
+                if (isVerbose()) {
+                    log("Collecting sample %d...", counter);
+                }
+                else {
+                    System.out.print(".");
+                }
+
                 collect();
                 Thread.sleep(delay);
             }
@@ -96,7 +102,7 @@ public class DiagnosticCommand extends AbstractJMXCommand {
             counter++;
         }
 
-        log("%d samples collected, now processing...", counter);
+        log("\n%d samples collected, now processing...", counter);
 
         process();
 
