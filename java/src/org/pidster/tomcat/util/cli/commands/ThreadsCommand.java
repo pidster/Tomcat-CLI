@@ -61,6 +61,24 @@ public class ThreadsCommand extends AbstractJMXCommand {
                     threads.getPeakThreadCount(), threads.getDaemonThreadCount(), threads.getTotalStartedThreadCount()));
 
             List<String> arguments = getConfig().getArguments();
+<<<<<<< HEAD
+=======
+            if (arguments.size() > 0) {
+
+                String param = arguments.get(0);
+
+                if ("deadlocked".equalsIgnoreCase(param)) {
+                    displayDeadLocked(threads);
+                }
+                else if ("monitorlocked".equalsIgnoreCase(param)) {
+                    displayMonitorLocked(threads);
+                }
+                else if ("id".equalsIgnoreCase(param) && (arguments.size() > 1)) {
+                    String threadId = arguments.get(1);
+                    ThreadInfo info = threads.getThreadInfo(Integer.parseInt(threadId), Integer.MAX_VALUE);
+                    displayThreadId(info);
+                }
+>>>>>>> development
 
             if (arguments.contains("deadlocked")) {
                 displayDeadLocked(threads);
@@ -74,6 +92,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
                 displayThreadId(info);
             }
             else {
+
                 displayAllThreads(threads);
             }
 
@@ -93,7 +112,16 @@ public class ThreadsCommand extends AbstractJMXCommand {
         sort(allThreads);
 
         log(String.format("Listing %d threads...", allThreads.length));
+<<<<<<< HEAD
         logThreadInfo(allThreads);
+=======
+        log(" id -- state --------- waited -- wtime ---- blocked - btime ---- thread name -----------------------------------------------");
+
+        for (ThreadInfo info : allThreads) {
+            // TODO filter threads by name
+            logThreadInfo(info);
+        }
+>>>>>>> development
     }
 
     /**
@@ -166,6 +194,9 @@ public class ThreadsCommand extends AbstractJMXCommand {
      * @return
      */
     private void sort(ThreadInfo[] infos) {
+
+        // TODO alternative sort methods
+
         Arrays.sort(infos, new Comparator<ThreadInfo>() {
             @Override
             public int compare(ThreadInfo one, ThreadInfo two) {
@@ -177,6 +208,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
     /**
      * @param info
      */
+<<<<<<< HEAD
     private void logThreadInfo(ThreadInfo... infos) {
         log(" id -- state --------- waited -- wtime ---- blocked - btime ---- thread name -----------------------------------------------");
         for (ThreadInfo info : infos) {
@@ -184,6 +216,12 @@ public class ThreadsCommand extends AbstractJMXCommand {
                     info.getWaitedCount(), info.getWaitedTime(), info.getBlockedCount(), info.getBlockedTime(),
                     info.getThreadName()));
         }
+=======
+    private void logThreadInfo(ThreadInfo info) {
+        log(String.format(" %-5d %-15s %-9s %-10s %-9s %-10s %-60s", info.getThreadId(), info.getThreadState(),
+                info.getWaitedCount(), info.getWaitedTime(), info.getBlockedCount(), info.getBlockedTime(),
+                info.getThreadName()));
+>>>>>>> development
     }
 
     /*
