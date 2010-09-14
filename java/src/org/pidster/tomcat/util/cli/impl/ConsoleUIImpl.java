@@ -17,6 +17,8 @@
 
 package org.pidster.tomcat.util.cli.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.pidster.tomcat.util.cli.Command;
@@ -34,7 +36,7 @@ import org.pidster.tomcat.util.cli.util.StringManager;
  */
 public class ConsoleUIImpl implements ConsoleUI {
 
-    private static final StringManager sm = StringManager.getManager(Constants.PACKAGE_NAME);
+    private static final StringManager sm = StringManager.getManager(ConsoleUIImpl.class);
 
     private final CommandParser commandParser;
 
@@ -77,6 +79,15 @@ public class ConsoleUIImpl implements ConsoleUI {
         CommandLine line = commandParser.parseArguments(arguments);
         boolean debug = commandParser.isDebug();
         boolean interactive = commandParser.isInteractive();
+
+        List<String> switches = new ArrayList<String>();
+        for (String arg : arguments) {
+            if (arg.startsWith("-"))
+                switches.add(arg);
+        }
+
+        String[] initargs = new String[switches.size()];
+        initargs = switches.toArray(initargs);
 
         // Is there a more elegant solution?
         // If it's the first time, or we're interactive
@@ -128,10 +139,10 @@ public class ConsoleUIImpl implements ConsoleUI {
             // Update the command line, if we're still running
             if (interactive) {
                 String[] src = environment.readPrompt();
-                String[] dst = new String[src.length + arguments.length];
+                String[] dst = new String[src.length + initargs.length];
 
                 System.arraycopy(src, 0, dst, 0, src.length);
-                System.arraycopy(arguments, 0, dst, src.length, arguments.length);
+                System.arraycopy(initargs, 0, dst, src.length, initargs.length);
 
                 line = commandParser.parseArguments(dst);
             }

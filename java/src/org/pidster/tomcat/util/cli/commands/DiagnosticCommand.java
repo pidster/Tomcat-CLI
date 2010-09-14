@@ -72,8 +72,8 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         String samples = getConfig().getOptionValue("samples");
         String duration = getConfig().getOptionValue("duration");
 
-        log("Will take %s samples, duration %s minutes", samples, duration);
-        log("Diagnostic starting, please wait...");
+        log("tomcatcli.commands.diagnostic.sampling", samples, duration);
+        log("tomcatcli.commands.diagnostic.starting");
 
         int maxSamples = Integer.parseInt(samples);
         int counter = 0;
@@ -94,9 +94,11 @@ public class DiagnosticCommand extends AbstractJMXCommand {
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
+                System.out.println();
             }
             catch (IOException e) {
                 e.printStackTrace();
+                System.out.println();
             }
 
             counter++;

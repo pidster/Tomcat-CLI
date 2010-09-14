@@ -56,6 +56,7 @@ public class StringManager {
      * The ResourceBundle for this StringManager.
      */
     private ResourceBundle bundle;
+
     private Locale locale;
 
     /**
@@ -63,8 +64,7 @@ public class StringManager {
      * and all access to it is arbitrated by the static getManager method call
      * so that only one StringManager per package will be created.
      * 
-     * @param packageName
-     *            Name of package to create StringManager for.
+     * @param packageName Name of package to create StringManager for.
      */
     private StringManager(String packageName) {
         String bundleName = packageName + ".LocalStrings";
@@ -79,8 +79,7 @@ public class StringManager {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             if (cl != null) {
                 try {
-                    bundle = ResourceBundle.getBundle(bundleName,
-                            Locale.getDefault(), cl);
+                    bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault(), cl);
                 }
                 catch (MissingResourceException ex2) {
                     // Ignore
@@ -97,12 +96,10 @@ public class StringManager {
      * Get a string from the underlying resource bundle or return null if the
      * String is not found.
      * 
-     * @param key
-     *            to desired resource String
+     * @param key to desired resource String
      * @return resource String matching <i>key</i> from underlying bundle or
-     *         null if not found.
-     * @throws IllegalArgumentException
-     *             if <i>key</i> is null.
+     * null if not found.
+     * @throws IllegalArgumentException if <i>key</i> is null.
      */
     public String getString(String key) {
         if (key == null) {
@@ -163,8 +160,16 @@ public class StringManager {
      * package already exists, it will be reused, else a new StringManager will
      * be created and returned.
      * 
+     * @param packageName The package name
+     * @return a manager
+     */
+    public synchronized static final StringManager getManager(Class<?> clazz) {
+        return getManager(clazz.getPackage().getName());
+    }
+
+    /**
      * @param packageName
-     *            The package name
+     * @return a manager
      */
     public synchronized static final StringManager getManager(String packageName) {
         StringManager mgr = managers.get(packageName);

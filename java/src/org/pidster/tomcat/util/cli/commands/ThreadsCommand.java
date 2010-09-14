@@ -93,7 +93,7 @@ public class ThreadsCommand extends AbstractJMXCommand {
 
         sort(allThreads);
 
-        log(String.format("Listing %d threads...", allThreads.length));
+        log("Listing {0} threads...", allThreads.length);
         logThreadInfo(allThreads);
     }
 
@@ -106,7 +106,8 @@ public class ThreadsCommand extends AbstractJMXCommand {
             ThreadInfo[] deadlockedThreads = threads.getThreadInfo(deadlockedThreadIds);
             sort(deadlockedThreads);
 
-            log("Deadlocked threads: " + deadlockedThreads.length);
+            log("Deadlocked threads: {0}", deadlockedThreads.length);
+
             if (deadlockedThreads.length > 0) {
                 logThreadInfo(deadlockedThreads);
             }

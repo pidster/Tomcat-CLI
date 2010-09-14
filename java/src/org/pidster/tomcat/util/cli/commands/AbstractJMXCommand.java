@@ -67,6 +67,17 @@ import sun.management.ConnectorAddressLink;
         @Option(name = "inject", single = 'j', setter = true, description = "Inject the management agent into a running PID") })
 public abstract class AbstractJMXCommand extends AbstractCommand {
 
+    /**
+     * @author pidster
+     * 
+     */
+    private final class SimpleComparator implements Comparator<ObjectName> {
+        @Override
+        public int compare(ObjectName o1, ObjectName o2) {
+            return o1.compareTo(o2);
+        }
+    }
+
     protected static final String CATALINA_BOOTSTRAP = "org.apache.catalina.startup.Bootstrap";
 
     protected static final String DEFAULT_JMX_PROTOCOL = "service:jmx:rmi:///jndi/rmi://";
@@ -181,22 +192,6 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
-    protected List<ObjectName> query(String name, QueryExp qe, Comparator<ObjectName> comparator) throws IOException {
-
-        try {
-            return query(ObjectName.getInstance(name), qe, comparator);
-        }
-        catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @param on
-     * @param qe
-     * @return
-     * @throws IOException
-     */
     protected List<ObjectName> query(String name, QueryExp qe) throws IOException {
 
         try {
@@ -213,17 +208,30 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      * @return
      * @throws IOException
      */
+    protected List<ObjectName> query(String name, QueryExp qe, Comparator<ObjectName> comparator) throws IOException {
+
+        try {
+            return query(ObjectName.getInstance(name), qe, comparator);
+        }
+        catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param on
+     * @param qe
+     * @return
+     * @throws IOException
+     */
     protected List<ObjectName> query(ObjectName on, QueryExp qe, Comparator<ObjectName> comparator) throws IOException {
 
         if (comparator == null) {
-            comparator = new Comparator<ObjectName>() {
-                @Override
-                public int compare(ObjectName o1, ObjectName o2) {
-                    return o1.compareTo(o2);
-                }
-            };
+            comparator = new SimpleComparator();
         }
 
+        // TODO consider using an inline, blocking Future in order to specify a
+        // timeout
         List<ObjectName> names = new ArrayList<ObjectName>(getConnection().queryNames(on, qe));
 
         Collections.sort(names, comparator);
@@ -240,13 +248,16 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
     protected <T> T attribute(ObjectName name, String attribute) throws RuntimeException {
 
         try {
+            // TODO consider using an inline, blocking Future in order to
+            // specify a timeout
+
             // Ooh a bit of cheeky generic casting!
             return (T) getConnection().getAttribute(name, attribute);
         }
         catch (Exception e) {
             quietException(e);
-            return null;
         }
+        return null;
     }
 
     /**
@@ -264,6 +275,10 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      */
     protected Object invoke(ObjectName name, String operationName, Object[] params, String[] signature)
             throws InstanceNotFoundException, MBeanException, ReflectionException, IOException {
+
+        // TODO consider using an inline, blocking Future in order to
+        // specify a timeout
+
         return getConnection().invoke(name, operationName, params, signature);
     }
 
@@ -290,6 +305,7 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
         if (isDebug())
             exception.printStackTrace();
 
+        // TODO remove this?
         log("ERROR: " + exception.getMessage());
     }
 

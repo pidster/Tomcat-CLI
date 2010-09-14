@@ -22,17 +22,19 @@ import org.pidster.tomcat.util.cli.CommandConfig;
 import org.pidster.tomcat.util.cli.CommandException;
 import org.pidster.tomcat.util.cli.Option;
 import org.pidster.tomcat.util.cli.Options;
+import org.pidster.tomcat.util.cli.util.StringManager;
 
 /**
  * @author pidster
  * 
  */
-@Options({
-        @Option(name = "verbose", single = 'V', description = "Enable verbose output"),
+@Options({ @Option(name = "verbose", single = 'V', description = "Enable verbose output"),
         @Option(name = "debug", single = 'D', description = "Enable debugging output"),
-        @Option(name = "interactive", single = 'I', description = "Enable interactive prompt")
-})
+        @Option(name = "interactive", single = 'I', description = "Enable interactive prompt") })
 public abstract class AbstractCommand implements Command {
+
+    // use a local StringManager instance
+    private final StringManager sm;
 
     private CommandConfig config;
 
@@ -41,6 +43,7 @@ public abstract class AbstractCommand implements Command {
      */
     protected AbstractCommand() {
         super();
+        sm = StringManager.getManager(getClass());
     }
 
     /*
@@ -91,6 +94,10 @@ public abstract class AbstractCommand implements Command {
      */
     @Override
     public final void log(String message) {
+
+        if (message.matches("[\\w]+(\\.[\\w]+)+"))
+            message = sm.getString(message);
+
         getConfig().getEnvironment().sysout(message);
     }
 
@@ -98,7 +105,11 @@ public abstract class AbstractCommand implements Command {
      * 
      */
     protected final void log(String message, Object... args) {
-        getConfig().getEnvironment().sysout(message, args);
+
+        if (message.matches("[\\w]+(\\.[\\w]+)+"))
+            message = sm.getString(message, args);
+
+        getConfig().getEnvironment().sysout(message);
     }
 
     /**
