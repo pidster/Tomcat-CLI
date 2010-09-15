@@ -66,11 +66,10 @@ public class Console {
 
             URLClassLoader loader = createClassLoader();
 
-            // TODO can this be discovered, somehow?
             ServiceLoader<ConsoleUI> consoles = ServiceLoader.load(ConsoleUI.class, loader);
-
             if (!consoles.iterator().hasNext()) {
                 // FAIL
+                throw new Exception("ConsoleUI.class Implementation not found");
             }
 
             ConsoleUI consoleUI = consoles.iterator().next();
@@ -78,11 +77,11 @@ public class Console {
             // load services
             ServiceLoader<Command> commands = ServiceLoader.load(Command.class, loader);
             consoleUI.register(commands);
-
             consoleUI.process(arguments);
         }
         catch (Exception e) {
-            // If it fails here, a stacktrace is the best option
+            // If it fails here, a stacktrace is the best option, for now at
+            // least
             e.printStackTrace();
         }
     }
