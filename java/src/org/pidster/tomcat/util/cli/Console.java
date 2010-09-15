@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.pidster.tomcat.util.cli.impl.ConsoleUIImpl;
 import org.pidster.tomcat.util.cli.util.IO;
 
 /**
@@ -41,9 +40,18 @@ public class Console {
     private static final class JarFilenameFilter implements FilenameFilter {
         @Override
         public boolean accept(File dir, String name) {
-            if (name.endsWith(".jar")) {
+            if (!name.endsWith(".jar"))
+                return false;
+
+            if (name.matches("catalina(\\-\\w+)?\\.jar"))
                 return true;
-            }
+
+            if (name.matches("tomcat\\-\\w+?\\.jar"))
+                return true;
+
+            if (name.matches("\\w+\\-api.jar"))
+                return true;
+
             return false;
         }
     }
@@ -56,32 +64,44 @@ public class Console {
             if (arguments == null)
                 arguments = new String[0];
 
-            modifyClassLoader();
+            URLClassLoader loader = createClassLoader();
 
             // TODO can this be discovered, somehow?
-            ConsoleUI consoleUI = new ConsoleUIImpl();
+            ServiceLoader<ConsoleUI> consoles = ServiceLoader.load(ConsoleUI.class, loader);
+
+            if (!consoles.iterator().hasNext()) {
+                // FAIL
+            }
+
+            ConsoleUI consoleUI = consoles.iterator().next();
 
             // load services
-            ServiceLoader<Command> loader = ServiceLoader.load(Command.class);
-            consoleUI.register(loader);
+            ServiceLoader<Command> commands = ServiceLoader.load(Command.class, loader);
+            consoleUI.register(commands);
 
             consoleUI.process(arguments);
         }
-        catch (Throwable e) {
+        catch (Exception e) {
             // If it fails here, a stacktrace is the best option
             e.printStackTrace();
         }
     }
 
     /**
+     * Attempts to modify the classloader by auto-discovering and loading
+     * tools.jar. If the app is inside a Tomcat environment and can find
+     * catalina.home or a similar environment variable, then try to load select
+     * jars from that environment too.
+     * @return
+     * 
      * @throws MalformedURLException
      */
-    private static void modifyClassLoader() throws MalformedURLException {
+    private static URLClassLoader createClassLoader() throws MalformedURLException {
         List<URL> jars = new ArrayList<URL>();
 
-        File tools = new File(IO.path(System.getProperty("java.home"), "lib",
-                "tools.jar"));
-
+        // Automatically discover and load tools.jar
+        String toolsPath = IO.path(System.getProperty("java.home"), "lib", "tools.jar");
+        File tools = new File(toolsPath);
         if (tools.exists()) {
             jars.add(tools.toURI().toURL());
         }
@@ -108,7 +128,7 @@ public class Console {
 
         Thread t = Thread.currentThread();
         ClassLoader cl = t.getContextClassLoader();
-        URLClassLoader tl = new URLClassLoader(urls, cl);
-        t.setContextClassLoader(tl);
+
+        return new URLClassLoader(urls, cl);
     }
 }
