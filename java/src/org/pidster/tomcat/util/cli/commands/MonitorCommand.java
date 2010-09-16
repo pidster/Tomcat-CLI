@@ -39,6 +39,7 @@ public class MonitorCommand extends AbstractJMXCommand {
         // option --memory
         // option --threads
         // option --sessions
+        // option --datasources
         // option --frequency=3s
 
         log("Monitor...");

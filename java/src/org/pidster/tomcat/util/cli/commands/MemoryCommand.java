@@ -42,6 +42,19 @@ import org.pidster.tomcat.util.cli.Usage;
 public class MemoryCommand extends AbstractJMXCommand {
 
     /**
+     * @author pidster
+     * 
+     */
+    private final class ObjectNameComparator implements Comparator<ObjectName> {
+        @Override
+        public int compare(ObjectName o1, ObjectName o2) {
+            String type1 = attribute(o1, "Type");
+            String type2 = attribute(o2, "Type");
+            return type2.compareTo(type1);
+        }
+    }
+
+    /**
      * ${@inheritDoc}
      */
     @Override
@@ -49,42 +62,41 @@ public class MemoryCommand extends AbstractJMXCommand {
 
         try {
 
-            // TODO add OS memory stats
-            // java.lang:type=OperatingSystem]
-            // - MaxFileDescriptorCount=1024
-            // - CommittedVirtualMemorySize=747110400
-            // - FreePhysicalMemorySize=66084864
-            // - FreeSwapSpaceSize=939483136
-            // - ProcessCpuTime=345990000000
-            // - TotalPhysicalMemorySize=1831653376
-            // - TotalSwapSpaceSize=939515904
+            ObjectName system = query("java.lang:type=OperatingSystem").get(0);
+
+            log("tomcatcli.commands.memory.systemHeader");
+
+            // long maxFileDescriptorCount = attribute(system,
+            // "MaxFileDescriptorCount");
+            // long processCpuTime = attribute(system, "ProcessCpuTime");
+
+            Long freePhysicalMemorySize = attribute(system, "FreePhysicalMemorySize");
+            Long totalPhysicalMemorySize = attribute(system, "TotalPhysicalMemorySize");
+
+            Long committedVirtualMemorySize = attribute(system, "CommittedVirtualMemorySize");
+
+            Long freeSwapSpaceSize = attribute(system, "FreeSwapSpaceSize");
+            Long totalSwapSpaceSize = attribute(system, "TotalSwapSpaceSize");
+
+            log(String.format(" Physical: %s / %s    Swap: %s / %s    Committed VM: %s", format(totalPhysicalMemorySize
+                    - freePhysicalMemorySize), format(totalPhysicalMemorySize), format(totalSwapSpaceSize
+                    - freeSwapSpaceSize), format(totalSwapSpaceSize), format(committedVirtualMemorySize)));
 
             MemoryMXBean memory = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
                     ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
 
-            log("\nJVM Memory:");
-            log(" type ---------------------------------- init ---- used % ----- committed % ----------- max");
+            log("");
+            log("tomcatcli.commands.memory.overviewHeader");
 
-            displayMemoryUsage("HEAP", "", memory.getHeapMemoryUsage());
             displayMemoryUsage("NON_HEAP", "", memory.getNonHeapMemoryUsage());
+            displayMemoryUsage("HEAP", "", memory.getHeapMemoryUsage());
 
-            // TODO
-            // Query java.lang:type=MemoryPool,name=*
-            // to get attribute(pool, "Name")
-
-            log("\nMemory Pools:");
-            log(" type --- name ------------------------- init ---- used % ----- committed % ----------- max");
+            log("");
+            log("tomcatcli.commands.memory.segmentsHeader");
 
             List<ObjectName> pools = query("java.lang:type=MemoryPool,name=*");
 
-            Collections.sort(pools, new Comparator<ObjectName>() {
-                @Override
-                public int compare(ObjectName o1, ObjectName o2) {
-                    String type1 = attribute(o1, "Type");
-                    String type2 = attribute(o2, "Type");
-                    return type2.compareTo(type1);
-                }
-            });
+            Collections.sort(pools, new ObjectNameComparator());
 
             for (ObjectName obj : pools) {
                 String name = attribute(obj, "Name");
@@ -115,13 +127,11 @@ public class MemoryCommand extends AbstractJMXCommand {
      * @param mu
      */
     private void displayMemoryUsage(String type, String name, MemoryUsage mu) {
-        String template = " %-8s %-25s %9s %9s %-7s %9s %-7s %9s";
-
         Object[] args = new Object[] { type, name, format(mu.getInit()), format(mu.getUsed()),
                 perc(mu.getUsed(), mu.getMax()), format(mu.getCommitted()), perc(mu.getCommitted(), mu.getMax()),
                 format(mu.getMax()) };
 
-        log(template, args);
+        log(String.format(" %-8s %-25s %9s %9s %-7s %9s %-7s %9s", args));
     }
 
     /**

@@ -57,8 +57,9 @@ public class ThreadsCommand extends AbstractJMXCommand {
                     threads.setThreadCpuTimeEnabled(true);
             }
 
-            log(String.format("Thread count:%d peak:%d daemon:%d started:%d", threads.getThreadCount(),
-                    threads.getPeakThreadCount(), threads.getDaemonThreadCount(), threads.getTotalStartedThreadCount()));
+            log("Thread count:{0,number} peak:{1,number} daemon:{2,number} started:{3,number}",
+                    threads.getThreadCount(), threads.getPeakThreadCount(), threads.getDaemonThreadCount(),
+                    threads.getTotalStartedThreadCount());
 
             List<String> arguments = getConfig().getArguments();
 

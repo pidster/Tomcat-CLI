@@ -33,7 +33,7 @@ import org.pidster.tomcat.util.cli.util.StringManager;
         @Option(name = "interactive", single = 'I', description = "Enable interactive prompt") })
 public abstract class AbstractCommand implements Command {
 
-    // use a local StringManager instance
+    // use a local StringManager instance for all commands
     private final StringManager sm;
 
     private CommandConfig config;

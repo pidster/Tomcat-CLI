@@ -20,8 +20,11 @@ package org.pidster.tomcat.util.cli.commands;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.management.ObjectName;
 
 import org.pidster.tomcat.util.cli.commands.AbstractJMXCommand;
 import org.pidster.tomcat.util.cli.CommandException;
@@ -48,6 +51,8 @@ public class DiagnosticCommand extends AbstractJMXCommand {
 
         public double loadAverage;
 
+        public long usedSwapSpaceSize;
+
         private Report() {
             super();
         }
@@ -70,20 +75,26 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     public void execute() throws CommandException {
 
         String samples = getConfig().getOptionValue("samples");
+
+        // TODO make duration parsable, Ns Nm Nh, default 's'econds
         String duration = getConfig().getOptionValue("duration");
 
-        log("tomcatcli.commands.diagnostic.sampling", samples, duration);
-        log("tomcatcli.commands.diagnostic.starting");
-
+        long counter = 0;
         int maxSamples = Integer.parseInt(samples);
-        int counter = 0;
-        int delay = (Integer.parseInt(duration) * 60 * 1000) / maxSamples;
+
+        if (maxSamples > 1000)
+            maxSamples = 1000;
+
+        int delay = (Integer.parseInt(duration) * 1000) / maxSamples;
+
+        log("tomcatcli.commands.diagnostic.sampling", maxSamples, Integer.parseInt(duration));
+        log("tomcatcli.commands.diagnostic.starting");
 
         while (counter < maxSamples) {
 
             try {
                 if (isVerbose()) {
-                    log("Collecting sample %d...", counter);
+                    log("Collecting sample {0,number}...", counter);
                 }
                 else {
                     System.out.print(".");
@@ -104,7 +115,8 @@ public class DiagnosticCommand extends AbstractJMXCommand {
             counter++;
         }
 
-        log("\n%d samples collected, now processing...", counter);
+        log("");
+        log("{0,number} samples collected, now processing...", counter);
 
         process();
 
@@ -117,12 +129,17 @@ public class DiagnosticCommand extends AbstractJMXCommand {
      */
     private void collect() throws IOException {
 
+        ObjectName system = query("java.lang:type=OperatingSystem").get(0);
+
+        Long freeSwapSpaceSize = attribute(system, "FreeSwapSpaceSize");
+        Long totalSwapSpaceSize = attribute(system, "TotalSwapSpaceSize");
+
         OperatingSystemMXBean os = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
                 ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
 
         Report r = new Report();
-        // TODO collect system load average
         r.loadAverage = os.getSystemLoadAverage();
+        r.usedSwapSpaceSize = (totalSwapSpaceSize - freeSwapSpaceSize);
 
         // // TODO collect GC stats, monitor rate of minor / major GCs
         // GarbageCollectorMXBean gc =
@@ -155,10 +172,91 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     private void report() {
         log("Report:");
 
-        log(" load av ");
+        log(" run  load av  swap ---");
+
+        double minLoad = 0;
+        double maxLoad = 0;
+        double totalLoad = 0;
+
+        long minSwap = 0;
+        long maxSwap = 0;
+        long totalSwap = 0;
+
+        int index = 0;
         for (Report r : reports) {
-            log(" %s", r.loadAverage);
+
+            if (minLoad > r.loadAverage)
+                minLoad = r.loadAverage;
+
+            if (maxLoad < r.loadAverage)
+                maxLoad = r.loadAverage;
+
+            totalLoad += r.loadAverage;
+
+            if (minSwap > r.usedSwapSpaceSize)
+                minSwap = r.usedSwapSpaceSize;
+
+            if (maxSwap < r.usedSwapSpaceSize)
+                maxSwap = r.usedSwapSpaceSize;
+
+            totalSwap += r.usedSwapSpaceSize;
+
+            log(String.format(" %-4s %-8s %-8s", index, format(r.loadAverage), formatMegs(r.usedSwapSpaceSize)));
+            index++;
         }
+
+        log("");
+        log(String.format(" min  %-8s %-8s", format(minLoad), formatMegs(minSwap)));
+        log(String.format(" max  %-8s %-8s", format(maxLoad), formatMegs(maxSwap)));
+        log(String
+                .format(" avg  %-8s %-8s", format(totalLoad / reports.size()), formatMegs(totalSwap / reports.size())));
+
+        log("");
+
+        if ((totalLoad / reports.size()) > 2) {
+            // Log warning
+            log("ALERT!  Load is above normal");
+        }
+
+        if ((totalSwap / reports.size()) > 1024 * 32) {
+            // Log warning
+            log("ALERT!  Swap is above 32k, swap usage is bad for webservers");
+        }
+
+    }
+
+    /**
+     * @param fraction
+     * @param maximum
+     * @return formatted
+     */
+    private String perc(double fraction, double maximum) {
+
+        DecimalFormat df = new DecimalFormat("###0.0");
+
+        return df.format((fraction * 100) / maximum) + "%";
+    }
+
+    /**
+     * @param count
+     * @return formatted
+     */
+    private String formatMegs(double count) {
+
+        DecimalFormat df = new DecimalFormat("###0.0");
+
+        return df.format(count / (1024 * 1024)) + "M";
+    }
+
+    /**
+     * @param count
+     * @return formatted
+     */
+    private String format(double count) {
+
+        DecimalFormat df = new DecimalFormat("###0.00");
+
+        return df.format(count);
     }
 
 }
