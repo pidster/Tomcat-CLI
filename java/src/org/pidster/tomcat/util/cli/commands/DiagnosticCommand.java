@@ -18,8 +18,12 @@
 package org.pidster.tomcat.util.cli.commands;
 
 import java.io.IOException;
+import java.lang.management.ClassLoadingMXBean;
+import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.ThreadMXBean;
+import java.lang.management.MemoryManagerMXBean;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +53,41 @@ public class DiagnosticCommand extends AbstractJMXCommand {
      */
     private static class Report {
 
-        public double loadAverage;
+        double loadAverage;
 
-        public long usedSwapSpaceSize;
+        long usedSwapSpaceSize;
+
+        int countDeadLocked;
+
+        int countMonitorLocked;
+
+        int daemonThreadCount;
+
+        int peakThreadCount;
+
+        int threadCount;
+
+        long totalStartedThreads;
+
+        int loadedClassCount;
+
+        long unloadedClassCount;
+
+        long totalLoadedClassCount;
+
+        long totalCompilationTime;
+
+        long errorCount;
+
+        long requestCount;
+
+        int activeCount;
+
+        int completedTaskCount;
+
+        int poolSize;
+
+        int queueSize;
 
         private Report() {
             super();
@@ -94,9 +130,12 @@ public class DiagnosticCommand extends AbstractJMXCommand {
 
             try {
                 if (isVerbose()) {
-                    log("Collecting sample {0,number}...", counter);
+                    log("tomcatcli.commands.diagnostic.collecting", counter);
                 }
                 else {
+                    if ((counter > 0) && ((counter % 72) == 0))
+                        System.out.println();
+
                     System.out.print(".");
                 }
 
@@ -116,9 +155,9 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         }
 
         log("");
-        log("{0,number} samples collected, now processing...", counter);
+        log("tomcatcli.commands.diagnostic.processing", counter);
 
-        process();
+        analyze();
 
         report();
     }
@@ -128,6 +167,11 @@ public class DiagnosticCommand extends AbstractJMXCommand {
      * 
      */
     private void collect() throws IOException {
+
+        // TODO build MBeans in one go, then utilise
+
+        // TODO use j.u.c.ExecutorService
+        // with 3 threads to ensure collection is timely
 
         ObjectName system = query("java.lang:type=OperatingSystem").get(0);
 
@@ -141,19 +185,56 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         r.loadAverage = os.getSystemLoadAverage();
         r.usedSwapSpaceSize = (totalSwapSpaceSize - freeSwapSpaceSize);
 
-        // // TODO collect GC stats, monitor rate of minor / major GCs
+        // collect thread counts
+        ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
+
+        r.daemonThreadCount = threads.getDaemonThreadCount();
+        r.peakThreadCount = threads.getPeakThreadCount();
+        r.threadCount = threads.getThreadCount();
+        r.totalStartedThreads = threads.getTotalStartedThreadCount();
+
+        // collect blocked/locked threads
+        r.countDeadLocked = threads.findDeadlockedThreads().length;
+        r.countMonitorLocked = threads.findMonitorDeadlockedThreads().length;
+
+        // collect global request processor counts
+        // Assumes there's one in Service Catalina
+        ObjectName global = query("Catalina:type=GlobalRequestProcessor,name=*").get(0);
+        r.errorCount = attribute(global, "errorCount");
+        r.requestCount = attribute(global, "requestCount");
+
+        // TODO collect request processor counts
+        // examine individual RPs?
+
+        // collect executor pool stats, monitor peaking
+        ObjectName executor = query("Catalina:type=Executor,name=*").get(0);
+        r.activeCount = attribute(executor, "activeCount");
+        r.completedTaskCount = attribute(executor, "completedTaskCount");
+        r.poolSize = attribute(executor, "poolSize");
+        r.queueSize = attribute(executor, "queueSize");
+
+        // TODO collect datasource pool stats, monitor peaking
+        // Might need to be pool-specific
+
+        // Monitor compilation
+        CompilationMXBean compilation = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                ManagementFactory.COMPILATION_MXBEAN_NAME, CompilationMXBean.class);
+        r.totalCompilationTime = compilation.getTotalCompilationTime();
+
+        // collect webapp classloader count
+        ClassLoadingMXBean loading = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                ManagementFactory.CLASS_LOADING_MXBEAN_NAME, ClassLoadingMXBean.class);
+
+        r.loadedClassCount = loading.getLoadedClassCount();
+        r.unloadedClassCount = loading.getUnloadedClassCount();
+        r.totalLoadedClassCount = loading.getTotalLoadedClassCount();
+
+        // TODO collect GC stats, monitor rate of minor / major GCs
         // GarbageCollectorMXBean gc =
         // ManagementFactory.newPlatformMXBeanProxy(getConnection(),
         // ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",name=" +
         // name, GarbageCollectorMXBean.class);
-
-        // TODO collect thread error counts
-
-        // TODO collect executor pool stats, monitor peaking
-
-        // TODO collect datasource pool stats, monitor peaking
-
-        // TODO collect webapp classloader count
 
         this.reports.add(r);
     }
@@ -161,24 +242,25 @@ public class DiagnosticCommand extends AbstractJMXCommand {
     /**
      * 
      */
-    private void process() {
+    private void analyze() {
         // TODO find memory leaks from webapp reloads
-
+        // TODO find blocked, locked threads - follow object graph to find cause
+        // TODO Detect resource pool contention
     }
 
     /**
      * 
      */
     private void report() {
-        log("Report:");
+        log("tomcatcli.commands.diagnostic.report");
 
-        log(" run  load av  swap ---");
+        log("tomcatcli.commands.diagnostic.reportHeader");
 
-        double minLoad = 0;
+        double minLoad = reports.get(0).loadAverage;
         double maxLoad = 0;
         double totalLoad = 0;
 
-        long minSwap = 0;
+        long minSwap = reports.get(0).usedSwapSpaceSize;
         long maxSwap = 0;
         long totalSwap = 0;
 
@@ -210,6 +292,8 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         log(String.format(" max  %-8s %-8s", format(maxLoad), formatMegs(maxSwap)));
         log(String
                 .format(" avg  %-8s %-8s", format(totalLoad / reports.size()), formatMegs(totalSwap / reports.size())));
+
+        log(String.format(" var  %-8s %-8s", format(maxLoad - minLoad), formatMegs(maxSwap - minSwap)));
 
         log("");
 
