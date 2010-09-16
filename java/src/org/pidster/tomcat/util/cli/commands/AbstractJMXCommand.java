@@ -162,15 +162,19 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      */
     @Override
     public void cleanup() {
+        System.out.println("Cleaning up connection");
+
         if (!persistentConnection) {
             IO.close(connector);
-            connector = null;
+            // connector = null;
         }
+
         super.cleanup();
     }
 
     /**
      * @return connection
+     * @throws IOException
      */
     protected MBeanServerConnection getConnection() throws IOException {
         return connector.getMBeanServerConnection();

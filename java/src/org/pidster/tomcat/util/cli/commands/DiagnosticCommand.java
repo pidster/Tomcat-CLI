@@ -27,6 +27,14 @@ import java.lang.management.MemoryManagerMXBean;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.ObjectName;
 
@@ -50,44 +58,166 @@ public class DiagnosticCommand extends AbstractJMXCommand {
 
     /**
      * @author pidster
+     * 
+     */
+    private final class Collector implements Runnable {
+
+        @Override
+        public void run() {
+
+            long start = System.currentTimeMillis();
+
+            try {
+                if (isVerbose()) {
+                    log("tomcatcli.commands.diagnostic.collecting", initCounter.get());
+                }
+                else {
+                    if ((initCounter.get() > 0) && ((initCounter.get() % 72) == 0))
+                        System.out.println();
+
+                    System.out.print(".");
+                }
+
+                collect();
+                runCounter.incrementAndGet();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                System.out.println();
+            }
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("collection: " + (end - start) + "ms");
+        }
+
+        /**
+         * @throws IOException
+         * 
+         */
+        private void collect() throws IOException {
+
+            ObjectName system = query("java.lang:type=OperatingSystem").get(0);
+
+            ObjectName global = query("Catalina:type=GlobalRequestProcessor,name=*").get(0);
+
+            ObjectName executor = query("Catalina:type=Executor,name=*").get(0);
+
+            OperatingSystemMXBean os = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                    ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
+
+            ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                    ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
+
+            CompilationMXBean compilation = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                    ManagementFactory.COMPILATION_MXBEAN_NAME, CompilationMXBean.class);
+
+            ClassLoadingMXBean loading = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+                    ManagementFactory.CLASS_LOADING_MXBEAN_NAME, ClassLoadingMXBean.class);
+
+            // TODO build MBeans in one go, then utilise
+
+            // TODO use j.u.c.ExecutorService
+            // with 3 threads to ensure collection is timely
+
+            Long freeSwapSpaceSize = attribute(system, "FreeSwapSpaceSize");
+            Long totalSwapSpaceSize = attribute(system, "TotalSwapSpaceSize");
+
+            Report r = new Report();
+            r.loadAverage = os.getSystemLoadAverage();
+            r.usedSwapSpaceSize = (totalSwapSpaceSize - freeSwapSpaceSize);
+
+            // collect thread counts
+            r.daemonThreadCount = threads.getDaemonThreadCount();
+            r.peakThreadCount = threads.getPeakThreadCount();
+            r.threadCount = threads.getThreadCount();
+            r.totalStartedThreads = threads.getTotalStartedThreadCount();
+
+            // collect blocked/locked threads
+            if (threads.findDeadlockedThreads() != null) {
+                r.countDeadLocked = threads.findDeadlockedThreads().length;
+            }
+            if (threads.findMonitorDeadlockedThreads() != null) {
+                r.countMonitorLocked = threads.findMonitorDeadlockedThreads().length;
+            }
+
+            // collect global request processor counts
+            // Assumes there's one in Service Catalina
+            r.errorCount = attribute(global, "errorCount");
+            r.requestCount = attribute(global, "requestCount");
+
+            // TODO collect request processor counts
+            // examine individual RPs?
+
+            // collect executor pool stats, monitor peaking
+            r.activeCount = attribute(executor, "activeCount");
+            r.completedTaskCount = attribute(executor, "completedTaskCount");
+            r.poolSize = attribute(executor, "poolSize");
+            r.queueSize = attribute(executor, "queueSize");
+
+            // TODO collect datasource pool stats, monitor peaking
+            // Might need to be pool-specific
+
+            // Monitor compilation
+            r.totalCompilationTime = compilation.getTotalCompilationTime();
+
+            // collect webapp classloader count
+            r.loadedClassCount = loading.getLoadedClassCount();
+            r.unloadedClassCount = loading.getUnloadedClassCount();
+            r.totalLoadedClassCount = loading.getTotalLoadedClassCount();
+
+            // TODO collect GC stats, monitor rate of minor / major GCs
+            // GarbageCollectorMXBean gc =
+            // ManagementFactory.newPlatformMXBeanProxy(getConnection(),
+            // ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",name="
+            // +
+            // name, GarbageCollectorMXBean.class);
+
+            reports.add(r);
+        }
+
+    }
+
+    /**
+     * @author pidster
      */
     private static class Report {
 
-        double loadAverage;
+        double loadAverage = 0;
 
-        long usedSwapSpaceSize;
+        Long usedSwapSpaceSize = 0L;
 
-        int countDeadLocked;
+        Integer countDeadLocked = 0;
 
-        int countMonitorLocked;
+        Integer countMonitorLocked = 0;
 
-        int daemonThreadCount;
+        Integer daemonThreadCount = 0;
 
-        int peakThreadCount;
+        Integer peakThreadCount = 0;
 
-        int threadCount;
+        Integer threadCount = 0;
 
-        long totalStartedThreads;
+        Long totalStartedThreads = 0L;
 
-        int loadedClassCount;
+        Integer loadedClassCount = 0;
 
-        long unloadedClassCount;
+        Long unloadedClassCount = 0L;
 
-        long totalLoadedClassCount;
+        Long totalLoadedClassCount = 0L;
 
-        long totalCompilationTime;
+        Long totalCompilationTime = 0L;
 
-        long errorCount;
+        Integer errorCount = 0;
 
-        long requestCount;
+        Integer requestCount = 0;
 
-        int activeCount;
+        Integer activeCount = 0;
 
-        int completedTaskCount;
+        Long completedTaskCount = 0L;
 
-        int poolSize;
+        Integer poolSize = 0;
 
-        int queueSize;
+        Integer queueSize = 0;
 
         private Report() {
             super();
@@ -95,13 +225,41 @@ public class DiagnosticCommand extends AbstractJMXCommand {
 
     }
 
-    private final List<Report> reports;
+    private final AtomicLong initCounter;
+
+    private final AtomicLong runCounter;
+
+    private volatile List<Report> reports;
+
+    private final ExecutorService service;
 
     /**
      * 
      */
     public DiagnosticCommand() {
+        initCounter = new AtomicLong(0);
+        runCounter = new AtomicLong(0);
         reports = new ArrayList<Report>();
+
+        ThreadFactory factory = new ThreadFactory() {
+
+            private final AtomicLong serial = new AtomicLong(0);
+
+            private final ThreadGroup group = new ThreadGroup("CollectorGroup");
+
+            @Override
+            public Thread newThread(Runnable r) {
+
+                Thread t = new Thread(group, r, "collector-" + serial.incrementAndGet());
+
+                t.setDaemon(true);
+
+                return t;
+            }
+        };
+
+        service = Executors.newCachedThreadPool(factory);
+        // service = Executors.newFixedThreadPool(2, factory);
     }
 
     /**
@@ -115,128 +273,51 @@ public class DiagnosticCommand extends AbstractJMXCommand {
         // TODO make duration parsable, Ns Nm Nh, default 's'econds
         String duration = getConfig().getOptionValue("duration");
 
-        long counter = 0;
+        TimeUnit unit = TimeUnit.SECONDS;
+
         int maxSamples = Integer.parseInt(samples);
 
         if (maxSamples > 1000)
             maxSamples = 1000;
 
-        int delay = (Integer.parseInt(duration) * 1000) / maxSamples;
+        int delay = Integer.parseInt(duration) / maxSamples;
 
-        log("tomcatcli.commands.diagnostic.sampling", maxSamples, Integer.parseInt(duration));
-        log("tomcatcli.commands.diagnostic.starting");
-
-        while (counter < maxSamples) {
-
-            try {
-                if (isVerbose()) {
-                    log("tomcatcli.commands.diagnostic.collecting", counter);
-                }
-                else {
-                    if ((counter > 0) && ((counter % 72) == 0))
-                        System.out.println();
-
-                    System.out.print(".");
-                }
-
-                collect();
-                Thread.sleep(delay);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-                System.out.println();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-                System.out.println();
-            }
-
-            counter++;
+        if (delay < 1) {
+            delay = 1;
         }
 
-        log("");
-        log("tomcatcli.commands.diagnostic.processing", counter);
+        log("tomcatcli.commands.diagnostic.sampling", maxSamples, Integer.parseInt(duration), unit.toString()
+                .toLowerCase());
+        log("tomcatcli.commands.diagnostic.starting");
 
-        analyze();
+        try {
+            long start = System.currentTimeMillis();
 
-        report();
-    }
+            Collector collector = new Collector();
 
-    /**
-     * @throws IOException
-     * 
-     */
-    private void collect() throws IOException {
+            while (initCounter.get() < maxSamples) {
+                service.execute(collector);
+                Thread.sleep(delay * 1000);
+                initCounter.incrementAndGet();
+            }
 
-        // TODO build MBeans in one go, then utilise
+            while (runCounter.get() < maxSamples) {
+                Thread.sleep(1000);
+            }
 
-        // TODO use j.u.c.ExecutorService
-        // with 3 threads to ensure collection is timely
+            service.shutdown();
 
-        ObjectName system = query("java.lang:type=OperatingSystem").get(0);
+            log("");
+            log("tomcatcli.commands.diagnostic.processing", maxSamples);
 
-        Long freeSwapSpaceSize = attribute(system, "FreeSwapSpaceSize");
-        Long totalSwapSpaceSize = attribute(system, "TotalSwapSpaceSize");
+            analyze();
 
-        OperatingSystemMXBean os = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
-                ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME, OperatingSystemMXBean.class);
-
-        Report r = new Report();
-        r.loadAverage = os.getSystemLoadAverage();
-        r.usedSwapSpaceSize = (totalSwapSpaceSize - freeSwapSpaceSize);
-
-        // collect thread counts
-        ThreadMXBean threads = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
-                ManagementFactory.THREAD_MXBEAN_NAME, ThreadMXBean.class);
-
-        r.daemonThreadCount = threads.getDaemonThreadCount();
-        r.peakThreadCount = threads.getPeakThreadCount();
-        r.threadCount = threads.getThreadCount();
-        r.totalStartedThreads = threads.getTotalStartedThreadCount();
-
-        // collect blocked/locked threads
-        r.countDeadLocked = threads.findDeadlockedThreads().length;
-        r.countMonitorLocked = threads.findMonitorDeadlockedThreads().length;
-
-        // collect global request processor counts
-        // Assumes there's one in Service Catalina
-        ObjectName global = query("Catalina:type=GlobalRequestProcessor,name=*").get(0);
-        r.errorCount = attribute(global, "errorCount");
-        r.requestCount = attribute(global, "requestCount");
-
-        // TODO collect request processor counts
-        // examine individual RPs?
-
-        // collect executor pool stats, monitor peaking
-        ObjectName executor = query("Catalina:type=Executor,name=*").get(0);
-        r.activeCount = attribute(executor, "activeCount");
-        r.completedTaskCount = attribute(executor, "completedTaskCount");
-        r.poolSize = attribute(executor, "poolSize");
-        r.queueSize = attribute(executor, "queueSize");
-
-        // TODO collect datasource pool stats, monitor peaking
-        // Might need to be pool-specific
-
-        // Monitor compilation
-        CompilationMXBean compilation = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
-                ManagementFactory.COMPILATION_MXBEAN_NAME, CompilationMXBean.class);
-        r.totalCompilationTime = compilation.getTotalCompilationTime();
-
-        // collect webapp classloader count
-        ClassLoadingMXBean loading = ManagementFactory.newPlatformMXBeanProxy(getConnection(),
-                ManagementFactory.CLASS_LOADING_MXBEAN_NAME, ClassLoadingMXBean.class);
-
-        r.loadedClassCount = loading.getLoadedClassCount();
-        r.unloadedClassCount = loading.getUnloadedClassCount();
-        r.totalLoadedClassCount = loading.getTotalLoadedClassCount();
-
-        // TODO collect GC stats, monitor rate of minor / major GCs
-        // GarbageCollectorMXBean gc =
-        // ManagementFactory.newPlatformMXBeanProxy(getConnection(),
-        // ManagementFactory.GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",name=" +
-        // name, GarbageCollectorMXBean.class);
-
-        this.reports.add(r);
+            report();
+        }
+        catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
