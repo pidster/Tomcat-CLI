@@ -162,9 +162,15 @@ public abstract class AbstractJMXCommand extends AbstractCommand {
      */
     @Override
     public void cleanup() {
-        System.out.println("Cleaning up connection");
-
         if (!persistentConnection) {
+            if (isDebug()) {
+                try {
+                    log("Closing connection " + connector.getConnectionId());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             IO.close(connector);
             // connector = null;
         }
